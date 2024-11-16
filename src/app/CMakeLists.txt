@@ -654,6 +654,7 @@ target_sources(app-lib PRIVATE
   ui/main_menu_bar.cpp
   ui/main_window.cpp
   ui/mini_help_button.cpp
+  ui/multiline_entry.cpp
   ui/notifications.cpp
   ui/optional_alert.cpp
   ui/palette_popup.cpp

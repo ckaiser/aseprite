@@ -8,9 +8,16 @@
       <item icon="aseprite_face" />
       <item icon="aseprite_face_pushed" />
     </buttonset>
-    <entry multiline="false" maxsize="200" id="feedback_before" minwidth="140" expansive="true" text="@test.non_multiline" />
-    <entry multiline="true" maxsize="3072" id="feedback" minwidth="140" minheight="64" expansive="true" text="@test.multiline_entry" />
-    <entry multiline="true" maxsize="3072" id="feedback_after" minwidth="140" minheight="64" expansive="true" text="" />
+    <entry maxsize="200" id="feedback_before" minwidth="140" expansive="true" text="@test.non_multiline" />
+    
+    <entry_multiline text="@test.multiline_entry" />
+    
+    <!-- <entry_multiline id="eek" text="ah" /> -->
+    
+    <!-- <entry_multiline text="wah?" /> -->
+    
+    <entry maxsize="200" id="feedback_before2" minwidth="140" expansive="true" text="@test.non_multiline" />
+
     <hbox>
       <link text="More information..." url="https://www.aseprite.org/" />
       <boxfiller />

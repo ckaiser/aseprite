@@ -112,6 +112,10 @@ static Item convert_to_item(XMLElement* elem)
   if (name == "entry")
     return item.typeIncl("ui::Entry",
                          "ui/entry.h");
+
+  if (name == "entry_multiline")
+    return item.typeIncl("app::MultilineEntry", "app/ui/multiline_entry.h");
+
   if (name == "expr")
     return item.typeIncl("app::ExprEntry",
                          "app/ui/expr_entry.h");
