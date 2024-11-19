@@ -27,6 +27,7 @@ protected:
   void onSetText() override;
 
   bool onKeyDown(KeyMessage* keyMessage);
+  bool onMouseMove(MouseMessage* keyMessage);
 
   gfx::Size visibleSize() const override { return m_textSize; };
   gfx::Point viewScroll() const override
@@ -48,10 +49,8 @@ private:
   };
 
   struct Caret {
-    explicit Caret(std::vector<Line>* lines)
-      : m_lines(lines)
-    {
-    }
+    explicit Caret(std::vector<Line>* lines = nullptr)
+      : m_lines(lines) {}
 
     int line = 0;
     int pos = 0;
@@ -79,7 +78,7 @@ private:
       pos += 1;
 
       if (pos > (*m_lines)[line].text.size()) {
-        if (line == (*m_lines).size() - 1) {
+        if (line == m_lines->size() - 1) {
           pos -= 1;  // Undo movement, we've reached the end of the text.
           return false;
         }
@@ -93,24 +92,48 @@ private:
     }
 
     void up()
-    {  // TODO: Clamp manually with return values?
-      line = std::clamp(line - 1, 0, int((*m_lines).size()) - 1);
+    {
+      line = std::clamp(line - 1, 0, int(m_lines->size()) - 1);
       pos = std::clamp(pos, 0, int((*m_lines)[line].text.size()));
     }
 
     void down()
     {
-      line = std::clamp(line + 1, 0, int((*m_lines).size()) - 1);
+      line = std::clamp(line + 1, 0, int(m_lines->size()) - 1);
       pos = std::clamp(pos, 0, int((*m_lines)[line].text.size()));
     }
 
     bool lastInLine() { return pos == (*m_lines)[line].text.size(); }
 
-    bool lastLine() { return line == (*m_lines).size() - 1; }
+    bool lastLine() { return line == m_lines->size() - 1; }
+
+    bool valid() {
+      if (m_lines == nullptr)
+        return false;
+
+      if (line < 0 || line > m_lines->size())
+        return false;
+
+      if (pos < 0 || pos > (*m_lines)[line].text.size())
+        return false;
+
+      return true;
+    }
+    
+    void clear() {
+      m_lines = nullptr;
+      line = 0;
+      pos = 0;
+    }
 
     bool operator==(const Caret& other)
     {
       return line == other.line && pos == other.pos;
+    }
+
+    bool operator>(const Caret& other)
+    {
+      return (line == other.line) ? pos > other.pos : (line + pos) > (other.line + pos);
     }
 
   private:
@@ -118,34 +141,24 @@ private:
   };
 
   struct Selection {
-    int startLine = 0;
-    int endLine = 0;
-    int firstPos = 0;
-    int lastPos = 0;
+    Caret start;
+    Caret end;
 
     bool empty() const
     {
-      return (startLine == 0 && endLine == 0 && firstPos == 0 && lastPos == 0);
+      return (start.line == end.line && start.pos == end.pos);
     }
 
-    void combine(Caret c1, Caret c2)
-    {
-      if (empty()) {
-        startLine = c1.line;
-        endLine = c2.line;
-        firstPos = c1.pos;
-        lastPos = c2.pos;
-      }
-      endLine = c2.line;
-      lastPos = c2.pos;  // TODO: CAN'T GO BACKWARDS YET
+    void to(Caret caret) {
+      if (caret.line + caret.pos < start.line + start.pos)
+        start = caret;
+      else
+        end = caret;
     }
 
-    void clear()
-    {
-      startLine = 0;
-      endLine = 0;
-      firstPos = 0;
-      lastPos = 0;
+    void clear() {
+      start = Caret(nullptr); // std::optional?
+      end = Caret(nullptr);
     }
   };
 
@@ -154,12 +167,15 @@ private:
                          int i,
                          const Line& line,
                          const gfx::Point& offset);
+  Caret caretFromPosition(const gfx::Point& position);
   void insertCharacter(base::codepoint_t character);
   void deleteSelection();
   void rebuildTextFromLines();
 
   Selection m_selection;
   Caret m_caret;
+
+  Caret m_mouseCaretStart;
 
   std::vector<Line> m_lines;
 

@@ -18,8 +18,8 @@
 
 #include "base/split_string.h"
 
-#include "laf/text/font_mgr.h"
-#include "laf/text/text_blob.h"
+#include "text/font_mgr.h"
+#include "text/text_blob.h"
 
 #include "os/system.h"
 
@@ -31,9 +31,9 @@ using namespace ui;
 
 MultilineEntry::MultilineEntry()
   : Widget(kGenericWidget)  // TODO: kEntryWidget?
+  , m_caret(&m_lines)
   , m_hScroll(HORIZONTAL, this)
   , m_vScroll(VERTICAL, this)
-  , m_caret(&m_lines)
 {
   enableFlags(CTRL_RIGHT_CLICK);
 
@@ -61,6 +61,23 @@ bool MultilineEntry::onProcessMessage(Message* msg)
       if (hasFocus() && onKeyDown(static_cast<KeyMessage*>(msg))) {
         invalidate();  // TODO: Rect?
         return true;
+      }
+    } break;
+    case kMouseDownMessage:
+      captureMouse();
+      m_selection.clear();
+
+      [[fallthrough]];
+    case kMouseMoveMessage:
+      if (hasCapture() && onMouseMove(static_cast<MouseMessage*>(msg))) {
+        invalidate();
+        return true;
+      }
+    break;
+    case kMouseUpMessage: {
+      if (hasCapture()) {
+        releaseMouse();
+        m_mouseCaretStart.clear();
       }
     } break;
   }
@@ -136,10 +153,9 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
             // If we are now the last in a line after moving left, it means we
             // moved up and need to remove a newline.
 
-            // TODO: Maybe a function to just merge lines easily with just like,
-            // looping through m_lines and merging and then rebuildingFromLines?
-
-            m_selection = Selection{ m_caret.line, m_caret.line + 1, m_caret.pos, 0 };
+            Caret caretEnd = m_caret;
+            caretEnd.right();
+            m_selection = Selection{ m_caret, caretEnd };
             deleteSelection();
             return true;
           }
@@ -149,8 +165,10 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
           if (m_caret.lastLine())
             return false;  // Nothing to delete on the last line.
 
-          // Generate a new selection to delete the newline.
-          m_selection = Selection{ m_caret.line, m_caret.line + 1, m_caret.pos, 0 };
+          // Generate a new selection to delete the newline
+          Caret caretEnd = m_caret;
+          caretEnd.right(); // TODO: Duplicated :(
+          m_selection = Selection{ m_caret, caretEnd };
           deleteSelection();
           return true;
         }
@@ -177,11 +195,44 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
   }
 
   if (alterSelection) {
-    m_selection.combine(prevCaret, m_caret);
+    if (m_selection.empty()) {
+      m_selection.start = prevCaret;
+    }
+
+    m_selection.to(m_caret);
+  }
+  else
+    m_selection.clear();
+
+  return true;
+}
+
+bool MultilineEntry::onMouseMove(MouseMessage* mouseMessage)
+{
+  Caret mouseCaret = caretFromPosition(mouseMessage->position());
+  if (mouseCaret.valid()) {
+    m_caret = mouseCaret;
+
+    if (!m_mouseCaretStart.valid()) {
+      m_mouseCaretStart = m_caret;
+      return true;
+    }
+
+    if (m_caret > m_mouseCaretStart) {
+      m_selection.start = m_mouseCaretStart;
+      m_selection.end = m_caret;
+    }
+    else {
+      m_selection.start = m_caret;
+      m_selection.end = m_mouseCaretStart;
+    }
   }
   else {
-    m_selection.clear();
+    TRACE("No caret.\n");
+    // TODO: Go up if up, go down if down.
+    return false;
   }
+
   return true;
 }
 
@@ -211,7 +262,7 @@ void MultilineEntry::onPaint(PaintEvent& ev)
       if (m_caret.pos > 0) {
         line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
           for (int i = 0; i < m_caret.pos; ++i) {
-            auto& bounds = run.getGlyphBounds(i);
+            const gfx::RectF bounds = run.getGlyphBounds(i);
             caretX += bounds.w;
           }
         });
@@ -239,7 +290,7 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
   if (m_selection.empty())
     return;
 
-  if (m_selection.startLine > i || m_selection.endLine < i)
+  if (m_selection.start.line > i || m_selection.end.line < i)
     return;
 
   gfx::Rect selectionRect(offset, gfx::Size(0, line.height));
@@ -252,33 +303,33 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
   else if (
     // Detect when this entire line is selected, to avoid doing any runs and just painting it al
     // Case 1: Start and end line is this line, and the firstPos and endPos is 0 and the line's length.
-    (m_selection.startLine == i && m_selection.endLine == i &&
-     m_selection.firstPos == 0 && m_selection.lastPos == line.text.size())
+    (m_selection.start.line == i && m_selection.end.line == i &&
+     m_selection.start.pos == 0 && m_selection.end.pos == line.text.size())
     // Case 2: We start at this line and position zero, we end in a higher line.
-    || (m_selection.startLine == i && m_selection.firstPos == 0 &&
-        m_selection.endLine > i)
+    || (m_selection.start.line == i && m_selection.start.pos == 0 &&
+        m_selection.end.line > i)
     // Case 3: We started on a previous line, and we continue on another.
-    || (m_selection.startLine < i && m_selection.endLine > i)) {
+    || (m_selection.start.line < i && m_selection.end.line > i)) {
     selectionRect.w = line.blob->bounds().w;
   }
-  else if (m_selection.startLine < i && m_selection.endLine == i) {
+  else if (m_selection.start.line < i && m_selection.end.line == i) {
     // The selection ends in this line, starts from the leftmost side TODO : RTL ?
     line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
-      for (int i = 0; i < m_selection.lastPos; ++i)
+      for (int i = 0; i < m_selection.end.pos; ++i)
         selectionRect.w += run.getGlyphBounds(i).w;
     });
   }
-  else if (m_selection.startLine == i) {
+  else if (m_selection.start.line == i) {
     // The selection starts in this line at an offset position, and ends at the end of the run
     line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
       size_t max = run.glyphCount;
 
-      if (m_selection.endLine == i) {
-        max = m_selection.lastPos;
+      if (m_selection.end.line == i) {
+        max = m_selection.end.pos;
       }
 
       for (int i = 0; i < max; ++i) {
-        if (i < m_selection.firstPos)
+        if (i < m_selection.start.pos)
           selectionRect.x += run.getGlyphBounds(i).w;
         else
           selectionRect.w += run.getGlyphBounds(i).w;
@@ -293,9 +344,58 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
   g->fillRect(
     hasFocus() ?
       theme->colors.selected() :
-      gfx::seta(theme->colors.selected(),
-                50),  // TODO: Put color in theme? do we even want this?
+      gfx::seta(theme->colors.selected(), 50),  // TODO: Put color in theme? do we even want this?
     selectionRect);
+}
+
+MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& position)
+{
+  if (!bounds().contains(position))
+    return Caret(nullptr);
+
+  // Normalize the mouse position to the internal coordinates of the widget
+  // TODO: Scrolling offsets.
+  gfx::Point offsetPosition(position.x - (bounds().x + border().left()),
+                            position.y - (bounds().y + border().top()));
+
+  Caret caret(&m_lines);
+  int lineHeight = textHeight();
+
+  for (const Line& line : m_lines) {
+    int lineStartY = line.i * lineHeight;
+    int lineEndY = (line.i + 1) * lineHeight;
+
+    if (offsetPosition.y >= lineStartY && offsetPosition.y <= lineEndY) {
+      int charX = 0;
+
+      caret.line = line.i;
+
+      if (!line.blob)
+        break;
+
+      line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
+        for (int i = 0; i < run.glyphCount; ++i) {
+          int charWidth = run.getGlyphBounds(i).w;
+
+          if (offsetPosition.x >= charX &&
+              offsetPosition.x <= charX + charWidth) {
+            caret.pos = i;
+            return;
+          }
+          charX += charWidth;
+        }
+
+        // Empty space:
+        caret.pos = line.text.size();
+      });
+      break;
+    }
+  }
+
+  if (!caret.valid())
+    return Caret(nullptr);
+  
+  return caret;
 }
 
 void MultilineEntry::insertCharacter(base::codepoint_t character)
@@ -313,28 +413,27 @@ void MultilineEntry::deleteSelection()
   if (m_selection.empty())
     return;
 
-  if (m_selection.startLine == m_selection.endLine) {
-    m_lines[m_selection.startLine].text.erase(
-      m_lines[m_selection.startLine].text.begin() + m_selection.firstPos,
-      m_lines[m_selection.startLine].text.begin() + m_selection.lastPos);
+  if (m_selection.start.line == m_selection.end.line) {
+    m_lines[m_selection.start.line].text.erase(
+      m_lines[m_selection.start.line].text.begin() + m_selection.start.pos,
+      m_lines[m_selection.start.line].text.begin() + m_selection.end.pos);
     rebuildTextFromLines();
   }
   else {
     int posStart = 0;
     int posEnd = 0;
-    for (const auto& line : m_lines) {
-      if (line.i < m_selection.startLine)
-        posStart += line.text.size() +
-                    1;  // Account for the unseen "\n" newline character.
+    for (const Line& line : m_lines) {
+      if (line.i < m_selection.start.line)
+        posStart += line.text.size() + 1;  // Account for the unseen "\n" newline character.
 
-      if (line.i < m_selection.endLine)
+      if (line.i < m_selection.end.line)
         posEnd += line.text.size() + 1;
 
-      if (m_selection.startLine == line.i)
-        posStart += m_selection.firstPos;
+      if (m_selection.start.line == line.i)
+        posStart += m_selection.start.pos;
 
-      if (m_selection.endLine == line.i)
-        posEnd += m_selection.lastPos;
+      if (m_selection.end.line == line.i)
+        posEnd += m_selection.end.pos;
     }
 
     std::string newText = text();
@@ -343,8 +442,8 @@ void MultilineEntry::deleteSelection()
     setText(newText);
   }
 
-  m_caret.line = m_selection.startLine;
-  m_caret.pos = m_selection.firstPos;
+  m_caret.line = m_selection.start.line;
+  m_caret.pos = m_selection.start.pos;
   m_selection.clear();
 }
 
@@ -353,7 +452,7 @@ void MultilineEntry::rebuildTextFromLines()
   // Rebuild the widget text from the lines, TODO: Hinting as to what changed in a signal
   // for onSetText.
   std::string newText;
-  for (auto& line = m_lines.begin(); line != m_lines.end(); ++line) {
+  for (auto line = m_lines.begin(); line != m_lines.end(); ++line) {
     newText.append((*line).text);
     if (line != m_lines.end())
       newText.append("\n");
