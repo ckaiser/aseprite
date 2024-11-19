@@ -21,9 +21,9 @@ public:
   MultilineEntry();
 
 protected:
-  void onSizeHint(SizeHintEvent& ev) override;
   bool onProcessMessage(Message* msg) override;
   void onPaint(PaintEvent& ev) override;
+  void onResize(ResizeEvent& ev) override;
   void onSetText() override;
 
   bool onKeyDown(KeyMessage* keyMessage);
@@ -107,7 +107,8 @@ private:
 
     bool lastLine() { return line == m_lines->size() - 1; }
 
-    bool valid() {
+    bool valid()
+    {
       if (m_lines == nullptr)
         return false;
 
@@ -120,7 +121,8 @@ private:
       return true;
     }
     
-    void clear() {
+    void clear()
+    {
       m_lines = nullptr;
       line = 0;
       pos = 0;
@@ -149,7 +151,8 @@ private:
       return (start.line == end.line && start.pos == end.pos);
     }
 
-    void to(Caret caret) {
+    void to(const Caret& caret)
+    {
       if (caret.line + caret.pos < start.line + start.pos)
         start = caret;
       else
@@ -171,16 +174,19 @@ private:
   void insertCharacter(base::codepoint_t character);
   void deleteSelection();
   void rebuildTextFromLines();
+  void updateScrollBars();
+
+  void startTimer();
+  void stopTimer();
 
   Selection m_selection;
   Caret m_caret;
-
   Caret m_mouseCaretStart;
 
   std::vector<Line> m_lines;
 
   // Whether or not we're currently drawing the caret, driven by a timer.
-  bool m_drawCaret = true;  // TODO: Attach to timer.
+  bool m_drawCaret = false;
 
   // The total size of the complete text, calculated as the longest single line width and the sum of the total line heights
   gfx::Size m_textSize;

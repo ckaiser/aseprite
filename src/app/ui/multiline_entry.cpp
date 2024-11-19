@@ -10,24 +10,25 @@
 #endif
 
 #include "app/ui/multiline_entry.h"
-#include "ui/paint_event.h"
-#include "ui/size_hint_event.h"
-#include "ui/theme.h"
-
-#include "app/ui/skin/skin_theme.h"  //?
-
+#include "app/ui/skin/skin_theme.h"
 #include "base/split_string.h"
-
+#include "os/system.h"
 #include "text/font_mgr.h"
 #include "text/text_blob.h"
-
-#include "os/system.h"
-
 #include "ui/message.h"
+#include "ui/paint_event.h"
+#include "ui/resize_event.h"
+#include "ui/scroll_helper.h"
+#include "ui/size_hint_event.h"
+#include "ui/theme.h"
+#include "ui/timer.h"
 
 namespace app {
 
 using namespace ui;
+
+// Shared timer between all entries.
+static std::unique_ptr<Timer> s_timer;
 
 MultilineEntry::MultilineEntry()
   : Widget(kGenericWidget)  // TODO: kEntryWidget?
@@ -37,23 +38,33 @@ MultilineEntry::MultilineEntry()
 {
   enableFlags(CTRL_RIGHT_CLICK);
 
+  auto theme = skin::SkinTheme::get(this);
+  const int scrollBarWidth = theme->dimensions.miniScrollbarSize();
+  m_hScroll.setBarWidth(scrollBarWidth);
+  m_vScroll.setBarWidth(scrollBarWidth);
+
   setFocusStop(true);
   initTheme();
-}
-
-void MultilineEntry::onSizeHint(SizeHintEvent& ev)
-{
-  ev.setSizeHint(m_textSize + border().size());  // ?
 }
 
 bool MultilineEntry::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
+    case kTimerMessage: {
+      if (hasFocus() &&
+          static_cast<TimerMessage*>(msg)->timer() == s_timer.get()) {
+        m_drawCaret = !m_drawCaret;
+        invalidate();
+      }
+    } break;
     case kFocusEnterMessage: {
+      m_drawCaret = true; // Immediately draw the caret for fast UI feedback.
+      startTimer();
       os::System::instance()->setTranslateDeadKeys(true);
       invalidate();
     } break;
     case kFocusLeaveMessage: {
+      stopTimer();
       os::System::instance()->setTranslateDeadKeys(false);
       invalidate();
     } break;
@@ -79,6 +90,22 @@ bool MultilineEntry::onProcessMessage(Message* msg)
         releaseMouse();
         m_mouseCaretStart.clear();
       }
+    } break;
+    case kMouseWheelMessage: {
+      auto mouseMsg = static_cast<MouseMessage*>(msg);
+      gfx::Point scroll = viewScroll();
+
+      if (mouseMsg->preciseWheel())
+        scroll += mouseMsg->wheelDelta();
+      else
+        scroll += mouseMsg->wheelDelta() * textHeight() * 3;
+
+      if (mouseMsg->ctrlPressed()) {
+        // Sideways scrolling with CTRL.
+        scroll = gfx::Point(scroll.y, scroll.x);
+      }
+
+      setViewScroll(scroll);
     } break;
   }
 
@@ -245,10 +272,12 @@ void MultilineEntry::onPaint(PaintEvent& ev)
   gfx::Rect rect(gfx::Point(0, 0), size());
   g->fillRect(theme->colors.textboxFace(), rect);
 
+  const auto& scroll = viewScroll();
   gfx::Point point(border().left(), border().top());
+  point -= scroll;
 
-  int caretX = 0;
-  int caretY = 0;
+  int caretX = -scroll.x;
+  int caretY = -scroll.y;
 
   for (const auto& line : m_lines) {
     // Drawing the selection rect (if any)
@@ -276,10 +305,18 @@ void MultilineEntry::onPaint(PaintEvent& ev)
 
   // Drawing caret:
   if (m_drawCaret)
-    g->drawVLine(gfx::rgba(0, 255, 0) /* theme->colors.text() */,
+    g->drawVLine(theme->colors.text(),
                  caretX,
                  caretY,
                  textHeight());
+}
+
+void MultilineEntry::onResize(ResizeEvent& ev)
+{
+  gfx::Rect rc = ev.bounds();
+  setBoundsQuietly(rc);
+
+  updateScrollBars();
 }
 
 void MultilineEntry::drawSelectionRect(Graphics* g,
@@ -357,6 +394,8 @@ MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& positi
   // TODO: Scrolling offsets.
   gfx::Point offsetPosition(position.x - (bounds().x + border().left()),
                             position.y - (bounds().y + border().top()));
+
+  offsetPosition += viewScroll();
 
   Caret caret(&m_lines);
   int lineHeight = textHeight();
@@ -515,14 +554,26 @@ void MultilineEntry::onSetText()
   m_textSize.w = longestWidth;
   m_textSize.h = totalHeight;
 
+  updateScrollBars();
   Widget::onSetText();
+}
+
+void MultilineEntry::updateScrollBars()
+{ 
+  ui::setup_scrollbars(
+    m_textSize,
+    clientBounds().offset(bounds().origin()),
+    *this,
+    m_hScroll,
+    m_vScroll
+  );
+
+  setViewScroll(viewScroll());
 }
 
 void MultilineEntry::setViewScroll(const gfx::Point& pt)
 {
   // TODO for scroll stuff -
-  // updateScrollBars/setViewScroll and react to onResize and use setup_scrollbars.
-  /*
   const gfx::Point oldScroll = viewScroll();
   const gfx::Point maxPos(m_textSize.w, m_textSize.h);
 
@@ -531,14 +582,29 @@ void MultilineEntry::setViewScroll(const gfx::Point& pt)
   newScroll.y = std::clamp(newScroll.y, 0, maxPos.y);
 
   if (newScroll != oldScroll) {
-    TRACE("Invalidating because of setViewScroll");
-    // TODO: Invalidate a rect?
+    // TODO: Invalidate a rect
     invalidate();
   }
 
   m_hScroll.setPos(newScroll.x);
   m_vScroll.setPos(newScroll.y);
-  */
 }
+
+void MultilineEntry::startTimer()
+{
+  if (s_timer)
+    s_timer->stop();
+  s_timer = std::make_unique<Timer>(500, this);
+  s_timer->start();
+}
+
+void MultilineEntry::stopTimer()
+{
+  if (s_timer) {
+    s_timer->stop();
+    s_timer.reset();
+  }
+}
+
 
 }  // namespace app
