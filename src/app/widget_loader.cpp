@@ -264,7 +264,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem, Widget* 
     if (elem_name == "expr" && decimals)
       ((ExprEntry*)widget)->setDecimals(strtol(decimals, nullptr, 10));
   }
-  else if (elem_name == "entry_multiline") {
+  else if (elem_name == "textbox") {
     widget = new MultilineEntry();
 
 

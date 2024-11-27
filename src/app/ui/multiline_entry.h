@@ -10,31 +10,25 @@
 #pragma once
 
 #include "ui/box.h"
-#include "ui/scroll_bar.h"
+#include "ui/view.h"
 
 namespace app {
 using namespace ui;
 
 class MultilineEntry : public Widget,
-                       public ScrollableViewDelegate {
+                       public ViewableWidget {
 public:
   MultilineEntry();
 
 protected:
   bool onProcessMessage(Message* msg) override;
   void onPaint(PaintEvent& ev) override;
-  void onResize(ResizeEvent& ev) override;
+  void onSizeHint(SizeHintEvent& ev) override;
+  void onScrollRegion(ScrollRegionEvent& ev) override;
   void onSetText() override;
 
   bool onKeyDown(KeyMessage* keyMessage);
   bool onMouseMove(MouseMessage* keyMessage);
-
-  gfx::Size visibleSize() const override { return m_textSize; };
-  gfx::Point viewScroll() const override
-  {
-    return gfx::Point(m_hScroll.getPos(), m_vScroll.getPos());
-  }
-  void setViewScroll(const gfx::Point& pt) override;
 
 private:
   struct Line {
@@ -174,7 +168,6 @@ private:
   void insertCharacter(base::codepoint_t character);
   void deleteSelection();
   void rebuildTextFromLines();
-  void updateScrollBars();
 
   void startTimer();
   void stopTimer();
@@ -190,9 +183,6 @@ private:
 
   // The total size of the complete text, calculated as the longest single line width and the sum of the total line heights
   gfx::Size m_textSize;
-
-  ScrollBar m_hScroll;
-  ScrollBar m_vScroll;
 };
 
 }  // namespace app

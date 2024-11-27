@@ -22,6 +22,7 @@
 #include "ui/size_hint_event.h"
 #include "ui/theme.h"
 #include "ui/timer.h"
+#include "ui/view.h"
 
 namespace app {
 
@@ -31,19 +32,14 @@ using namespace ui;
 static std::unique_ptr<Timer> s_timer;
 
 MultilineEntry::MultilineEntry()
-  : Widget(kGenericWidget)  // TODO: kEntryWidget?
+  : Widget(kGenericWidget)
   , m_caret(&m_lines)
-  , m_hScroll(HORIZONTAL, this)
-  , m_vScroll(VERTICAL, this)
 {
   enableFlags(CTRL_RIGHT_CLICK);
-
-  auto theme = skin::SkinTheme::get(this);
-  const int scrollBarWidth = theme->dimensions.miniScrollbarSize();
-  m_hScroll.setBarWidth(scrollBarWidth);
-  m_vScroll.setBarWidth(scrollBarWidth);
-
   setFocusStop(true);
+  InitTheme.connect([this] {
+    this->setBorder(gfx::Border(2) * guiscale()); // TODO: Move to theme
+  });
   initTheme();
 }
 
@@ -93,7 +89,8 @@ bool MultilineEntry::onProcessMessage(Message* msg)
     } break;
     case kMouseWheelMessage: {
       auto mouseMsg = static_cast<MouseMessage*>(msg);
-      gfx::Point scroll = viewScroll();
+      auto* view = View::getView(this);
+      gfx::Point scroll = view->viewScroll();
 
       if (mouseMsg->preciseWheel())
         scroll += mouseMsg->wheelDelta();
@@ -105,7 +102,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
         scroll = gfx::Point(scroll.y, scroll.x);
       }
 
-      setViewScroll(scroll);
+      view->setViewScroll(scroll);
     } break;
   }
 
@@ -268,11 +265,12 @@ void MultilineEntry::onPaint(PaintEvent& ev)
   // TODO: Move to theme?
   Graphics* g = ev.graphics();
   auto theme = skin::SkinTheme::get(this);
+  auto view = View::getView(this);
 
-  gfx::Rect rect(gfx::Point(0, 0), size());
+  gfx::Rect rect = view->viewportBounds().offset(-bounds().origin());
   g->fillRect(theme->colors.textboxFace(), rect);
 
-  const auto& scroll = viewScroll();
+  const auto& scroll = view->viewScroll();
   gfx::Point point(border().left(), border().top());
   point -= scroll;
 
@@ -311,12 +309,25 @@ void MultilineEntry::onPaint(PaintEvent& ev)
                  textHeight());
 }
 
-void MultilineEntry::onResize(ResizeEvent& ev)
+void MultilineEntry::onSizeHint(SizeHintEvent& ev)
 {
-  gfx::Rect rc = ev.bounds();
-  setBoundsQuietly(rc);
+  ev.setSizeHint(m_textSize);
 
-  updateScrollBars();
+  auto view = View::getView(this);
+  if (view) {
+    auto theme = skin::SkinTheme::get(this);
+    const int scrollBarWidth = theme->dimensions.miniScrollbarSize();
+
+    if (view->horizontalBar())
+      view->horizontalBar()->setBarWidth(scrollBarWidth);
+    if (view->verticalBar())
+      view->verticalBar()->setBarWidth(scrollBarWidth);
+  }
+}
+
+void MultilineEntry::onScrollRegion(ScrollRegionEvent& ev)
+{
+  invalidate();
 }
 
 void MultilineEntry::drawSelectionRect(Graphics* g,
@@ -395,7 +406,7 @@ MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& positi
   gfx::Point offsetPosition(position.x - (bounds().x + border().left()),
                             position.y - (bounds().y + border().top()));
 
-  offsetPosition += viewScroll();
+  offsetPosition += View::getView(this)->viewScroll();
 
   Caret caret(&m_lines);
   int lineHeight = textHeight();
@@ -554,40 +565,11 @@ void MultilineEntry::onSetText()
   m_textSize.w = longestWidth;
   m_textSize.h = totalHeight;
 
-  updateScrollBars();
+  auto* view = View::getView(this);
+  if (view)
+    view->updateView();
+
   Widget::onSetText();
-}
-
-void MultilineEntry::updateScrollBars()
-{ 
-  ui::setup_scrollbars(
-    m_textSize,
-    clientBounds().offset(bounds().origin()),
-    *this,
-    m_hScroll,
-    m_vScroll
-  );
-
-  setViewScroll(viewScroll());
-}
-
-void MultilineEntry::setViewScroll(const gfx::Point& pt)
-{
-  // TODO for scroll stuff -
-  const gfx::Point oldScroll = viewScroll();
-  const gfx::Point maxPos(m_textSize.w, m_textSize.h);
-
-  gfx::Point newScroll = pt;
-  newScroll.x = std::clamp(newScroll.x, 0, maxPos.x);
-  newScroll.y = std::clamp(newScroll.y, 0, maxPos.y);
-
-  if (newScroll != oldScroll) {
-    // TODO: Invalidate a rect
-    invalidate();
-  }
-
-  m_hScroll.setPos(newScroll.x);
-  m_vScroll.setPos(newScroll.y);
 }
 
 void MultilineEntry::startTimer()

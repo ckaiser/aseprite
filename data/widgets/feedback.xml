@@ -9,7 +9,9 @@
       <item icon="aseprite_face_pushed" />
     </buttonset>
    
-    <entry_multiline width="210" height="44" text="@test.multiline_entry" expansive="true" />
+    <view width="210" height="60">
+      <textbox text="@test.multiline_entry" />
+    </view>
     
     <hbox>
       <link text="More information..." url="https://www.aseprite.org/" />
