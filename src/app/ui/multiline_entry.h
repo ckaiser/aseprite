@@ -168,6 +168,7 @@ private:
   void insertCharacter(base::codepoint_t character);
   void deleteSelection();
   void rebuildTextFromLines();
+  void ensureCaretVisible();
 
   void startTimer();
   void stopTimer();
@@ -180,6 +181,9 @@ private:
 
   // Whether or not we're currently drawing the caret, driven by a timer.
   bool m_drawCaret = false;
+
+  // The last position the caret was drawn, to invalidate that region when repainting.
+  gfx::Rect m_caretRect;
 
   // The total size of the complete text, calculated as the longest single line width and the sum of the total line heights
   gfx::Size m_textSize;

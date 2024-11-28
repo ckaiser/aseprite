@@ -20,6 +20,7 @@
 #include "ui/resize_event.h"
 #include "ui/scroll_helper.h"
 #include "ui/size_hint_event.h"
+#include "ui/scroll_region_event.h"
 #include "ui/theme.h"
 #include "ui/timer.h"
 #include "ui/view.h"
@@ -50,7 +51,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
       if (hasFocus() &&
           static_cast<TimerMessage*>(msg)->timer() == s_timer.get()) {
         m_drawCaret = !m_drawCaret;
-        invalidate();
+        invalidateRect(m_caretRect);
       }
     } break;
     case kFocusEnterMessage: {
@@ -66,17 +67,22 @@ bool MultilineEntry::onProcessMessage(Message* msg)
     } break;
     case kKeyDownMessage: {
       if (hasFocus() && onKeyDown(static_cast<KeyMessage*>(msg))) {
-        invalidate();  // TODO: Rect?
+        m_drawCaret = true;
+        ensureCaretVisible();
+        invalidate();
         return true;
       }
     } break;
     case kMouseDownMessage:
       captureMouse();
+      stopTimer();
+      m_drawCaret = true;
       m_selection.clear();
 
       [[fallthrough]];
     case kMouseMoveMessage:
       if (hasCapture() && onMouseMove(static_cast<MouseMessage*>(msg))) {
+        ensureCaretVisible();
         invalidate();
         return true;
       }
@@ -84,6 +90,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
     case kMouseUpMessage: {
       if (hasCapture()) {
         releaseMouse();
+        startTimer();
         m_mouseCaretStart.clear();
       }
     } break;
@@ -95,12 +102,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
       if (mouseMsg->preciseWheel())
         scroll += mouseMsg->wheelDelta();
       else
-        scroll += mouseMsg->wheelDelta() * textHeight() * 3;
-
-      if (mouseMsg->ctrlPressed()) {
-        // Sideways scrolling with CTRL.
-        scroll = gfx::Point(scroll.y, scroll.x);
-      }
+        scroll += mouseMsg->wheelDelta() * textHeight();
 
       view->setViewScroll(scroll);
     } break;
@@ -152,15 +154,9 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
     } break;
     case kKeyUp: {
       m_caret.up();
-
-      if (m_caret == prevCaret)
-        return false;
     } break;
     case kKeyDown: {
       m_caret.down();
-
-      if (m_caret == prevCaret)
-        return false;
     } break;
     case kKeyBackspace:
       [[fallthrough]];
@@ -234,27 +230,23 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
 bool MultilineEntry::onMouseMove(MouseMessage* mouseMessage)
 {
   Caret mouseCaret = caretFromPosition(mouseMessage->position());
-  if (mouseCaret.valid()) {
-    m_caret = mouseCaret;
+  if (!mouseCaret.valid())
+    return false;
 
-    if (!m_mouseCaretStart.valid()) {
-      m_mouseCaretStart = m_caret;
-      return true;
-    }
+  m_caret = mouseCaret;
 
-    if (m_caret > m_mouseCaretStart) {
-      m_selection.start = m_mouseCaretStart;
-      m_selection.end = m_caret;
-    }
-    else {
-      m_selection.start = m_caret;
-      m_selection.end = m_mouseCaretStart;
-    }
+  if (!m_mouseCaretStart.valid()) {
+    m_mouseCaretStart = m_caret;
+    return true;
+  }
+
+  if (m_caret > m_mouseCaretStart) {
+    m_selection.start = m_mouseCaretStart;
+    m_selection.end = m_caret;
   }
   else {
-    TRACE("No caret.\n");
-    // TODO: Go up if up, go down if down.
-    return false;
+    m_selection.start = m_caret;
+    m_selection.end = m_mouseCaretStart;
   }
 
   return true;
@@ -274,8 +266,8 @@ void MultilineEntry::onPaint(PaintEvent& ev)
   gfx::Point point(border().left(), border().top());
   point -= scroll;
 
-  int caretX = -scroll.x;
-  int caretY = -scroll.y;
+  gfx::Rect caretRect(border().left() - scroll.x, border().top() - scroll.y, 1, textHeight());
+
 
   for (const auto& line : m_lines) {
     // Drawing the selection rect (if any)
@@ -290,23 +282,23 @@ void MultilineEntry::onPaint(PaintEvent& ev)
         line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
           for (int i = 0; i < m_caret.pos; ++i) {
             const gfx::RectF bounds = run.getGlyphBounds(i);
-            caretX += bounds.w;
+            caretRect.x += bounds.w;
           }
         });
       }
 
-      caretY = point.y;
+      caretRect.y = point.y;
     }
 
     point.y += line.height;
   }
 
   // Drawing caret:
-  if (m_drawCaret)
-    g->drawVLine(theme->colors.text(),
-                 caretX,
-                 caretY,
-                 textHeight());
+  if (m_drawCaret) {
+    int height = textHeight();
+    g->drawRect(theme->colors.text(), caretRect);
+    m_caretRect = caretRect.offset(gfx::Point(g->getInternalDeltaX(), g->getInternalDeltaY()));
+  }
 }
 
 void MultilineEntry::onSizeHint(SizeHintEvent& ev)
@@ -327,7 +319,7 @@ void MultilineEntry::onSizeHint(SizeHintEvent& ev)
 
 void MultilineEntry::onScrollRegion(ScrollRegionEvent& ev)
 {
-  invalidate();
+  invalidateRegion(ev.region());
 }
 
 void MultilineEntry::drawSelectionRect(Graphics* g,
@@ -398,11 +390,10 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
 
 MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& position)
 {
-  if (!bounds().contains(position))
+  if (!bounds().contains(position)) // TODO: Use view->viewportBounds()?
     return Caret(nullptr);
 
   // Normalize the mouse position to the internal coordinates of the widget
-  // TODO: Scrolling offsets.
   gfx::Point offsetPosition(position.x - (bounds().x + border().left()),
                             position.y - (bounds().y + border().top()));
 
@@ -501,15 +492,61 @@ void MultilineEntry::rebuildTextFromLines()
 {
   // Rebuild the widget text from the lines, TODO: Hinting as to what changed in a signal
   // for onSetText.
+
   std::string newText;
-  for (auto line = m_lines.begin(); line != m_lines.end(); ++line) {
-    newText.append((*line).text);
-    if (line != m_lines.end())
+  for (const auto& line : m_lines) {
+    newText.append(line.text);
+    if (&line != &m_lines.back())
       newText.append("\n");
   }
 
   // TODO: HINT_NO_LINE_CHANGE
   setText(newText);
+}
+
+void MultilineEntry::ensureCaretVisible()
+{
+  auto view = View::getView(this);
+  if (!view || !view->hasScrollBars())
+    return;
+
+  int lineHeight = textHeight();
+  gfx::Point scroll = view->viewScroll();
+  gfx::Size visibleBounds = view->viewportBounds().size();
+
+  if (view->verticalBar()->isVisible()) {
+    int heightLimit = (visibleBounds.h + scroll.y - lineHeight) / 2;
+    int currentLine = (m_caret.line * lineHeight) / 2;
+
+    if (currentLine <= scroll.y)
+      scroll.y = currentLine;
+    else if (currentLine >= heightLimit)
+      scroll.y = currentLine - ((visibleBounds.h - (lineHeight * 2)) / 2); // TODO: I do not like this
+  }
+
+  const auto& line = m_lines[m_caret.line];
+  if (view->horizontalBar()->isVisible()
+      && line.blob
+      && line.width > visibleBounds.w
+    ) {
+    int caretX = 0;
+    line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
+      for (int i = 0; i < m_caret.pos; ++i) {
+        const gfx::RectF bounds = run.getGlyphBounds(i);
+        caretX += bounds.w;
+      }
+    });
+
+    int horizontalLimit = scroll.x + visibleBounds.w - view->horizontalBar()->getBarWidth();
+    if (caretX > horizontalLimit)
+      scroll.x = caretX - horizontalLimit;
+    //else if (scroll.x > (caretX / 2))
+    // TODO
+
+    TRACE("visibleBounds(%d, %d) - scroll(%d, %d) - caretX(%d) - horizontalLimit(%d).\n", visibleBounds.w, visibleBounds.h, scroll.x, scroll.y, caretX, horizontalLimit);
+  }
+
+  view->setViewScroll(scroll);
 }
 
 void MultilineEntry::onSetText()
@@ -519,7 +556,7 @@ void MultilineEntry::onSetText()
   // TODO: Have "hints" that can be used to only recalculate small parts of the text
   // depending on what has changed, like HINT_NO_LINE_CHANGE, HINT_NEW_LINE and then reset it here.
 
-  m_lines.clear();  // TODO: Do we need to clean up textblobs? Confirm they're getting refcounted away
+  m_lines.clear();
 
   std::vector<std::string> newLines;
   base::split_string(text(),
@@ -565,6 +602,8 @@ void MultilineEntry::onSetText()
   m_textSize.w = longestWidth;
   m_textSize.h = totalHeight;
 
+  ensureCaretVisible();
+
   auto* view = View::getView(this);
   if (view)
     view->updateView();
@@ -587,6 +626,5 @@ void MultilineEntry::stopTimer()
     s_timer.reset();
   }
 }
-
 
 }  // namespace app
