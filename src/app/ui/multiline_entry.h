@@ -15,6 +15,12 @@
 namespace app {
 using namespace ui;
 
+// TODO: Move to a general place
+static inline bool is_word_char(int ch)
+{
+  return (ch && !std::isspace(ch) && !std::ispunct(ch));
+}
+
 class MultilineEntry : public Widget,
                        public ViewableWidget {
 public:
@@ -44,13 +50,18 @@ private:
 
   struct Caret {
     explicit Caret(std::vector<Line>* lines = nullptr)
-      : m_lines(lines) {}
+      : m_lines(lines)
+    {
+    }
 
     int line = 0;
     int pos = 0;
 
-    bool left()
+    bool left(bool byWord = false)
     {
+      if (byWord)
+        return leftWord();
+
       pos -= 1;
 
       if (pos < 0) {
@@ -60,18 +71,41 @@ private:
         }
         else {
           line -= 1;
-          pos = (*m_lines)[line].text.size();
+          pos = text().size();
         }
       }
 
       return true;
     }
 
-    bool right()
+    bool leftWord()
     {
+        for (--pos; pos >= 0; --pos) {
+            if (is_word_char(text()[pos]))
+                break;
+        }
+
+        for (; pos >= 0; --pos) {
+            if (!is_word_char(text()[pos])) {
+                ++pos;
+                break;
+            }
+        }
+
+        if (pos < 0)
+            pos = 0;
+
+        return true;
+    }
+
+    bool right(bool byWord = false)
+    {
+      if (byWord)
+        return rightWord();
+
       pos += 1;
 
-      if (pos > (*m_lines)[line].text.size()) {
+      if (pos > text().size()) {
         if (line == m_lines->size() - 1) {
           pos -= 1;  // Undo movement, we've reached the end of the text.
           return false;
@@ -85,19 +119,36 @@ private:
       return true;
     }
 
+    bool rightWord()
+    {
+      int len = text().size();
+
+      for (; pos < len; ++pos) {
+        if (is_word_char(text()[pos]))
+          break;
+      }
+
+      for (; pos < len; ++pos) {
+        if (!is_word_char(text()[pos]))
+          break;
+      }
+
+      return true;
+    }
+
     void up()
     {
       line = std::clamp(line - 1, 0, int(m_lines->size()) - 1);
-      pos = std::clamp(pos, 0, int((*m_lines)[line].text.size()));
+      pos = std::clamp(pos, 0, int(text().size()));
     }
 
     void down()
     {
       line = std::clamp(line + 1, 0, int(m_lines->size()) - 1);
-      pos = std::clamp(pos, 0, int((*m_lines)[line].text.size()));
+      pos = std::clamp(pos, 0, int(text().size()));
     }
 
-    bool lastInLine() { return pos == (*m_lines)[line].text.size(); }
+    bool lastInLine() { return pos == text().size(); }
 
     bool lastLine() { return line == m_lines->size() - 1; }
 
@@ -109,12 +160,12 @@ private:
       if (line < 0 || line > m_lines->size())
         return false;
 
-      if (pos < 0 || pos > (*m_lines)[line].text.size())
+      if (pos < 0 || pos > text().size())
         return false;
 
       return true;
     }
-    
+
     void clear()
     {
       m_lines = nullptr;
@@ -122,17 +173,24 @@ private:
       pos = 0;
     }
 
-    bool operator==(const Caret& other)
+    inline bool operator==(const Caret& other)
     {
       return line == other.line && pos == other.pos;
     }
 
-    bool operator>(const Caret& other)
+    inline bool operator!=(const Caret& other)
     {
-      return (line == other.line) ? pos > other.pos : (line + pos) > (other.line + pos);
+      return line != other.line || pos != other.pos;
+    }
+
+    inline bool operator>(const Caret& other)
+    {
+      return (line == other.line) ? pos > other.pos :
+                                    (line + pos) > (other.line + pos);
     }
 
   private:
+    inline std::string& text() const { return (*m_lines)[line].text; }
     std::vector<Line>* m_lines;
   };
 
@@ -153,8 +211,9 @@ private:
         end = caret;
     }
 
-    void clear() {
-      start = Caret(nullptr); // std::optional?
+    void clear()
+    {
+      start = Caret(nullptr);  // std::optional?
       end = Caret(nullptr);
     }
   };

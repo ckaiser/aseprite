@@ -62,6 +62,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
     } break;
     case kFocusLeaveMessage: {
       stopTimer();
+      m_drawCaret = false;
       os::System::instance()->setTranslateDeadKeys(false);
       invalidate();
     } break;
@@ -73,11 +74,35 @@ bool MultilineEntry::onProcessMessage(Message* msg)
         return true;
       }
     } break;
+    case kDoubleClickMessage: {
+      if (!hasFocus())
+        requestFocus();
+
+      auto mouseMessage = static_cast<MouseMessage*>(msg);
+      Caret leftCaret = caretFromPosition(mouseMessage->position());
+      Caret rightCaret = leftCaret;
+      leftCaret.left(true);
+      rightCaret.right(true);
+
+      if (leftCaret.valid() && leftCaret.valid() && leftCaret != rightCaret) {
+        m_selection = Selection{ leftCaret, rightCaret };
+        m_caret = rightCaret;
+        invalidate();
+        captureMouse();
+        return true;
+      }
+    } break;
     case kMouseDownMessage:
-      captureMouse();
+      if (!hasCapture()) {
+        m_selection.clear(); // Only clear the selection when we don't have a capture, to avoid stepping on double click selection.
+        captureMouse();
+      }
+
       stopTimer();
       m_drawCaret = true;
-      m_selection.clear();
+
+      if (msg->shiftPressed())
+        m_mouseCaretStart = m_selection.empty() ? m_caret : m_selection.start;
 
       [[fallthrough]];
     case kMouseMoveMessage:
@@ -91,6 +116,10 @@ bool MultilineEntry::onProcessMessage(Message* msg)
       if (hasCapture()) {
         releaseMouse();
         startTimer();
+
+        if (msg->shiftPressed()) {
+          m_selection = Selection{ m_mouseCaretStart, m_caret };
+        }
         m_mouseCaretStart.clear();
       }
     } break;
@@ -115,15 +144,16 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
 {
   KeyScancode scancode = keyMessage->scancode();
   bool alterSelection = keyMessage->shiftPressed();
+  bool byWord = keyMessage->ctrlPressed();
 
   Caret prevCaret = m_caret;
 
   switch (scancode) {
     case kKeyLeft: {
-      m_caret.left();
+      m_caret.left(byWord);
     } break;
     case kKeyRight: {
-      m_caret.right();
+      m_caret.right(byWord);
     } break;
     case kKeyEnter: {
       deleteSelection();
@@ -165,29 +195,29 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
         deleteSelection();
       else {
         if (scancode == kKeyBackspace) {
-          if (!m_caret.left()) {
+          if (!m_caret.left(byWord)) {
             return false;
           }
 
-          if (m_caret.lastInLine()) {
+          if (m_caret.lastInLine() || byWord) {
             // If we are now the last in a line after moving left, it means we
             // moved up and need to remove a newline.
 
             Caret caretEnd = m_caret;
-            caretEnd.right();
+            caretEnd.right(byWord);
             m_selection = Selection{ m_caret, caretEnd };
             deleteSelection();
             return true;
           }
         }
 
-        if (scancode == kKeyDel && m_caret.lastInLine()) {
+        if (scancode == kKeyDel && m_caret.lastInLine() || byWord) {
           if (m_caret.lastLine())
             return false;  // Nothing to delete on the last line.
 
           // Generate a new selection to delete the newline
           Caret caretEnd = m_caret;
-          caretEnd.right(); // TODO: Duplicated :(
+          caretEnd.right(byWord); // TODO: Duplicated :(
           m_selection = Selection{ m_caret, caretEnd };
           deleteSelection();
           return true;
@@ -266,8 +296,7 @@ void MultilineEntry::onPaint(PaintEvent& ev)
   gfx::Point point(border().left(), border().top());
   point -= scroll;
 
-  gfx::Rect caretRect(border().left() - scroll.x, border().top() - scroll.y, 1, textHeight());
-
+  gfx::Rect caretRect(border().left() - scroll.x, border().top() - scroll.y, 2, textHeight());
 
   for (const auto& line : m_lines) {
     // Drawing the selection rect (if any)
@@ -341,7 +370,7 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
     selectionRect.w = line.height / 2;
   }
   else if (
-    // Detect when this entire line is selected, to avoid doing any runs and just painting it al
+    // Detect when this entire line is selected, to avoid doing any runs and just painting it all
     // Case 1: Start and end line is this line, and the firstPos and endPos is 0 and the line's length.
     (m_selection.start.line == i && m_selection.end.line == i &&
      m_selection.start.pos == 0 && m_selection.end.pos == line.text.size())
@@ -376,15 +405,12 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
       }
     });
   }
-  else {
-    throw new std::runtime_error("This should not be possible.");  // TODO: ???
-  }
 
   auto theme = skin::SkinTheme::get(this);
   g->fillRect(
     hasFocus() ?
-      theme->colors.selected() :
-      gfx::seta(theme->colors.selected(), 50),  // TODO: Put color in theme? do we even want this?
+      gfx::seta(theme->colors.selected(), 200) : // TODO: Avoiding harsh contrast, should still invert text color?
+      gfx::seta(theme->colors.selected(), 40),  // TODO: Put color in theme? do we even want the selection to remain visible when not in focus?
     selectionRect);
 }
 
@@ -478,7 +504,6 @@ void MultilineEntry::deleteSelection()
     }
 
     std::string newText = text();
-    // TODO: Substr is faster but uglier.
     newText.erase(newText.begin() + posStart, newText.begin() + posEnd);
     setText(newText);
   }
@@ -507,7 +532,7 @@ void MultilineEntry::rebuildTextFromLines()
 void MultilineEntry::ensureCaretVisible()
 {
   auto view = View::getView(this);
-  if (!view || !view->hasScrollBars())
+  if (!view || !view->hasScrollBars() || !m_caret.valid())
     return;
 
   int lineHeight = textHeight();
@@ -538,12 +563,12 @@ void MultilineEntry::ensureCaretVisible()
     });
 
     int horizontalLimit = scroll.x + visibleBounds.w - view->horizontalBar()->getBarWidth();
-    if (caretX > horizontalLimit)
+    if (m_caret.pos == 0)
+      scroll.x = 0;
+    else if (caretX > horizontalLimit)
       scroll.x = caretX - horizontalLimit;
-    //else if (scroll.x > (caretX / 2))
-    // TODO
-
-    TRACE("visibleBounds(%d, %d) - scroll(%d, %d) - caretX(%d) - horizontalLimit(%d).\n", visibleBounds.w, visibleBounds.h, scroll.x, scroll.y, caretX, horizontalLimit);
+    else if (scroll.x > caretX / 2)
+      scroll.x = caretX / 2;
   }
 
   view->setViewScroll(scroll);

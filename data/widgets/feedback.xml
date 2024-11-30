@@ -8,7 +8,9 @@
       <item icon="aseprite_face" />
       <item icon="aseprite_face_pushed" />
     </buttonset>
-   
+    
+   <entry maxsize="210" id="feedback_before" minwidth="140" expansive="true" text="@test.non_multiline" />
+    
     <view width="210" height="60">
       <textbox text="@test.multiline_entry" />
     </view>
