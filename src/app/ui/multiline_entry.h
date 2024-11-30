@@ -26,6 +26,11 @@ class MultilineEntry : public Widget,
 public:
   MultilineEntry();
 
+  void cut();
+  void copy();
+  void paste();
+  void selectAll();
+
 protected:
   bool onProcessMessage(Message* msg) override;
   void onPaint(PaintEvent& ev) override;
@@ -53,6 +58,13 @@ private:
       : m_lines(lines)
     {
     }
+    explicit Caret(std::vector<Line>* lines, int line, int pos)
+        : m_lines(lines)
+        , line(line)
+        , pos(pos)
+    {
+    }
+
 
     int line = 0;
     int pos = 0;
@@ -148,16 +160,51 @@ private:
       pos = std::clamp(pos, 0, int(text().size()));
     }
 
-    bool lastInLine() { return pos == text().size(); }
+    bool isLastInLine() { return pos == text().size(); }
 
-    bool lastLine() { return line == m_lines->size() - 1; }
+    bool isLastLine() { return line == m_lines->size() - 1; }
 
-    bool valid()
+    // Returns the absolute position of the caret, aka the position in a string
+    int absolutePos() {
+        int apos = 0;
+        for (const auto& l : *m_lines) {
+            if (l.i == line) {
+                apos += pos;
+                return apos;
+            }
+            else {
+                apos += l.text.size() + 1;
+            }
+        }
+        return apos;
+    }
+
+    // Advance the selection by the amount of characters, wrapping around new lines.
+    void advanceBy(int characters) {
+        ASSERT(characters > 0); // TODO: Support negative offsets if we need them
+
+        int remaining = characters;
+        for (int i = line; i < m_lines->size(); ++i) {
+            // More characters to go in the current line
+            int remainingInLine = text().size() - pos;
+            if (remaining > remainingInLine) {
+                remaining -= remainingInLine; // The amount of character we advanced in this go.
+                ++line; // Advance the caret
+                pos = 0;
+            }
+            else {
+                pos += remaining;
+                return;
+            }
+        }
+    }
+
+    bool isValid()
     {
       if (m_lines == nullptr)
         return false;
-
-      if (line < 0 || line > m_lines->size())
+      
+      if (line < 0 || line >= m_lines->size())
         return false;
 
       if (pos < 0 || pos > text().size())
@@ -198,7 +245,13 @@ private:
     Caret start;
     Caret end;
 
-    bool empty() const
+    Selection() = default;
+    Selection(Caret startCaret, Caret endCaret) {
+      start = startCaret;
+      end = endCaret; // Flip, flip, flipadelphia.
+    }
+
+    bool isEmpty() const
     {
       return (start.line == end.line && start.pos == end.pos);
     }

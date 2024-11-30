@@ -12,6 +12,7 @@
 #include "app/ui/multiline_entry.h"
 #include "app/ui/skin/skin_theme.h"
 #include "base/split_string.h"
+#include "base/replace_string.h"
 #include "os/system.h"
 #include "text/font_mgr.h"
 #include "text/text_blob.h"
@@ -24,6 +25,7 @@
 #include "ui/theme.h"
 #include "ui/timer.h"
 #include "ui/view.h"
+#include "ui/system.h"
 
 namespace app {
 
@@ -42,6 +44,67 @@ MultilineEntry::MultilineEntry()
     this->setBorder(gfx::Border(2) * guiscale()); // TODO: Move to theme
   });
   initTheme();
+}
+
+void MultilineEntry::cut()
+{
+  if (m_selection.isEmpty())
+    return;
+
+  copy();
+
+  deleteSelection();
+}
+
+void MultilineEntry::copy()
+{
+  if (m_selection.isEmpty())
+    return;
+
+  int startPos = m_selection.start.absolutePos();
+  set_clipboard_text(text().substr(startPos, m_selection.end.absolutePos() - startPos));
+}
+
+void MultilineEntry::paste()
+{
+  if (!m_caret.isValid())
+    return;
+
+  deleteSelection();
+
+  std::string clipboard;
+  if (!get_clipboard_text(clipboard))
+    return;
+
+#if LAF_WINDOWS
+  base::replace_string(clipboard, "\r\n", "\n");
+#endif
+
+  std::string newText = text();
+  newText.insert(m_caret.absolutePos(), clipboard);
+  
+  setText(newText);
+
+  m_caret.advanceBy(clipboard.size());
+}
+
+void MultilineEntry::selectAll()
+{
+  if (m_lines.empty())
+    return;
+  
+  if (m_lines.front().text.empty())
+    return;
+
+  Caret startCaret(&m_lines);
+  startCaret.line = 0;
+  startCaret.pos = 0;
+
+  Caret endCaret = startCaret;
+  endCaret.line = m_lines.size() - 1;
+  endCaret.pos = m_lines[endCaret.line].text.size();
+
+  m_selection = Selection(startCaret, endCaret);
 }
 
 bool MultilineEntry::onProcessMessage(Message* msg)
@@ -80,12 +143,16 @@ bool MultilineEntry::onProcessMessage(Message* msg)
 
       auto mouseMessage = static_cast<MouseMessage*>(msg);
       Caret leftCaret = caretFromPosition(mouseMessage->position());
-      Caret rightCaret = leftCaret;
-      leftCaret.left(true);
-      rightCaret.right(true);
 
-      if (leftCaret.valid() && leftCaret.valid() && leftCaret != rightCaret) {
-        m_selection = Selection{ leftCaret, rightCaret };
+      if (!leftCaret.isValid())
+        return false;
+
+      Caret rightCaret = leftCaret;
+      leftCaret.leftWord(); // TODO: Doesn't work when clicking on a space.
+      rightCaret.rightWord();
+
+      if (leftCaret != rightCaret) {
+        m_selection = Selection(leftCaret, rightCaret);
         m_caret = rightCaret;
         invalidate();
         captureMouse();
@@ -102,7 +169,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
       m_drawCaret = true;
 
       if (msg->shiftPressed())
-        m_mouseCaretStart = m_selection.empty() ? m_caret : m_selection.start;
+        m_mouseCaretStart = m_selection.isEmpty() ? m_caret : m_selection.start;
 
       [[fallthrough]];
     case kMouseMoveMessage:
@@ -118,7 +185,8 @@ bool MultilineEntry::onProcessMessage(Message* msg)
         startTimer();
 
         if (msg->shiftPressed()) {
-          m_selection = Selection{ m_mouseCaretStart, m_caret };
+          m_selection.start = m_mouseCaretStart;
+          m_selection.to(m_caret);
         }
         m_mouseCaretStart.clear();
       }
@@ -158,18 +226,8 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
     case kKeyEnter: {
       deleteSelection();
 
-      // Inserting a new line in the current caret position by going through the lines and
-      // adding it to the the text, then setText will rebuild the lines.
-      int pos = 0;
       std::string newText = text();
-      for (int i = 0; i < m_lines.size(); i++) {
-        if (i == m_caret.line) {
-          pos += m_caret.pos;
-          newText.insert(pos, "\n");
-          break;
-        }
-        pos += m_lines[i].text.size();
-      }
+      newText.insert(m_caret.absolutePos(), "\n");
       setText(newText);
 
       m_caret.line += 1;
@@ -191,34 +249,41 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
     case kKeyBackspace:
       [[fallthrough]];
     case kKeyDel: {
-      if (!m_selection.empty())
+      if (!m_selection.isEmpty())
         deleteSelection();
       else {
+
+        //
+        // !TODO! REDO THIS WHOLE SECTION
+        // The byWord stuff is bad, brings its own set of problems for no good reason and we have duplicated code too.
+        //
         if (scancode == kKeyBackspace) {
           if (!m_caret.left(byWord)) {
             return false;
           }
 
-          if (m_caret.lastInLine() || byWord) {
+          if (m_caret.isLastInLine() || byWord) {
             // If we are now the last in a line after moving left, it means we
             // moved up and need to remove a newline.
 
             Caret caretEnd = m_caret;
             caretEnd.right(byWord);
-            m_selection = Selection{ m_caret, caretEnd };
+            m_selection.start = m_caret; // TODO: Duplicated below :( - also using start/end like this is dicey?
+            m_selection.to(caretEnd);
             deleteSelection();
             return true;
           }
         }
 
-        if (scancode == kKeyDel && m_caret.lastInLine() || byWord) {
-          if (m_caret.lastLine())
+        if (scancode == kKeyDel && m_caret.isLastInLine() || byWord) {
+          if (m_caret.isLastLine())
             return false;  // Nothing to delete on the last line.
 
           // Generate a new selection to delete the newline
           Caret caretEnd = m_caret;
-          caretEnd.right(byWord); // TODO: Duplicated :(
-          m_selection = Selection{ m_caret, caretEnd };
+          caretEnd.right(byWord); 
+          m_selection.start = m_caret;
+          m_selection.to(caretEnd);
           deleteSelection();
           return true;
         }
@@ -238,14 +303,40 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
         insertCharacter(keyMessage->unicodeChar());
         return true;
       }
-      else if (keyMessage->scancode() >= kKeyFirstModifierScancode) {
+      else if (scancode >= kKeyFirstModifierScancode) {
         return true;
+      }
+      // TODO: handleShortcuts(scancode)? - Map common shortcuts into an app-wide preference?
+#if defined __APPLE__
+      else if (msg->onlyCmdPressed())
+#else
+      else if (keyMessage->onlyCtrlPressed())
+#endif
+      {
+        switch (scancode) {
+          case kKeyX: {
+            cut();
+            return true;
+          } break;
+          case kKeyC: {
+            copy();
+            return true;
+          } break;
+          case kKeyV: {
+            paste();
+            return true;
+          } break;
+          case kKeyA: {
+            selectAll();
+            return true;
+          } break;
+        }
       }
       return false;
   }
 
   if (alterSelection) {
-    if (m_selection.empty()) {
+    if (m_selection.isEmpty()) {
       m_selection.start = prevCaret;
     }
 
@@ -260,12 +351,12 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
 bool MultilineEntry::onMouseMove(MouseMessage* mouseMessage)
 {
   Caret mouseCaret = caretFromPosition(mouseMessage->position());
-  if (!mouseCaret.valid())
+  if (!mouseCaret.isValid())
     return false;
 
   m_caret = mouseCaret;
 
-  if (!m_mouseCaretStart.valid()) {
+  if (!m_mouseCaretStart.isValid()) {
     m_mouseCaretStart = m_caret;
     return true;
   }
@@ -356,7 +447,7 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
                                        const Line& line,
                                        const gfx::Point& offset)
 {
-  if (m_selection.empty())
+  if (m_selection.isEmpty())
     return;
 
   if (m_selection.start.line > i || m_selection.end.line < i)
@@ -416,8 +507,20 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
 
 MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& position)
 {
-  if (!bounds().contains(position)) // TODO: Use view->viewportBounds()?
-    return Caret(nullptr);
+  auto* view = View::getView(this);
+  if (!view)
+    return Caret();
+
+  if (!view->viewportBounds().contains(position)) {
+    if (position.y < view->viewportBounds().y) {
+      return Caret(&m_lines, 0, 0);
+    }
+    else if (position.y > (view->viewportBounds().y + view->viewportBounds().h)) {
+      return Caret(&m_lines, m_lines.size() - 1, m_lines.back().text.size());
+    }
+
+    return Caret();
+  }
 
   // Normalize the mouse position to the internal coordinates of the widget
   gfx::Point offsetPosition(position.x - (bounds().x + border().left()),
@@ -427,6 +530,16 @@ MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& positi
 
   Caret caret(&m_lines);
   int lineHeight = textHeight();
+
+  // First check if the offset position is blank (below all the lines)
+  if (offsetPosition.y > m_lines.size() * lineHeight) {
+    // Get the last character in the last line.
+    caret.line = m_lines.size() - 1;
+    // Check the line width and if we're more than halfway past the line, we can set the caret to the full line.
+    // TODO: Ideally we'd calculate the equivalent position in the last line with a run akin to what we're doing in the loop below.
+    caret.pos = (offsetPosition.x > m_lines[caret.line].width / 2) ? m_lines[caret.line].text.size() : 0;
+    return caret;
+  }
 
   for (const Line& line : m_lines) {
     int lineStartY = line.i * lineHeight;
@@ -459,9 +572,6 @@ MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& positi
     }
   }
 
-  if (!caret.valid())
-    return Caret(nullptr);
-  
   return caret;
 }
 
@@ -477,7 +587,7 @@ void MultilineEntry::insertCharacter(base::codepoint_t character)
 
 void MultilineEntry::deleteSelection()
 {
-  if (m_selection.empty())
+  if (m_selection.isEmpty())
     return;
 
   if (m_selection.start.line == m_selection.end.line) {
@@ -487,24 +597,8 @@ void MultilineEntry::deleteSelection()
     rebuildTextFromLines();
   }
   else {
-    int posStart = 0;
-    int posEnd = 0;
-    for (const Line& line : m_lines) {
-      if (line.i < m_selection.start.line)
-        posStart += line.text.size() + 1;  // Account for the unseen "\n" newline character.
-
-      if (line.i < m_selection.end.line)
-        posEnd += line.text.size() + 1;
-
-      if (m_selection.start.line == line.i)
-        posStart += m_selection.start.pos;
-
-      if (m_selection.end.line == line.i)
-        posEnd += m_selection.end.pos;
-    }
-
     std::string newText = text();
-    newText.erase(newText.begin() + posStart, newText.begin() + posEnd);
+    newText.erase(newText.begin() + m_selection.start.absolutePos(), newText.begin() + m_selection.end.absolutePos());
     setText(newText);
   }
 
@@ -532,7 +626,7 @@ void MultilineEntry::rebuildTextFromLines()
 void MultilineEntry::ensureCaretVisible()
 {
   auto view = View::getView(this);
-  if (!view || !view->hasScrollBars() || !m_caret.valid())
+  if (!view || !view->hasScrollBars() || !m_caret.isValid())
     return;
 
   int lineHeight = textHeight();
@@ -626,6 +720,11 @@ void MultilineEntry::onSetText()
 
   m_textSize.w = longestWidth;
   m_textSize.h = totalHeight;
+
+  //if (!m_caret.isValid()) {
+  //  m_caret.line = m_lines.size() - 1;
+  //  m_caret.pos = m_lines[m_caret.line].text.size();
+  //}
 
   ensureCaretVisible();
 
