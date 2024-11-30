@@ -5,8 +5,8 @@
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
 
-#ifndef APP_UI_MULTILINE_ENTRY_H_INCLUDED
-#define APP_UI_MULTILINE_ENTRY_H_INCLUDED
+#ifndef APP_UI_TEXT_EDIT_H_INCLUDED
+#define APP_UI_TEXT_EDIT_H_INCLUDED
 #pragma once
 
 #include "ui/box.h"
@@ -21,10 +21,10 @@ static inline bool is_word_char(int ch)
   return (ch && !std::isspace(ch) && !std::ispunct(ch));
 }
 
-class MultilineEntry : public Widget,
+class TextEdit : public Widget,
                        public ViewableWidget {
 public:
-  MultilineEntry();
+  TextEdit();
 
   void cut();
   void copy();

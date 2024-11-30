@@ -9,7 +9,7 @@
   #include "config.h"
 #endif
 
-#include "app/ui/multiline_entry.h"
+#include "app/ui/textedit.h"
 #include "app/ui/skin/skin_theme.h"
 #include "base/split_string.h"
 #include "base/replace_string.h"
@@ -34,7 +34,7 @@ using namespace ui;
 // Shared timer between all entries.
 static std::unique_ptr<Timer> s_timer;
 
-MultilineEntry::MultilineEntry()
+TextEdit::TextEdit()
   : Widget(kGenericWidget)
   , m_caret(&m_lines)
 {
@@ -46,7 +46,7 @@ MultilineEntry::MultilineEntry()
   initTheme();
 }
 
-void MultilineEntry::cut()
+void TextEdit::cut()
 {
   if (m_selection.isEmpty())
     return;
@@ -56,7 +56,7 @@ void MultilineEntry::cut()
   deleteSelection();
 }
 
-void MultilineEntry::copy()
+void TextEdit::copy()
 {
   if (m_selection.isEmpty())
     return;
@@ -65,7 +65,7 @@ void MultilineEntry::copy()
   set_clipboard_text(text().substr(startPos, m_selection.end.absolutePos() - startPos));
 }
 
-void MultilineEntry::paste()
+void TextEdit::paste()
 {
   if (!m_caret.isValid())
     return;
@@ -88,7 +88,7 @@ void MultilineEntry::paste()
   m_caret.advanceBy(clipboard.size());
 }
 
-void MultilineEntry::selectAll()
+void TextEdit::selectAll()
 {
   if (m_lines.empty())
     return;
@@ -107,7 +107,7 @@ void MultilineEntry::selectAll()
   m_selection = Selection(startCaret, endCaret);
 }
 
-bool MultilineEntry::onProcessMessage(Message* msg)
+bool TextEdit::onProcessMessage(Message* msg)
 {
   switch (msg->type()) {
     case kTimerMessage: {
@@ -208,7 +208,7 @@ bool MultilineEntry::onProcessMessage(Message* msg)
   return Widget::onProcessMessage(msg);
 }
 
-bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
+bool TextEdit::onKeyDown(KeyMessage* keyMessage)
 {
   KeyScancode scancode = keyMessage->scancode();
   bool alterSelection = keyMessage->shiftPressed();
@@ -308,7 +308,7 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
       }
       // TODO: handleShortcuts(scancode)? - Map common shortcuts into an app-wide preference?
 #if defined __APPLE__
-      else if (msg->onlyCmdPressed())
+      else if (keyMessage->onlyCmdPressed())
 #else
       else if (keyMessage->onlyCtrlPressed())
 #endif
@@ -348,7 +348,7 @@ bool MultilineEntry::onKeyDown(KeyMessage* keyMessage)
   return true;
 }
 
-bool MultilineEntry::onMouseMove(MouseMessage* mouseMessage)
+bool TextEdit::onMouseMove(MouseMessage* mouseMessage)
 {
   Caret mouseCaret = caretFromPosition(mouseMessage->position());
   if (!mouseCaret.isValid())
@@ -373,7 +373,7 @@ bool MultilineEntry::onMouseMove(MouseMessage* mouseMessage)
   return true;
 }
 
-void MultilineEntry::onPaint(PaintEvent& ev)
+void TextEdit::onPaint(PaintEvent& ev)
 {
   // TODO: Move to theme?
   Graphics* g = ev.graphics();
@@ -420,13 +420,12 @@ void MultilineEntry::onPaint(PaintEvent& ev)
 
   // Drawing caret:
   if (m_drawCaret) {
-    int height = textHeight();
     g->drawRect(theme->colors.text(), caretRect);
     m_caretRect = caretRect.offset(gfx::Point(g->getInternalDeltaX(), g->getInternalDeltaY()));
   }
 }
 
-void MultilineEntry::onSizeHint(SizeHintEvent& ev)
+void TextEdit::onSizeHint(SizeHintEvent& ev)
 {
   ev.setSizeHint(m_textSize);
 
@@ -442,12 +441,12 @@ void MultilineEntry::onSizeHint(SizeHintEvent& ev)
   }
 }
 
-void MultilineEntry::onScrollRegion(ScrollRegionEvent& ev)
+void TextEdit::onScrollRegion(ScrollRegionEvent& ev)
 {
   invalidateRegion(ev.region());
 }
 
-void MultilineEntry::drawSelectionRect(Graphics* g,
+void TextEdit::drawSelectionRect(Graphics* g,
                                        int i,
                                        const Line& line,
                                        const gfx::PointF& offset)
@@ -510,7 +509,7 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
     selectionRect);
 }
 
-MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& position)
+TextEdit::Caret TextEdit::caretFromPosition(const gfx::Point& position)
 {
   auto* view = View::getView(this);
   if (!view)
@@ -580,7 +579,7 @@ MultilineEntry::Caret MultilineEntry::caretFromPosition(const gfx::Point& positi
   return caret;
 }
 
-void MultilineEntry::insertCharacter(base::codepoint_t character)
+void TextEdit::insertCharacter(base::codepoint_t character)
 {
   const std::string unicodeStr = base::codepoint_to_utf8(character);
 
@@ -590,7 +589,7 @@ void MultilineEntry::insertCharacter(base::codepoint_t character)
   rebuildTextFromLines();
 }
 
-void MultilineEntry::deleteSelection()
+void TextEdit::deleteSelection()
 {
   if (m_selection.isEmpty())
     return;
@@ -612,7 +611,7 @@ void MultilineEntry::deleteSelection()
   m_selection.clear();
 }
 
-void MultilineEntry::rebuildTextFromLines()
+void TextEdit::rebuildTextFromLines()
 {
   // Rebuild the widget text from the lines, TODO: Hinting as to what changed in a signal
   // for onSetText.
@@ -628,7 +627,7 @@ void MultilineEntry::rebuildTextFromLines()
   setText(newText);
 }
 
-void MultilineEntry::ensureCaretVisible()
+void TextEdit::ensureCaretVisible()
 {
   auto view = View::getView(this);
   if (!view || !view->hasScrollBars() || !m_caret.isValid())
@@ -673,7 +672,7 @@ void MultilineEntry::ensureCaretVisible()
   view->setViewScroll(scroll);
 }
 
-void MultilineEntry::onSetText()
+void TextEdit::onSetText()
 {
   // Recalculate lines based on new text
 
@@ -740,7 +739,7 @@ void MultilineEntry::onSetText()
   Widget::onSetText();
 }
 
-void MultilineEntry::startTimer()
+void TextEdit::startTimer()
 {
   if (s_timer)
     s_timer->stop();
@@ -748,7 +747,7 @@ void MultilineEntry::startTimer()
   s_timer->start();
 }
 
-void MultilineEntry::stopTimer()
+void TextEdit::stopTimer()
 {
   if (s_timer) {
     s_timer->stop();

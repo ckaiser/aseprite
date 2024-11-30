@@ -114,7 +114,7 @@ static Item convert_to_item(XMLElement* elem)
                          "ui/entry.h");
 
   if (name == "textbox")
-    return item.typeIncl("app::MultilineEntry", "app/ui/multiline_entry.h");
+    return item.typeIncl("app::TextEdit", "app/ui/textedit.h");
 
   if (name == "expr")
     return item.typeIncl("app::ExprEntry",

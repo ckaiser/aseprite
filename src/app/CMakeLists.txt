@@ -654,7 +654,6 @@ target_sources(app-lib PRIVATE
   ui/main_menu_bar.cpp
   ui/main_window.cpp
   ui/mini_help_button.cpp
-  ui/multiline_entry.cpp
   ui/notifications.cpp
   ui/optional_alert.cpp
   ui/palette_popup.cpp
@@ -681,6 +680,7 @@ target_sources(app-lib PRIVATE
   ui/tabs.cpp
   ui/tag_window.cpp
   ui/task_widget.cpp
+  ui/textedit.cpp
   ui/tile_button.cpp
   ui/tileset_selector.cpp
   ui/timeline/ani_controls.cpp

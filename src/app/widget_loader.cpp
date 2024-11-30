@@ -25,9 +25,9 @@
 #include "app/ui/font_entry.h"
 #include "app/ui/icon_button.h"
 #include "app/ui/mini_help_button.h"
-#include "app/ui/multiline_entry.h"
 #include "app/ui/search_entry.h"
 #include "app/ui/skin/skin_theme.h"
+#include "app/ui/textedit.h"
 #include "app/widget_not_found.h"
 #include "app/xml_document.h"
 #include "app/xml_exception.h"
@@ -264,10 +264,8 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem, Widget* 
     if (elem_name == "expr" && decimals)
       ((ExprEntry*)widget)->setDecimals(strtol(decimals, nullptr, 10));
   }
-  else if (elem_name == "textbox") {
-    widget = new MultilineEntry();
-
-
+  else if (elem_name == "textedit") {
+    widget = new TextEdit();
   }
   else if (elem_name == "grid") {
     const char *columns = elem->Attribute("columns");
