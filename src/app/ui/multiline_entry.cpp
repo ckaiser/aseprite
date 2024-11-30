@@ -384,17 +384,22 @@ void MultilineEntry::onPaint(PaintEvent& ev)
   g->fillRect(theme->colors.textboxFace(), rect);
 
   const auto& scroll = view->viewScroll();
-  gfx::Point point(border().left(), border().top());
+  gfx::PointF point(border().left(), border().top());
   point -= scroll;
 
   gfx::Rect caretRect(border().left() - scroll.x, border().top() - scroll.y, 2, textHeight());
+
+  os::Paint textPaint;
+  textPaint.color(theme->colors.text());
+  textPaint.style(os::Paint::Fill);
 
   for (const auto& line : m_lines) {
     // Drawing the selection rect (if any)
     drawSelectionRect(g, line.i, line, point);
 
+    // TODO: Text line drawing code should split things like selection rect drawing and draw with the inverted/selected color.
     if (line.blob)
-      g->drawTextBlob(line.blob, theme->colors.text(), point);
+      g->drawTextBlob(line.blob, point, textPaint);
 
     if (m_drawCaret && line.i == m_caret.line) {
       // We're in the caret's line, so we can visit this blob to grab where we should position it.
@@ -445,7 +450,7 @@ void MultilineEntry::onScrollRegion(ScrollRegionEvent& ev)
 void MultilineEntry::drawSelectionRect(Graphics* g,
                                        int i,
                                        const Line& line,
-                                       const gfx::Point& offset)
+                                       const gfx::PointF& offset)
 {
   if (m_selection.isEmpty())
     return;
@@ -453,7 +458,7 @@ void MultilineEntry::drawSelectionRect(Graphics* g,
   if (m_selection.start.line > i || m_selection.end.line < i)
     return;
 
-  gfx::Rect selectionRect(offset, gfx::Size(0, line.height));
+  gfx::RectF selectionRect(offset, gfx::SizeF(0, line.height));
 
   if (!line.blob) {
     // No blob so this must be an empty line in the middle of a selection, just give it a marginal width

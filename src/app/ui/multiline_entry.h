@@ -275,7 +275,7 @@ private:
   void drawSelectionRect(Graphics* g,
                          int i,
                          const Line& line,
-                         const gfx::Point& offset);
+                         const gfx::PointF& offset);
   Caret caretFromPosition(const gfx::Point& position);
   void insertCharacter(base::codepoint_t character);
   void deleteSelection();
