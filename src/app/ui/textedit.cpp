@@ -63,7 +63,8 @@ void TextEdit::copy()
 
   const int startPos = m_selection.start.absolutePos();
   set_clipboard_text(
-    text().substr(startPos, m_selection.end.absolutePos() - startPos));
+    text().substr(startPos, m_selection.end.absolutePos() - startPos)
+  );
 }
 
 void TextEdit::paste()
@@ -84,17 +85,22 @@ void TextEdit::paste()
   std::string newText = text();
   newText.insert(m_caret.absolutePos(), clipboard);
 
-  setText(newText);
+  if (clipboard.find('\n') == std::string::npos) {
+    auto& line = m_lines[m_caret.line];
+    line.text = line.text.insert(m_caret.pos, clipboard);
+    line.buildBlob(this);
+    setTextQuiet(newText);
+  }
+  else {
+    setText(newText);
+  }
 
   m_caret.advanceBy(clipboard.size());
 }
 
 void TextEdit::selectAll()
 {
-  if (m_lines.empty())
-    return;
-
-  if (m_lines.front().text.empty())
+  if (text().empty() || m_lines.empty())
     return;
 
   Caret startCaret(&m_lines);
@@ -127,8 +133,8 @@ bool TextEdit::onProcessMessage(Message* msg)
     case kFocusLeaveMessage: {
       stopTimer();
       m_drawCaret = false;
+      invalidateRect(m_caretRect);
       os::System::instance()->setTranslateDeadKeys(false);
-      invalidate();
     } break;
     case kKeyDownMessage: {
       if (hasFocus() && onKeyDown(static_cast<KeyMessage*>(msg))) {
@@ -160,17 +166,15 @@ bool TextEdit::onProcessMessage(Message* msg)
       }
     } break;
     case kMouseDownMessage:
-      if (!hasCapture()) {
-        // Only clear the selection when we don't have a capture, to avoid stepping on double click selection.
+      if (msg->shiftPressed())
+        m_mouseCaretStart = m_selection.isEmpty() ? m_caret : m_selection.start;
+      else if (!hasCapture()) // Only clear the selection when we don't have a capture, to avoid stepping on double click selection.
         m_selection.clear();
-        captureMouse();
-      }
+      
+      captureMouse();
 
       stopTimer();
       m_drawCaret = true;
-
-      if (msg->shiftPressed())
-        m_mouseCaretStart = m_selection.isEmpty() ? m_caret : m_selection.start;
 
       [[fallthrough]];
     case kMouseMoveMessage:
@@ -200,7 +204,7 @@ bool TextEdit::onProcessMessage(Message* msg)
       if (mouseMsg->preciseWheel())
         scroll += mouseMsg->wheelDelta();
       else
-        scroll += mouseMsg->wheelDelta() * textHeight();
+        scroll += mouseMsg->wheelDelta() * font()->height();
 
       view->setViewScroll(scroll);
     } break;
@@ -212,8 +216,7 @@ bool TextEdit::onProcessMessage(Message* msg)
 bool TextEdit::onKeyDown(KeyMessage* keyMessage)
 {
   const KeyScancode scancode = keyMessage->scancode();
-  bool byWord = keyMessage->ctrlPressed();
-
+  const bool byWord = keyMessage->ctrlPressed();
   const Caret prevCaret = m_caret;
 
   switch (scancode) {
@@ -260,7 +263,8 @@ bool TextEdit::onKeyDown(KeyMessage* keyMessage)
           endCaret.right(byWord);
         }
 
-        m_selection = Selection(startCaret, endCaret);
+        m_selection.start = startCaret;
+        m_selection.end = endCaret;
       }
 
       deleteSelection();
@@ -269,11 +273,6 @@ bool TextEdit::onKeyDown(KeyMessage* keyMessage)
     default:
       if (keyMessage->unicodeChar() >= 32) {
         deleteSelection();
-
-        TRACE("isDeadKey: %d - unicodeChar: %s.\n",
-              keyMessage->isDeadKey() ? 1 : 0,
-              base::codepoint_to_utf8(keyMessage->unicodeChar()).c_str());
-
         insertCharacter(keyMessage->unicodeChar());
 
         if (keyMessage->isDeadKey()) {
@@ -366,7 +365,7 @@ void TextEdit::onPaint(PaintEvent& ev)
   gfx::PointF point(border().left(), border().top());
   point -= scroll;
 
-  gfx::Rect caretRect(border().left() - scroll.x, border().top() - scroll.y, 2, textHeight());
+  gfx::Rect caretRect(border().left() - scroll.x, border().top() - scroll.y, 2, font()->height());
 
   os::Paint textPaint;
   textPaint.color(theme->colors.text());
@@ -443,7 +442,7 @@ void TextEdit::drawSelectionRect(Graphics* g,
   if (!line.blob) {
     // No blob so this must be an empty line in the middle of a selection, just give it a marginal width
     // so it's noticeable.
-    selectionRect.w = line.height / 2;
+    selectionRect.w = line.height / 2.0;
   }
   else if (
     // Detect when this entire line is selected, to avoid doing any runs and just painting it all
@@ -515,7 +514,7 @@ TextEdit::Caret TextEdit::caretFromPosition(const gfx::Point& position)
   offsetPosition += View::getView(this)->viewScroll();
 
   Caret caret(&m_lines);
-  const int lineHeight = textHeight();
+  const int lineHeight = font()->height();
 
   // First check if the offset position is blank (below all the lines)
   if (offsetPosition.y > m_lines.size() * lineHeight) {
@@ -543,7 +542,7 @@ TextEdit::Caret TextEdit::caretFromPosition(const gfx::Point& position)
 
       line.blob->visitRuns([&](text::TextBlob::RunInfo& run) {
         for (int i = 0; i < run.glyphCount; ++i) {
-          int charWidth = run.getGlyphBounds(i).w;
+          const int charWidth = run.getGlyphBounds(i).w;
 
           if (offsetPosition.x >= charX &&
               offsetPosition.x <= charX + charWidth) {
@@ -568,10 +567,11 @@ void TextEdit::insertCharacter(base::codepoint_t character)
   const std::string unicodeStr = base::codepoint_to_utf8(character);
 
   m_lines[m_caret.line].text.insert(m_caret.pos, unicodeStr);
+  m_lines[m_caret.line].buildBlob(this);
 
   std::string newText = text();
   newText.insert(m_caret.absolutePos(), unicodeStr);
-  setText(newText);
+  setTextQuiet(newText);
 
   m_caret.pos++;
 }
@@ -582,28 +582,25 @@ void TextEdit::deleteSelection()
     return;
 
   std::string newText = text();
-  newText.erase(newText.begin() + m_selection.start.absolutePos(),
-                newText.begin() + m_selection.end.absolutePos());
-  setText(newText);
+  newText.erase(
+    newText.begin() + m_selection.start.absolutePos(),
+    newText.begin() + m_selection.end.absolutePos()
+  );
+
+  if (m_selection.start.line == m_selection.end.line) {
+    auto& line = m_lines[m_selection.start.line];
+    line.text.erase(line.text.begin() + m_selection.start.pos, line.text.begin() + m_selection.end.pos);
+    line.buildBlob(this);
+
+    // Only rebuilds the one line
+    setTextQuiet(newText);
+  }
+  else {
+    setText(newText);
+  }
 
   m_caret = m_selection.start;
   m_selection.clear();
-}
-
-void TextEdit::rebuildTextFromLines()
-{
-  // Rebuild the widget text from the lines, TODO: Hinting as to what changed in a signal
-  // for onSetText.
-
-  std::string newText;
-  for (const auto& line : m_lines) {
-    newText.append(line.text);
-    if (&line != &m_lines.back())
-      newText.append("\n");
-  }
-
-  // TODO: HINT_NO_LINE_CHANGE
-  setText(newText);
 }
 
 void TextEdit::ensureCaretVisible()
@@ -612,7 +609,7 @@ void TextEdit::ensureCaretVisible()
   if (!view || !view->hasScrollBars() || !m_caret.isValid())
     return;
 
-  const int lineHeight = textHeight();
+  const int lineHeight = font()->height();
   gfx::Point scroll = view->viewScroll();
   const gfx::Size visibleBounds = view->viewportBounds().size();
 
@@ -637,8 +634,7 @@ void TextEdit::ensureCaretVisible()
       }
     });
 
-    const int horizontalLimit =
-      scroll.x + visibleBounds.w - view->horizontalBar()->getBarWidth();
+    const int horizontalLimit = scroll.x + visibleBounds.w - view->horizontalBar()->getBarWidth();
     if (m_caret.pos == 0)
       scroll.x = 0;
     else if (caretX > horizontalLimit)
@@ -652,11 +648,7 @@ void TextEdit::ensureCaretVisible()
 
 void TextEdit::onSetText()
 {
-  // Recalculate lines based on new text
-
-  // TODO: Have "hints" that can be used to only recalculate small parts of the text
-  // depending on what has changed, like HINT_NO_LINE_CHANGE, HINT_NEW_LINE and then reset it here.
-
+  // Recalculate all the lines based on the widget's text
   m_lines.clear();
 
   std::vector<std::string> newLines;
@@ -676,16 +668,10 @@ void TextEdit::onSetText()
     if (lineString.empty()) {
       // Empty lines have no blobs attached.
       newLine.width = 0;
-      newLine.height = textHeight();
+      newLine.height = font()->height();
     }
     else {
-      newLine.blob = text::TextBlob::MakeWithShaper(
-        theme()->fontMgr(), base::AddRef(font()), lineString);
-
-      ASSERT(newLine.blob.get());
-
-      newLine.width = newLine.blob->bounds().w;
-      newLine.height = newLine.blob->bounds().h;
+      newLine.buildBlob(this);
     }
 
     if (newLine.width > longestWidth) {

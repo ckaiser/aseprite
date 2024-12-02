@@ -9,7 +9,9 @@
 #define APP_UI_TEXT_EDIT_H_INCLUDED
 #pragma once
 
+#include "text/font_mgr.h"
 #include "ui/box.h"
+#include "ui/theme.h"
 #include "ui/view.h"
 
 namespace app {
@@ -45,6 +47,23 @@ private:
 
     // Line index for more convenient loops
     int i = 0;
+
+    void buildBlob(Widget* forWidget)
+    {
+    if (text.empty()) {
+        blob = nullptr;
+        width = 0;
+        height = forWidget->font()->height();
+        return;
+      }
+
+      blob = text::TextBlob::MakeWithShaper(
+        forWidget->theme()->fontMgr(), base::AddRef(forWidget->font()), text
+      );
+
+      width = blob->bounds().w;
+      height = blob->bounds().h;
+    }
   };
 
   struct Caret {
@@ -243,22 +262,25 @@ private:
     Selection(Caret startCaret, Caret endCaret)
     {
       start = startCaret;
-      end = endCaret;  // Flip, flip, flipadelphia.
+      to(endCaret);
     }
 
     bool isEmpty() const
     {
-      return (isValid() && start.line == end.line && start.pos == end.pos);
+      return (start.line == end.line && start.pos == end.pos);
     }
 
     bool isValid() const { return start.isValid() && end.isValid(); }
 
     void to(const Caret& caret)
     {
-      if (caret.line + caret.pos < start.line + start.pos)
+      if (caret.line + caret.pos < start.line + start.pos) {
         start = caret;
-      else
+        end = start;
+      }
+      else {
         end = caret;
+      }
     }
 
     void clear()
@@ -276,7 +298,6 @@ private:
   Caret caretFromPosition(const gfx::Point& position);
   void insertCharacter(base::codepoint_t character);
   void deleteSelection();
-  void rebuildTextFromLines();
   void ensureCaretVisible();
 
   void startTimer();
