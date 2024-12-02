@@ -15,14 +15,8 @@
 namespace app {
 using namespace ui;
 
-// TODO: Move to a general place
-static inline bool is_word_char(int ch)
-{
-  return (ch && !std::isspace(ch) && !std::ispunct(ch));
-}
-
 class TextEdit : public Widget,
-                       public ViewableWidget {
+                 public ViewableWidget {
 public:
   TextEdit();
 
@@ -39,7 +33,7 @@ protected:
   void onSetText() override;
 
   bool onKeyDown(KeyMessage* keyMessage);
-  bool onMouseMove(MouseMessage* keyMessage);
+  bool onMouseMove(MouseMessage* mouseMessage);
 
 private:
   struct Line {
@@ -59,12 +53,11 @@ private:
     {
     }
     explicit Caret(std::vector<Line>* lines, int line, int pos)
-        : m_lines(lines)
-        , line(line)
-        , pos(pos)
+      : line(line)
+      , pos(pos)
+      , m_lines(lines)
     {
     }
-
 
     int line = 0;
     int pos = 0;
@@ -72,80 +65,73 @@ private:
     bool left(bool byWord = false)
     {
       if (byWord)
-        return leftWord();
-
-      pos -= 1;
+        leftWord();
+      else
+        pos -= 1;
 
       if (pos < 0) {
         if (line == 0) {
           pos = 0;
           return false;
         }
-        else {
-          line -= 1;
-          pos = text().size();
-        }
+
+        line -= 1;
+        pos = text().size();
       }
 
       return true;
     }
 
-    bool leftWord()
+    // Moves the position to the next word on the left, doesn't wrap around lines.
+    void leftWord()
     {
-        for (--pos; pos >= 0; --pos) {
-            if (is_word_char(text()[pos]))
-                break;
+      for (--pos; pos >= 0; --pos) {
+        if (isWordChar(text()[pos]))
+          break;
+      }
+
+      for (; pos >= 0; --pos) {
+        if (!isWordChar(text()[pos])) {
+          ++pos;
+          break;
         }
-
-        for (; pos >= 0; --pos) {
-            if (!is_word_char(text()[pos])) {
-                ++pos;
-                break;
-            }
-        }
-
-        if (pos < 0)
-            pos = 0;
-
-        return true;
+      }
     }
 
     bool right(bool byWord = false)
     {
       if (byWord)
-        return rightWord();
-
-      pos += 1;
+        rightWord();
+      else
+        pos += 1;
 
       if (pos > text().size()) {
         if (line == m_lines->size() - 1) {
           pos -= 1;  // Undo movement, we've reached the end of the text.
           return false;
         }
-        else {
-          line += 1;
-          pos = 0;
-        }
+
+        line += 1;
+        pos = 0;
       }
 
       return true;
     }
 
-    bool rightWord()
+    // Moves the position to the next word on the right, doesn't wrap around lines.
+    void rightWord()
     {
-      int len = text().size();
+      const int len = text().size();
 
       for (; pos < len; ++pos) {
-        if (is_word_char(text()[pos]))
+        if (isWordChar(text()[pos]))
           break;
       }
 
       for (; pos < len; ++pos) {
-        if (!is_word_char(text()[pos]))
+        if (!isWordChar(text()[pos]))
           break;
       }
-
-      return true;
     }
 
     void up()
@@ -160,50 +146,58 @@ private:
       pos = std::clamp(pos, 0, int(text().size()));
     }
 
-    bool isLastInLine() { return pos == text().size(); }
+    bool isLastInLine() const { return pos == text().size(); }
 
-    bool isLastLine() { return line == m_lines->size() - 1; }
+    bool isLastLine() const { return line == m_lines->size() - 1; }
 
     // Returns the absolute position of the caret, aka the position in a string
-    int absolutePos() {
-        int apos = 0;
-        for (const auto& l : *m_lines) {
-            if (l.i == line) {
-                apos += pos;
-                return apos;
-            }
-            else {
-                apos += l.text.size() + 1;
-            }
+    int absolutePos() const
+    {
+      int apos = 0;
+      for (const auto& l : *m_lines) {
+        if (l.i == line) {
+          apos += pos;
+          return apos;
         }
-        return apos;
+
+        apos += l.text.size() + 1;
+      }
+      return apos;
+    }
+
+    bool isWordChar(char ch) const
+    {
+      return (ch != 0 && std::isspace(static_cast<unsigned char>(ch)) == 0 &&
+              std::ispunct(static_cast<unsigned char>(ch)) == 0);
     }
 
     // Advance the selection by the amount of characters, wrapping around new lines.
-    void advanceBy(int characters) {
-        ASSERT(characters > 0); // TODO: Support negative offsets if we need them
+    void advanceBy(int characters)
+    {
+      ASSERT(characters > 0);  // TODO: Support negative offsets if we need them
 
-        int remaining = characters;
-        for (int i = line; i < m_lines->size(); ++i) {
-            // More characters to go in the current line
-            int remainingInLine = text().size() - pos;
-            if (remaining > remainingInLine) {
-                remaining -= remainingInLine; // The amount of character we advanced in this go.
-                ++line; // Advance the caret
-                pos = 0;
-            }
-            else {
-                pos += remaining;
-                return;
-            }
+      int remaining = characters;
+      for (int i = line; i < m_lines->size(); ++i) {
+        // More characters to go in the current line
+        const int remainingInLine = text().size() - pos;
+        if (remaining > remainingInLine) {
+          remaining -=
+            remainingInLine;  // The amount of character we advanced in this go.
+          ++line;             // Advance the caret
+          pos = 0;
         }
+        else {
+          pos += remaining;
+          return;
+        }
+      }
     }
 
-    bool isValid()
+    bool isValid() const
     {
       if (m_lines == nullptr)
         return false;
-      
+
       if (line < 0 || line >= m_lines->size())
         return false;
 
@@ -220,24 +214,24 @@ private:
       pos = 0;
     }
 
-    inline bool operator==(const Caret& other)
+    bool operator==(const Caret& other) const
     {
       return line == other.line && pos == other.pos;
     }
 
-    inline bool operator!=(const Caret& other)
+    bool operator!=(const Caret& other) const
     {
       return line != other.line || pos != other.pos;
     }
 
-    inline bool operator>(const Caret& other)
+    bool operator>(const Caret& other) const
     {
       return (line == other.line) ? pos > other.pos :
                                     (line + pos) > (other.line + pos);
     }
 
   private:
-    inline std::string& text() const { return (*m_lines)[line].text; }
+    std::string& text() const { return (*m_lines)[line].text; }
     std::vector<Line>* m_lines;
   };
 
@@ -246,15 +240,18 @@ private:
     Caret end;
 
     Selection() = default;
-    Selection(Caret startCaret, Caret endCaret) {
+    Selection(Caret startCaret, Caret endCaret)
+    {
       start = startCaret;
-      end = endCaret; // Flip, flip, flipadelphia.
+      end = endCaret;  // Flip, flip, flipadelphia.
     }
 
     bool isEmpty() const
     {
-      return (start.line == end.line && start.pos == end.pos);
+      return (isValid() && start.line == end.line && start.pos == end.pos);
     }
+
+    bool isValid() const { return start.isValid() && end.isValid(); }
 
     void to(const Caret& caret)
     {
@@ -266,8 +263,8 @@ private:
 
     void clear()
     {
-      start = Caret(nullptr);  // std::optional?
-      end = Caret(nullptr);
+      start = Caret();
+      end = Caret();
     }
   };
 
