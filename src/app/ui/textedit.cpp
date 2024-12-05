@@ -648,14 +648,13 @@ void TextEdit::ensureCaretVisible()
 
 void TextEdit::onSetText()
 {
+  std::vector<std::string_view> newLines;
+  newLines.reserve(m_lines.size()); // Assume lines will be around the same size as before, if any
+
   // Recalculate all the lines based on the widget's text
   m_lines.clear();
 
-  std::vector<std::string> newLines;
-  base::split_string(text(),
-                     newLines,
-                     "\n");  // TODO: Could string_view variant?
-
+  base::split_string(text(), newLines, "\n");
   m_lines.reserve(newLines.size());
 
   int longestWidth = 0;
@@ -664,15 +663,7 @@ void TextEdit::onSetText()
   for (const auto& lineString : newLines) {
     Line newLine;
     newLine.text = lineString;
-
-    if (lineString.empty()) {
-      // Empty lines have no blobs attached.
-      newLine.width = 0;
-      newLine.height = font()->height();
-    }
-    else {
-      newLine.buildBlob(this);
-    }
+    newLine.buildBlob(this);
 
     if (newLine.width > longestWidth) {
       longestWidth = newLine.width;

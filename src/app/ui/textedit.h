@@ -50,7 +50,7 @@ private:
 
     void buildBlob(Widget* forWidget)
     {
-    if (text.empty()) {
+      if (text.empty()) {
         blob = nullptr;
         width = 0;
         height = forWidget->font()->height();
@@ -58,8 +58,7 @@ private:
       }
 
       blob = text::TextBlob::MakeWithShaper(
-        forWidget->theme()->fontMgr(), base::AddRef(forWidget->font()), text
-      );
+        forWidget->theme()->fontMgr(), forWidget->font(), text);
 
       width = blob->bounds().w;
       height = blob->bounds().h;
