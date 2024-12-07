@@ -10,12 +10,14 @@
 #pragma once
 
 #include "text/font_mgr.h"
+#include "text/text_blob.h"
 #include "ui/box.h"
 #include "ui/theme.h"
 #include "ui/view.h"
 
 namespace app {
 using namespace ui;
+using namespace text;
 
 class TextEdit : public Widget,
                  public ViewableWidget {
@@ -38,8 +40,26 @@ protected:
   bool onMouseMove(MouseMessage* mouseMessage);
 
 private:
+  class Utf8RangeBuilder: public text::TextBlob::RunHandler {
+    public:
+      explicit Utf8RangeBuilder(int minSize) {
+        ranges.reserve(minSize);
+      }
+
+      void commitRunBuffer(TextBlob::RunInfo& info) override {
+        for (int i = 0; i < info.glyphCount; ++i) {
+          ranges.push_back(info.getGlyphUtf8Range(i));
+        }
+      }
+
+      std::vector<TextBlob::Utf8Range> ranges;
+      int glyphCount;
+  };
+
   struct Line {
     std::string text;
+    std::vector<TextBlob::Utf8Range> utfSize;
+    int glyphCount;
     text::TextBlobRef blob;
 
     int width = 0;
@@ -50,15 +70,23 @@ private:
 
     void buildBlob(Widget* forWidget)
     {
+      utfSize.clear();
+
       if (text.empty()) {
         blob = nullptr;
         width = 0;
+        glyphCount = 0;
         height = forWidget->font()->height();
         return;
       }
 
+      Utf8RangeBuilder rangeBuilder(text.size());
       blob = text::TextBlob::MakeWithShaper(
-        forWidget->theme()->fontMgr(), forWidget->font(), text);
+        forWidget->theme()->fontMgr(), forWidget->font(), text, &rangeBuilder
+      );
+
+      utfSize = std::move(rangeBuilder.ranges);
+      glyphCount = utfSize.size(); // TODO: Emoji really bungle things up, size-wise. 
 
       width = blob->bounds().w;
       height = blob->bounds().h;
@@ -94,7 +122,7 @@ private:
         }
 
         line -= 1;
-        pos = text().size();
+        pos = l().glyphCount;
       }
 
       return true;
@@ -104,12 +132,14 @@ private:
     void leftWord()
     {
       for (--pos; pos >= 0; --pos) {
-        if (isWordChar(text()[pos]))
+        const auto& utfPos = l().utfSize[pos];
+        if (isWordPart(text().substr(utfPos.begin, utfPos.end - utfPos.begin)))
           break;
       }
 
       for (; pos >= 0; --pos) {
-        if (!isWordChar(text()[pos])) {
+        const auto& utfPos = l().utfSize[pos];
+        if (!isWordPart(text().substr(utfPos.begin, utfPos.end - utfPos.begin))) {
           ++pos;
           break;
         }
@@ -123,7 +153,7 @@ private:
       else
         pos += 1;
 
-      if (pos > text().size()) {
+      if (pos > l().glyphCount) {
         if (line == m_lines->size() - 1) {
           pos -= 1;  // Undo movement, we've reached the end of the text.
           return false;
@@ -139,15 +169,17 @@ private:
     // Moves the position to the next word on the right, doesn't wrap around lines.
     void rightWord()
     {
-      const int len = text().size();
+      const int len = l().glyphCount;
 
       for (; pos < len; ++pos) {
-        if (isWordChar(text()[pos]))
+        const auto& utfPos = l().utfSize[pos];
+        if (isWordPart(text().substr(utfPos.begin, utfPos.end - utfPos.begin)))
           break;
       }
 
       for (; pos < len; ++pos) {
-        if (!isWordChar(text()[pos]))
+        const auto& utfPos = l().utfSize[pos];
+        if (!isWordPart(text().substr(utfPos.begin, utfPos.end - utfPos.begin)))
           break;
       }
     }
@@ -155,49 +187,61 @@ private:
     void up()
     {
       line = std::clamp(line - 1, 0, int(m_lines->size()) - 1);
-      pos = std::clamp(pos, 0, int(text().size()));
+      pos = std::clamp(pos, 0, l().glyphCount);
     }
 
     void down()
     {
       line = std::clamp(line + 1, 0, int(m_lines->size()) - 1);
-      pos = std::clamp(pos, 0, int(text().size()));
+      pos = std::clamp(pos, 0, l().glyphCount);
     }
 
-    bool isLastInLine() const { return pos == text().size(); }
+    bool isLastInLine() const { return pos == l().glyphCount; }
 
     bool isLastLine() const { return line == m_lines->size() - 1; }
 
-    // Returns the absolute position of the caret, aka the position in a string
+    // Returns the absolute position of the caret, aka the position in the main string that has all the newlines.
     int absolutePos() const
     {
       int apos = 0;
       for (const auto& l : *m_lines) {
-        if (l.i == line) {
-          apos += pos;
-          return apos;
-        }
+        const bool hasNextLine = l.i < (m_lines->size() - 1);
 
-        apos += l.text.size() + 1;
+        if (l.i == line) {
+            if (l.text.empty() || pos == 0)
+              return apos;
+
+            if (pos >= l.utfSize.size())
+                apos += l.utfSize.back().end;
+            else if (pos > l.utfSize.size())
+                apos += l.utfSize.back().end + (hasNextLine ? 1 : 0);
+            else
+                apos += l.utfSize[pos].begin;
+            return apos;
+        }
+        
+        if (!l.text.empty())
+          apos += l.utfSize.back().end;
+        
+        if (hasNextLine)
+          apos += 1; // Newline glyph.
       }
       return apos;
     }
 
-    bool isWordChar(char ch) const
+    bool isWordPart(const std::string_view &word) const
     {
-      return (ch != 0 && std::isspace(static_cast<unsigned char>(ch)) == 0 &&
-              std::ispunct(static_cast<unsigned char>(ch)) == 0);
+      return (!word.empty() && std::isspace(word[0]) == 0 && std::ispunct(word[0]) == 0);
     }
 
-    // Advance the selection by the amount of characters, wrapping around new lines.
-    void advanceBy(int characters)
+    void advanceBy(int glyphs)
     {
-      ASSERT(characters > 0);  // TODO: Support negative offsets if we need them
+      ASSERT(glyphs > 0);  // TODO: Support negative offsets if we need them
 
-      int remaining = characters;
+      int remaining = glyphs;
       for (int i = line; i < m_lines->size(); ++i) {
         // More characters to go in the current line
-        const int remainingInLine = text().size() - pos;
+        const int remainingInLine = l().glyphCount - pos;
         if (remaining > remainingInLine) {
           remaining -=
             remainingInLine;  // The amount of character we advanced in this go.
@@ -219,7 +263,7 @@ private:
       if (line < 0 || line >= m_lines->size())
         return false;
 
-      if (pos < 0 || pos > text().size())
+      if (pos < 0 || pos > l().glyphCount)
         return false;
 
       return true;
@@ -250,6 +294,7 @@ private:
 
   private:
     std::string& text() const { return (*m_lines)[line].text; }
+    Line& l() const { return (*m_lines)[line]; }
     std::vector<Line>* m_lines;
   };
 

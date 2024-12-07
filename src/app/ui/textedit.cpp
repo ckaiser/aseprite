@@ -109,7 +109,7 @@ void TextEdit::selectAll()
 
   Caret endCaret = startCaret;
   endCaret.line = m_lines.size() - 1;
-  endCaret.pos = m_lines[endCaret.line].text.size();
+  endCaret.pos = m_lines[endCaret.line].glyphCount;
 
   m_selection = Selection(startCaret, endCaret);
 }
@@ -241,7 +241,7 @@ bool TextEdit::onKeyDown(KeyMessage* keyMessage)
       m_caret.pos = 0;
     } break;
     case kKeyEnd: {
-      m_caret.pos = m_lines[m_caret.line].text.size();
+      m_caret.pos = m_lines[m_caret.line].glyphCount;
     } break;
     case kKeyUp: {
       m_caret.up();
@@ -273,11 +273,11 @@ bool TextEdit::onKeyDown(KeyMessage* keyMessage)
     default:
       if (keyMessage->unicodeChar() >= 32) {
         deleteSelection();
-        insertCharacter(keyMessage->unicodeChar());
-
         if (keyMessage->isDeadKey()) {
-          m_selection = Selection(prevCaret, m_caret);
+          return true;
         }
+
+        insertCharacter(keyMessage->unicodeChar());
         return true;
       }
       else if (scancode >= kKeyFirstModifierScancode) {
@@ -448,7 +448,7 @@ void TextEdit::drawSelectionRect(Graphics* g,
     // Detect when this entire line is selected, to avoid doing any runs and just painting it all
     // Case 1: Start and end line is this line, and the firstPos and endPos is 0 and the line's length.
     (m_selection.start.line == i && m_selection.end.line == i &&
-     m_selection.start.pos == 0 && m_selection.end.pos == line.text.size())
+     m_selection.start.pos == 0 && m_selection.end.pos == line.glyphCount)
     // Case 2: We start at this line and position zero, we end in a higher line.
     || (m_selection.start.line == i && m_selection.start.pos == 0 &&
         m_selection.end.line > i)
@@ -495,13 +495,16 @@ TextEdit::Caret TextEdit::caretFromPosition(const gfx::Point& position)
   if (!view)
     return Caret();
 
+  if (m_lines.empty())
+    return Caret(&m_lines, 0, 0);
+
   if (!view->viewportBounds().contains(position)) {
     if (position.y < view->viewportBounds().y) {
       return Caret(&m_lines, 0, 0);
     }
 
     if (position.y > (view->viewportBounds().y + view->viewportBounds().h)) {
-      return Caret(&m_lines, m_lines.size() - 1, m_lines.back().text.size());
+      return Caret(&m_lines, m_lines.size() - 1, m_lines.back().glyphCount);
     }
 
     return Caret();
@@ -523,7 +526,7 @@ TextEdit::Caret TextEdit::caretFromPosition(const gfx::Point& position)
     // Check the line width and if we're more than halfway past the line, we can set the caret to the full line.
     // TODO: Ideally we'd calculate the equivalent position in the last line with a run akin to what we're doing in the loop below.
     caret.pos = (offsetPosition.x > m_lines[caret.line].width / 2) ?
-                  m_lines[caret.line].text.size() :
+                  m_lines[caret.line].glyphCount :
                   0;
     return caret;
   }
@@ -553,7 +556,7 @@ TextEdit::Caret TextEdit::caretFromPosition(const gfx::Point& position)
         }
 
         // Empty space:
-        caret.pos = line.text.size();
+        caret.pos = line.glyphCount;
       });
       break;
     }
@@ -566,8 +569,20 @@ void TextEdit::insertCharacter(base::codepoint_t character)
 {
   const std::string unicodeStr = base::codepoint_to_utf8(character);
 
-  m_lines[m_caret.line].text.insert(m_caret.pos, unicodeStr);
-  m_lines[m_caret.line].buildBlob(this);
+  if (m_lines.empty()) {
+    // Fast path for the first char.
+    setText(unicodeStr);
+    m_caret.pos++;
+    return;
+  }
+
+  auto& line = m_lines[m_caret.line];
+  if (m_caret.pos == 0)
+    line.text.insert(0, unicodeStr); // Empty case, TODO: Handle better?
+  else
+    line.text.insert(line.utfSize[m_caret.pos - 1].end, unicodeStr);
+
+  line.buildBlob(this);
 
   std::string newText = text();
   newText.insert(m_caret.absolutePos(), unicodeStr);
@@ -589,7 +604,13 @@ void TextEdit::deleteSelection()
 
   if (m_selection.start.line == m_selection.end.line) {
     auto& line = m_lines[m_selection.start.line];
-    line.text.erase(line.text.begin() + m_selection.start.pos, line.text.begin() + m_selection.end.pos);
+    int end;
+    if (m_selection.end.isLastInLine())
+      end = line.utfSize.back().end;
+    else
+      end = line.utfSize[m_selection.end.pos].end;
+
+    line.text.erase(line.text.begin() + line.utfSize[m_selection.start.pos].begin, line.text.begin() + end);
     line.buildBlob(this);
 
     // Only rebuilds the one line
