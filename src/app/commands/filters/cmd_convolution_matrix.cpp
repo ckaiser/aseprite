@@ -132,7 +132,7 @@ private:
   void onMatrixChange()
   {
     Widget* selected = m_stockListBox->getSelectedChild();
-    std::shared_ptr<ConvolutionMatrix> matrix = m_stock.getByName(selected->text().c_str());
+    std::shared_ptr<ConvolutionMatrix> matrix = m_stock.getByName(selected->text().data());
     Target newTarget = matrix->getDefaultTarget();
 
     stopPreview();

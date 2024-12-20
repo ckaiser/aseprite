@@ -40,7 +40,7 @@ public:
   void setOptionsGridVisibility(bool state);
   void loadDynamicsPref(bool sameInAllTools);
   void saveDynamicsPref(bool sameInAllTools);
-  std::string ditheringMatrixName() const;
+  std::string_view ditheringMatrixName() const;
   void refreshVisibility();
   bool sharedSettings() const;
 

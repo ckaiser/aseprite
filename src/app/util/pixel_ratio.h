@@ -14,7 +14,7 @@
 namespace base {
 
 template<>
-doc::PixelRatio convert_to(const std::string& from);
+doc::PixelRatio convert_to(const std::string_view& from);
 template<>
 std::string convert_to(const doc::PixelRatio& from);
 

@@ -138,7 +138,7 @@ double Widget::textDouble() const
   return onGetTextDouble();
 }
 
-void Widget::setText(const std::string& text)
+void Widget::setText(const std::string_view text)
 {
   setTextQuiet(text);
   onSetText();
@@ -162,12 +162,12 @@ void Widget::setTextf(const char* format, ...)
   }
 }
 
-void Widget::setTextQuiet(const std::string& text)
+void Widget::setTextQuiet(const std::string_view text)
 {
   assert_ui_thread();
 
   // Reset blob
-  if (m_text != text)
+  if (this->text() != text)
     m_blob.reset();
 
   m_text = text;

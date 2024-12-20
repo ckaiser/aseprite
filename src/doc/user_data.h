@@ -117,7 +117,7 @@ public:
   Properties& properties() { return properties(std::string()); }
   Properties& properties(const std::string& groupKey) { return m_propertiesMaps[groupKey]; }
 
-  void setText(const std::string& text) { m_text = text; }
+  void setText(const std::string_view text) { m_text = text; }
   void setColor(color_t color) { m_color = color; }
 
   bool operator==(const UserData& other) const

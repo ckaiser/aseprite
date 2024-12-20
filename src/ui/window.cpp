@@ -710,7 +710,7 @@ void Window::onBuildTitleLabel()
   }
   else {
     if (!m_titleLabel) {
-      m_titleLabel = new WindowTitleLabel(text());
+      m_titleLabel = new WindowTitleLabel(std::string(text()));
       addChild(m_titleLabel);
     }
     else {

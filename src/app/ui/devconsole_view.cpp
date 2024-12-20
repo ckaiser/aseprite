@@ -54,7 +54,7 @@ protected:
           switch (scancode) {
             case kKeyEnter:
             case kKeyEnterPad: {
-              std::string cmd = text();
+              std::string cmd(text());
               ExecuteCommand(cmd);
               setText("");
               return true;
@@ -164,7 +164,7 @@ void DevConsoleView::onConsoleError(const char* text)
 void DevConsoleView::onConsolePrint(const char* text)
 {
   if (text)
-    m_textBox.setText(m_textBox.text() + "\n" + text);
+    m_textBox.setText(std::string(m_textBox.text()) + "\n" + text);
 }
 
 } // namespace app

@@ -529,7 +529,7 @@ std::string LayerGroup::visibleLayerHierarchyAsString(const std::string& indent)
     if (!child->isVisible())
       continue;
 
-    str += indent + child->name() + (child->isGroup() ? "/" : "") + "\n";
+    str += indent + child->name().data() + (child->isGroup() ? "/" : "") + "\n";
     if (child->isGroup())
       str += static_cast<LayerGroup*>(child)->visibleLayerHierarchyAsString(indent + "  ");
   }

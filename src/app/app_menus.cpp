@@ -614,7 +614,7 @@ void AppMenus::addMenuItemIntoGroup(const std::string& groupId, std::unique_ptr<
   if (it == m_groups.end()) {
     LOG(ERROR,
         "MENU: An extension tried to add a command (%s) in a non-existent group (%s)\n",
-        menuItem->text().c_str(),
+        menuItem->text().data(),
         groupId.c_str());
     menuItem.release();
     return;

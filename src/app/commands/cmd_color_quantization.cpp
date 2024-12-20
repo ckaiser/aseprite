@@ -113,14 +113,14 @@ void ColorQuantizationCommand::onExecute(Context* ctx)
 
       if (entries.picks() > 1) {
         window.currentRange()->setTextf("%s, %d color(s)",
-                                        window.currentRange()->text().c_str(),
+                                        window.currentRange()->text().data(),
                                         entries.picks());
       }
       else
         window.currentRange()->setEnabled(false);
 
       window.currentPalette()->setTextf("%s, %d color(s)",
-                                        window.currentPalette()->text().c_str(),
+                                        window.currentPalette()->text().data(),
                                         curPalette->size());
     }
 

@@ -325,7 +325,7 @@ FontPopup::~FontPopup()
   m_timer.stop();
 }
 
-void FontPopup::setSearchText(const std::string& searchText)
+void FontPopup::setSearchText(const std::string_view searchText)
 {
   FontItem* firstItem = nullptr;
 

@@ -1380,7 +1380,7 @@ void Manager::_openWindow(Window* window, bool center)
       window->setDisplay(newDisplay, true);
 
       // Set native title bar text
-      newNativeWindow->setTitle(window->text());
+      newNativeWindow->setTitle(std::string(window->text()));
 
       // Same GPU acceleration flag that the parent display
       newNativeWindow->setGpuAcceleration(gpu);

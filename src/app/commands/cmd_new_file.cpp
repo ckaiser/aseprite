@@ -191,7 +191,7 @@ void NewFileCommand::onExecute(Context* ctx)
       pref.newFile.colorMode(colorMode);
       pref.newFile.backgroundColor(bg);
       pref.newFile.advanced(window.advancedCheck()->isSelected());
-      pref.newFile.pixelRatio(window.pixelRatio()->getValue());
+      pref.newFile.pixelRatio(window.pixelRatio()->getValue().data());
     }
 
     width = w;

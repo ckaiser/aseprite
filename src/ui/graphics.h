@@ -113,7 +113,7 @@ public:
   void setFont(const text::FontRef& font);
 
   [[deprecated]]
-  void drawText(const std::string& str,
+  void drawText(const std::string_view str,
                 gfx::Color fg,
                 gfx::Color bg,
                 const gfx::Point& pt,
@@ -122,19 +122,19 @@ public:
 
   void drawTextBlob(const text::TextBlobRef& textBlob, const gfx::PointF& pt, const Paint& paint);
 
-  void drawUIText(const std::string& str,
+  void drawUIText(const std::string_view str,
                   gfx::Color fg,
                   gfx::Color bg,
                   const gfx::Point& pt,
                   const int mnemonic);
-  void drawAlignedUIText(const std::string& str,
+  void drawAlignedUIText(const std::string_view str,
                          gfx::Color fg,
                          gfx::Color bg,
                          const gfx::Rect& rc,
                          const int align);
 
-  gfx::Size measureText(const std::string& str);
-  gfx::Size fitString(const std::string& str, int maxWidth, int align);
+  gfx::Size measureText(const std::string_view str);
+  gfx::Size fitString(const std::string_view str, int maxWidth, int align);
 
   // Can be used in case that you've accessed/changed the
   // getInternalSurface() directly and need to specify which area

@@ -27,7 +27,7 @@ int AppFS_pathSeparator(lua_State* L)
   return 1;
 }
 
-template<std::string (*Func)(const std::string& path)>
+template<std::string (*Func)(const std::string_view path)>
 int AppFS_pathElement(lua_State* L)
 {
   const char* fn = lua_tostring(L, 1);

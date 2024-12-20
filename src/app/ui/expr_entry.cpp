@@ -50,7 +50,7 @@ void ExprEntry::onChange()
 int ExprEntry::onGetTextInt() const
 {
   int err = 0;
-  double v = te_interp(text().c_str(), &err);
+  double v = te_interp(text().data(), &err);
   if (std::isnan(v))
     return Entry::onGetTextInt();
   else
@@ -60,7 +60,7 @@ int ExprEntry::onGetTextInt() const
 double ExprEntry::onGetTextDouble() const
 {
   int err = 0;
-  double v = te_interp(text().c_str(), &err);
+  double v = te_interp(text().data(), &err);
   if (std::isnan(v))
     return Entry::onGetTextDouble();
   else

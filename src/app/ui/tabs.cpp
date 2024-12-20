@@ -630,7 +630,7 @@ void Tabs::drawTab(Graphics* g, const gfx::Rect& _box, Tab* tab, int dy, bool ho
                                                        text::ShaperFeatures());
       }
 
-      info.text = &tab->text;
+      info.text = tab->text;
       info.textBlob = tab->textBlob;
 
       if (tabColor != gfx::ColorNone) {
@@ -652,7 +652,7 @@ void Tabs::drawTab(Graphics* g, const gfx::Rect& _box, Tab* tab, int dy, bool ho
                              stylePtr,
                              gfx::Rect(box.x + dx, box.y + dy, box.w - dx, box.h),
                              info);
-      info.text = nullptr;
+      info.text = std::string_view();
       info.textBlob = nullptr;
     }
   }

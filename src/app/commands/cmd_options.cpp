@@ -764,7 +764,7 @@ public:
     m_pref.slices.defaultColor(defaultSliceColor()->getColor());
 
     m_pref.color.workingRgbSpace(
-      workingRgbCs()->getItemText(workingRgbCs()->getSelectedItemIndex()));
+      workingRgbCs()->getItemText(workingRgbCs()->getSelectedItemIndex()).data());
     m_pref.color.filesWithProfile(filesWithCsMap[filesWithCs()->getSelectedItemIndex()]);
     m_pref.color.missingProfile(missingCsMap[missingCs()->getSelectedItemIndex()]);
 
@@ -1035,7 +1035,7 @@ private:
   {
     Widget* defExt = combobox->getSelectedItem();
     ASSERT(defExt);
-    return (defExt ? defExt->text() : std::string());
+    return std::string(defExt ? defExt->text() : "");
   }
 
   void selectScalingItems()

@@ -108,7 +108,7 @@ bool SliceWindow::show()
 
 std::string SliceWindow::nameValue() const
 {
-  return name()->text();
+  return std::string(name()->text());
 }
 
 gfx::Rect SliceWindow::boundsValue() const

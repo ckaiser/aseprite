@@ -14,7 +14,7 @@ namespace ui {
 
 class Separator : public Widget {
 public:
-  Separator(const std::string& text, int align);
+  Separator(const std::string_view text, int align);
 
 protected:
   void onSizeHint(SizeHintEvent& ev) override;

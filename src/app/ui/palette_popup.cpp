@@ -106,7 +106,7 @@ void PalettePopup::onPalChange(const doc::Palette* palette)
 
 void PalettePopup::onSearchChange()
 {
-  MatchWords match(m_popup->search()->text());
+  const MatchWords match(m_popup->search()->text());
   bool selected = false;
 
   for (auto child : m_paletteListBox.children()) {

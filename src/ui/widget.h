@@ -79,12 +79,12 @@ public:
 
   bool hasText() const { return hasFlags(HAS_TEXT); }
 
-  const std::string& text() const { return m_text; }
+  std::string_view text() const { return m_text; }
   int textInt() const;
   double textDouble() const;
-  void setText(const std::string& text);
+  void setText(const std::string_view text);
   void setTextf(const char* text, ...);
-  void setTextQuiet(const std::string& text);
+  void setTextQuiet(const std::string_view text);
 
   text::TextBlobRef textBlob() const;
   int textWidth() const;

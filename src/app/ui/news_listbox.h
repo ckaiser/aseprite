@@ -27,8 +27,8 @@ public:
 private:
   bool onProcessMessage(ui::Message* msg) override;
   void onTick();
-  void parseFile(const std::string& filename);
-  bool validCache(const std::string& filename);
+  void parseFile(const std::string_view filename);
+  bool validCache(const std::string_view filename);
 
   ui::Timer m_timer;
   HttpLoader* m_loader;

@@ -18,18 +18,18 @@
 
 namespace app { namespace launcher {
 
-void open_url(const std::string& url)
+void open_url(const std::string_view url)
 {
   open_file(url);
 }
 
-void open_file(const std::string& file)
+void open_file(const std::string_view file)
 {
   if (!base::launcher::open_file(file))
     ui::Alert::show(Strings::alerts_cannot_open_file(file));
 }
 
-void open_folder(const std::string& file)
+void open_folder(const std::string_view file)
 {
   if (!base::launcher::open_folder(file))
     ui::Alert::show(Strings::alerts_cannot_open_folder(file));

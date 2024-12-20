@@ -37,8 +37,8 @@ public:
   const std::string& getTips() const { return m_tips; }
   int getDefaultBrushSize() const { return m_default_brush_size; }
 
-  void setText(const std::string& text) { m_text = text; }
-  void setTips(const std::string& tips) { m_tips = tips; }
+  void setText(const std::string_view text) { m_text = text; }
+  void setTips(const std::string_view tips) { m_tips = tips; }
   void setDefaultBrushSize(const int default_brush_size)
   {
     m_default_brush_size = default_brush_size;

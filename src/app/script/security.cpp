@@ -306,7 +306,7 @@ bool ask_access(lua_State* L,
       dlg.script()->initTheme();
     }
     else
-      dlg.script()->Click.connect([&dlg] { app::launcher::open_folder(dlg.script()->text()); });
+      dlg.script()->Click.connect([&dlg] { app::launcher::open_folder(dlg.script()->text().data()); });
 
     dlg.full()->Click.connect([&dlg, &allowButtonText]() {
       if (dlg.full()->isSelected()) {
@@ -326,7 +326,7 @@ bool ask_access(lua_State* L,
 
     if (resourceType == ResourceType::File) {
       dlg.file()->Click.connect([&dlg] {
-        std::string fn = dlg.file()->text();
+        std::string fn(dlg.file()->text()); // TODO: Change usages
         if (base::is_file(fn))
           app::launcher::open_folder(fn);
         else

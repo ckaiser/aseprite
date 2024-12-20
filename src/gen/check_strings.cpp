@@ -109,7 +109,7 @@ public:
 
   void checkStringsOnWidgets(const std::string& dir)
   {
-    for (const auto& fn : base::list_files(dir)) {
+    for (const std::string_view fn : base::list_files(dir)) {
       std::string fullFn = base::join_path(dir, fn);
       base::FileHandle inputFile(base::open_file(fullFn, "rb"));
       auto doc = std::make_unique<XMLDocument>();
@@ -188,13 +188,13 @@ public:
   {
     if (!text)
       return; // Do nothing
-    else if (text[0] == '@') {
+    if (text[0] == '@') {
       for (auto& cfg : m_stringFiles) {
-        std::string lang = base::get_file_title(cfg->filename());
+        const std::string lang = base::get_file_title(cfg->filename());
         std::string section, var;
 
         if (text[1] == '.') {
-          section = m_prefixId.c_str();
+          section = m_prefixId;
           var = text + 2;
         }
         else {

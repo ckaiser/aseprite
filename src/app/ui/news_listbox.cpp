@@ -40,14 +40,14 @@ using namespace ui;
 
 namespace {
 
-std::string convert_html_entity(const std::string& e)
+std::string convert_html_entity(const std::string_view e)
 {
   if (e.size() >= 3 && e[0] == '#' && std::isdigit(e[1])) {
     long unicodeChar;
     if (e[2] == 'x')
-      unicodeChar = std::strtol(e.c_str() + 1, nullptr, 16);
+      unicodeChar = std::strtol(e.data() + 1, nullptr, 16);
     else
-      unicodeChar = std::strtol(e.c_str() + 1, nullptr, 10);
+      unicodeChar = std::strtol(e.data() + 1, nullptr, 10);
 
     if (unicodeChar == 0x2018)
       return "\x60";
@@ -67,7 +67,7 @@ std::string convert_html_entity(const std::string& e)
   return "";
 }
 
-std::string parse_html(const std::string& str)
+std::string parse_html(const std::string_view str)
 {
   bool paraOpen = true;
   std::string result;
@@ -82,7 +82,7 @@ std::string parse_html(const std::string& str)
       if (i < str.size()) {
         ASSERT(str[i] == '>');
 
-        std::string tag = str.substr(j, i - j);
+        std::string_view tag = str.substr(j, i - j);
         if (tag == "li") {
           if (!paraOpen && result.back() != '\n')
             result.push_back('\n');
@@ -107,7 +107,7 @@ std::string parse_html(const std::string& str)
 
       if (i < str.size()) {
         ASSERT(str[i] == ';');
-        std::string entity = str.substr(j, i - j);
+        std::string_view entity = str.substr(j, i - j);
         result += convert_html_entity(entity);
         ++i;
       }
@@ -126,7 +126,7 @@ std::string parse_html(const std::string& str)
       paraOpen = false;
     }
     else {
-      auto character = str[i++];
+      const auto character = str[i++];
       if (character == '\n') {
         // Rely only on paragraphs for newlines, otherwise we render them as just spaces because
         // sometimes they show up in the middle of sentences.
@@ -254,7 +254,7 @@ void NewsListBox::onTick()
   if (!m_loader || !m_loader->isDone())
     return;
 
-  std::string fn = m_loader->filename();
+  const std::string fn = m_loader->filename();
 
   delete m_loader;
   m_loader = nullptr;
@@ -269,13 +269,13 @@ void NewsListBox::onTick()
   parseFile(fn);
 }
 
-void NewsListBox::parseFile(const std::string& filename)
+void NewsListBox::parseFile(const std::string_view filename)
 {
   View* view = View::getView(this);
 
   XMLDocumentRef doc;
   try {
-    doc = open_xml(filename);
+    doc = open_xml(std::string(filename)); // TODO: open_ and file handle API
   }
   catch (...) {
     addChild(new ProblemsItem());
@@ -332,10 +332,10 @@ void NewsListBox::parseFile(const std::string& filename)
     view->updateView();
 
   // Save as cached news
-  Preferences::instance().news.cacheFile(filename);
+  Preferences::instance().news.cacheFile(std::string(filename));
 }
 
-bool NewsListBox::validCache(const std::string& filename)
+bool NewsListBox::validCache(const std::string_view filename)
 {
   base::Time now = base::current_time(), time = base::get_modification_time(filename);
 

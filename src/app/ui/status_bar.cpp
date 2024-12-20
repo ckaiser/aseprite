@@ -632,7 +632,7 @@ public:
                            scancode == kKeyEnterPad)) {
           Command* cmd = Commands::instance()->byId(CommandId::GotoFrame());
           Params params;
-          params.set("frame", text().c_str());
+          params.set("frame", text().data());
           UIContext::instance()->executeCommandFromMenuOrShortcut(cmd, params);
 
           // Select the text again

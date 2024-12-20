@@ -19,12 +19,12 @@ namespace app {
 
 class MatchWords {
 public:
-  MatchWords(const std::string& search = {})
+  MatchWords(const std::string_view search = {})
   {
     base::split_string(base::string_to_lower(search), m_parts, " ");
   }
 
-  bool operator()(const std::string& item) const
+  bool operator()(const std::string_view item) const
   {
     std::string lowerItem = base::string_to_lower(item);
     std::size_t matches = 0;
@@ -38,7 +38,7 @@ public:
   }
 
 private:
-  std::vector<std::string> m_parts;
+  std::vector<std::string_view> m_parts;
 };
 
 } // namespace app

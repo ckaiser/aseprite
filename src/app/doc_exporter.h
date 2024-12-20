@@ -55,8 +55,8 @@ public:
   const std::string& tagnameFormat() const { return m_tagnameFormat; }
 
   void setDataFormat(SpriteSheetDataFormat format) { m_dataFormat = format; }
-  void setDataFilename(const std::string& filename) { m_dataFilename = filename; }
-  void setTextureFilename(const std::string& filename) { m_textureFilename = filename; }
+  void setDataFilename(const std::string_view filename) { m_dataFilename = filename; }
+  void setTextureFilename(const std::string_view filename) { m_textureFilename = filename; }
   void setTextureWidth(int width) { m_textureWidth = width; }
   void setTextureHeight(int height) { m_textureHeight = height; }
   void setTextureColumns(int columns) { m_textureColumns = columns; }

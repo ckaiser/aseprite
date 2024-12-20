@@ -164,7 +164,7 @@ public:
   }
 
 private:
-  std::string nameValue() const { return name()->text(); }
+  std::string_view nameValue() const { return name()->text(); }
 
   doc::BlendMode blendModeValue() const
   {
@@ -240,7 +240,7 @@ private:
 
     const int count = countLayers();
 
-    std::string newName = nameValue();
+    std::string newName(nameValue());
     int newOpacity = opacityValue();
     const doc::UserData newUserData = m_userDataView.userData();
     doc::BlendMode newBlendMode = blendModeValue();
@@ -427,7 +427,7 @@ private:
 
     const bool tilemapVisibility = (m_layer && m_layer->isTilemap());
     if (m_layer) {
-      name()->setText(m_layer->name().c_str());
+      name()->setText(m_layer->name());
       name()->setEnabled(true);
 
       if (m_layer->isImage() ||

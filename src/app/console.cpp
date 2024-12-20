@@ -55,7 +55,7 @@ public:
     // When the window is closed, we clear the text
     Close.connect([this] {
       m_mainWindowClosedConn.disconnect();
-      m_textbox.setText(std::string());
+      m_textbox.setText("");
 
       Console::m_console->deferDelete();
       Console::m_console = nullptr;
@@ -90,7 +90,8 @@ public:
     gfx::Point pt = m_view.viewScroll();
     const bool autoScroll = (pt.y >= maxSize.h - visible.h);
 
-    m_textbox.setText(m_textbox.text() + msg);
+    const std::string text(m_textbox.text());
+    m_textbox.setText(text + msg);
 
     if (autoScroll) {
       maxSize = m_view.getScrollableSize();
@@ -137,7 +138,7 @@ private:
 #endif
         {
           if (scancode == kKeyC)
-            set_clipboard_text(m_textbox.text());
+            set_clipboard_text(m_textbox.text().data());
         }
 
         // Esc to close the window.

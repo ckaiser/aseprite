@@ -85,7 +85,7 @@ void PasteTextCommand::onExecute(Context* ctx)
   fontInfo.updatePreferences();
 
   try {
-    std::string text = window.userText()->text();
+    std::string text(window.userText()->text());
     app::Color color = window.fontColor()->getColor();
 
     doc::ImageRef image = render_text(

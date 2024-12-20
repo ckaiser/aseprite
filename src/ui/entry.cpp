@@ -182,14 +182,14 @@ void Entry::deselectText()
   invalidate();
 }
 
-std::string Entry::selectedText() const
+std::string_view Entry::selectedText() const
 {
   Range range = selectedRange();
   if (!range.isEmpty())
     return text().substr(m_boxes[range.from].from,
                          m_boxes[range.to - 1].to - m_boxes[range.from].from);
   else
-    return std::string();
+    return std::string_view();
 }
 
 Entry::Range Entry::selectedRange() const
@@ -496,11 +496,11 @@ bool Entry::onProcessMessage(Message* msg)
 }
 
 // static
-gfx::Size Entry::sizeHintWithText(Entry* entry, const std::string& text)
+gfx::Size Entry::sizeHintWithText(Entry* entry, const std::string_view text)
 {
   const auto& font = entry->font();
 
-  int w = font->textLength(text) + +2 * entry->theme()->getEntryCaretSize(entry).w +
+  int w = font->textLength(text.data()) + +2 * entry->theme()->getEntryCaretSize(entry).w +
           entry->border().width();
 
   w = std::min(w, entry->display()->workareaSizeUIScale().w / 2);
@@ -603,7 +603,7 @@ void Entry::executeCmd(const EntryCmd cmd,
                        const base::codepoint_t unicodeChar,
                        const bool shift_pressed)
 {
-  std::string text = this->text();
+  std::string str(text());
   const Range range = selectedRange();
 
   switch (cmd) {
@@ -612,7 +612,7 @@ void Entry::executeCmd(const EntryCmd cmd,
     case EntryCmd::InsertChar:
       // delete the entire selection
       if (!range.isEmpty()) {
-        deleteRange(range, text);
+        deleteRange(range, str);
 
         // We set the caret to the beginning of the erased selection,
         // needed to show the first inserted character in case
@@ -622,7 +622,7 @@ void Entry::executeCmd(const EntryCmd cmd,
         // we need to make m_scroll=0 to show the new inserted char.)
         // In this way, we first ensure a m_scroll value enough to
         // show the new inserted character.
-        recalcCharBoxes(text);
+        recalcCharBoxes(str);
         setCaretPos(m_caret);
       }
 
@@ -632,8 +632,8 @@ void Entry::executeCmd(const EntryCmd cmd,
 
         const std::string unicodeStr = base::codepoint_to_utf8(unicodeChar);
 
-        text.insert(m_boxes[m_caret].from, unicodeStr);
-        recalcCharBoxes(text);
+        str.insert(m_boxes[m_caret].from, unicodeStr);
+        recalcCharBoxes(str);
         ++m_caret;
       }
 
@@ -675,7 +675,7 @@ void Entry::executeCmd(const EntryCmd cmd,
         forwardWord();
       }
       // forward char
-      else if (m_caret < (int)text.size()) {
+      else if (m_caret < (int)str.size()) {
         m_caret++;
       }
       break;
@@ -710,15 +710,15 @@ void Entry::executeCmd(const EntryCmd cmd,
       if (!range.isEmpty()) {
         // *cut* text!
         if (cmd == EntryCmd::Cut)
-          set_clipboard_text(selectedText());
+          set_clipboard_text(selectedText().data());
 
         // remove text
-        deleteRange(range, text);
+        deleteRange(range, str);
       }
       // delete the next character
       else {
-        if (m_caret < (int)text.size())
-          text.erase(m_boxes[m_caret].from, m_boxes[m_caret].to - m_boxes[m_caret].from);
+        if (m_caret < (int)str.size())
+          str.erase(m_boxes[m_caret].from, m_boxes[m_caret].to - m_boxes[m_caret].from);
       }
 
       m_select = -1;
@@ -729,21 +729,21 @@ void Entry::executeCmd(const EntryCmd cmd,
       if (get_clipboard_text(clipboard)) {
         // delete the entire selection
         if (!range.isEmpty()) {
-          deleteRange(range, text);
+          deleteRange(range, str);
           m_select = -1;
         }
 
         // Paste text
-        recalcCharBoxes(text);
+        recalcCharBoxes(str);
         int oldBoxes = m_boxes.size();
 
-        text.insert(m_boxes[m_caret].from, clipboard);
+        str.insert(m_boxes[m_caret].from, clipboard);
 
         // Remove extra chars that do not fit in m_maxsize
-        recalcCharBoxes(text);
+        recalcCharBoxes(str);
         if (lastCaretPos() > m_maxsize) {
-          text.erase(m_boxes[m_maxsize].from, text.size() - m_boxes[m_maxsize].from);
-          recalcCharBoxes(text);
+          str.erase(m_boxes[m_maxsize].from, str.size() - m_boxes[m_maxsize].from);
+          recalcCharBoxes(str);
         }
 
         int newBoxes = m_boxes.size();
@@ -754,19 +754,19 @@ void Entry::executeCmd(const EntryCmd cmd,
 
     case EntryCmd::Copy:
       if (!range.isEmpty())
-        set_clipboard_text(selectedText());
+        set_clipboard_text(selectedText().data());
       break;
 
     case EntryCmd::DeleteBackward:
       // delete the entire selection
       if (!range.isEmpty()) {
-        deleteRange(range, text);
+        deleteRange(range, str);
       }
       // delete the previous character
       else {
         if (m_caret > 0) {
           --m_caret;
-          text.erase(m_boxes[m_caret].from, m_boxes[m_caret].to - m_boxes[m_caret].from);
+          str.erase(m_boxes[m_caret].from, m_boxes[m_caret].to - m_boxes[m_caret].from);
         }
       }
 
@@ -777,18 +777,18 @@ void Entry::executeCmd(const EntryCmd cmd,
       m_select = m_caret;
       backwardWord();
       if (m_caret < m_select) {
-        text.erase(m_boxes[m_caret].from, m_boxes[m_select - 1].to - m_boxes[m_caret].from);
+        str.erase(m_boxes[m_caret].from, m_boxes[m_select - 1].to - m_boxes[m_caret].from);
       }
       m_select = -1;
       break;
 
-    case EntryCmd::DeleteForwardToEndOfLine: text.erase(m_boxes[m_caret].from); break;
+    case EntryCmd::DeleteForwardToEndOfLine: str.erase(m_boxes[m_caret].from); break;
 
     case EntryCmd::SelectAll:                selectAllText(); break;
   }
 
-  if (text != this->text()) {
-    setText(text);
+  if (str != this->text()) {
+    setText(str);
     onChange();
   }
 
@@ -926,14 +926,14 @@ private:
   int m_end;
 };
 
-void Entry::recalcCharBoxes(const std::string& text)
+void Entry::recalcCharBoxes(const std::string_view text)
 {
   int lastTextIndex = int(text.size());
   CalcBoxesTextDelegate delegate(lastTextIndex);
   float lastX = text::draw_text(nullptr,
                                 theme()->fontMgr(),
                                 font(),
-                                text,
+                                std::string(text), // TODO: Copying for now.
                                 gfx::ColorNone,
                                 gfx::ColorNone,
                                 0,

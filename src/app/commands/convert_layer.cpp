@@ -201,7 +201,7 @@ void ConvertLayerCommand::onExecute(Context* ctx)
         // Tilemap -> Layer
         else if (srcLayer->isTilemap()) {
           auto newLayer = new LayerImage(sprite);
-          newLayer->setName(srcLayer->name());
+          newLayer->setName(srcLayer->name().data());
           newLayer->setContinuous(srcLayer->isContinuous());
           newLayer->setBlendMode(static_cast<LayerImage*>(srcLayer)->blendMode());
           newLayer->setOpacity(static_cast<LayerImage*>(srcLayer)->opacity());
@@ -227,7 +227,7 @@ void ConvertLayerCommand::onExecute(Context* ctx)
           tileset_index tsi = addTileset->tilesetIndex();
 
           auto newLayer = new LayerTilemap(sprite, tsi);
-          newLayer->setName(srcLayer->name());
+          newLayer->setName(srcLayer->name().data());
           newLayer->setContinuous(srcLayer->isContinuous());
           newLayer->setBlendMode(static_cast<LayerImage*>(srcLayer)->blendMode());
           newLayer->setOpacity(static_cast<LayerImage*>(srcLayer)->opacity());

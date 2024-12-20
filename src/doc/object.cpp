@@ -13,15 +13,14 @@
 
 #include "base/debug.h"
 
-#include <map>
 #include <mutex>
+#include <unordered_map>
 
 namespace doc {
 
 static std::mutex g_mutex;
 static ObjectId newId = 0;
-// TODO Profile this and see if an unordered_map is better
-static std::map<ObjectId, Object*> objects;
+static std::unordered_map<ObjectId, Object*> objects;
 
 Object::Object(ObjectType type) : m_type(type), m_id(0), m_version(0)
 {
@@ -50,7 +49,7 @@ const ObjectId Object::id() const
   // The first time the ID is request, we store the object in the
   // "objects" hash table.
   if (!m_id) {
-    const std::lock_guard lock(g_mutex);
+    const std::scoped_lock lock(g_mutex);
     m_id = ++newId;
     objects.insert(std::make_pair(m_id, const_cast<Object*>(this)));
   }
@@ -59,7 +58,7 @@ const ObjectId Object::id() const
 
 void Object::setId(ObjectId id)
 {
-  const std::lock_guard lock(g_mutex);
+  const std::scoped_lock lock(g_mutex);
 
   if (m_id) {
     auto it = objects.find(m_id);
@@ -101,7 +100,7 @@ void Object::setVersion(ObjectVersion version)
 
 Object* get_object(ObjectId id)
 {
-  const std::lock_guard lock(g_mutex);
+  const std::scoped_lock lock(g_mutex);
   auto it = objects.find(id);
   if (it != objects.end())
     return it->second;

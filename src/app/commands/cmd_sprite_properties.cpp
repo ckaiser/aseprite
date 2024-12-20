@@ -113,7 +113,7 @@ private:
     for (auto layer : tileset->sprite()->allTilemaps()) {
       auto tilemap = static_cast<doc::LayerTilemap*>(layer);
       if (tilemap->tilesetIndex() == tsi) {
-        tilemapsNames += tilemap->name() + ", ";
+        tilemapsNames += std::string(tilemap->name()) + ", ";
       }
     }
     if (!tilemapsNames.empty()) {

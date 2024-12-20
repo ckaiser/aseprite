@@ -164,7 +164,7 @@ public:
   KeyPtr key() { return m_key; }
   AppMenuItem* menuitem() const { return m_menuitem; }
 
-  std::string searchableText() const
+  std::string_view searchableText() const
   {
     if (m_menuitem) {
       Widget* w = m_menuitem;
@@ -630,7 +630,7 @@ private:
     }
   }
 
-  void fillSearchList(const std::string& search)
+  void fillSearchList(const std::string_view search)
   {
     deleteList(searchList());
 
@@ -642,7 +642,7 @@ private:
 
       for (auto item : listBox->children()) {
         if (KeyItem* keyItem = dynamic_cast<KeyItem*>(item)) {
-          std::string itemText = keyItem->searchableText();
+          std::string itemText(keyItem->searchableText());
           if (!match(itemText))
             continue;
 
@@ -736,12 +736,11 @@ private:
   void onSearchChange()
   {
     base::ScopedValue flag(m_searchChange, true);
-    std::string searchText = search()->text();
 
-    if (searchText.empty())
+    if (search()->text().empty())
       section()->selectIndex(m_curSection);
     else {
-      fillSearchList(searchText);
+      fillSearchList(search()->text());
       section()->selectChild(nullptr);
     }
 
@@ -871,7 +870,7 @@ private:
 
         KeyItem* keyItem = new KeyItem(m_keys,
                                        m_menuKeys,
-                                       menuItem->text().c_str(),
+                                       menuItem->text().data(),
                                        m_menuKeys[menuItem],
                                        menuItem,
                                        level,

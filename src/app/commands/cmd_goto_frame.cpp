@@ -168,7 +168,7 @@ private:
     {
       deleteAllItems();
 
-      MatchWords match(getEntryWidget()->text());
+      const MatchWords match(getEntryWidget()->text());
 
       bool matchAny = false;
       for (const auto& tag : m_tags) {
@@ -222,7 +222,7 @@ private:
       if (window.closer() != window.ok())
         return editor->frame();
 
-      std::string text = combobox.getEntryWidget()->text();
+      const std::string_view text(combobox.getEntryWidget()->text());
       frame_t frameNum = base::convert_to<int>(text);
       std::string textFromInt = base::convert_to<std::string>(frameNum);
       if (text == textFromInt) {

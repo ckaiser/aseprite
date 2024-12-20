@@ -49,7 +49,7 @@ inline int CALC_FOR_CENTER(int p, int s1, int s2)
 struct PaintWidgetPartInfo {
   gfx::Color bgColor;
   int styleFlags; // ui::Style::Layer flags
-  const std::string* text;
+  std::string_view text;
   text::TextBlobRef textBlob;
   int mnemonic;
   os::Surface* icon;
@@ -160,7 +160,7 @@ private:
   void paintLayer(Graphics* g,
                   const Style* style,
                   const Style::Layer& layer,
-                  const std::string& text,
+                  const std::string_view text,
                   const text::TextBlobRef& textBlob,
                   const int mnemonic,
                   os::Surface* icon,

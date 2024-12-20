@@ -301,7 +301,7 @@ public:
       }
 
       ui::PaintWidgetPartInfo info;
-      info.text = &itemText;
+      info.text = itemText;
       info.styleFlags = (selected ? ui::Style::Layer::kSelected : 0);
       theme->paintWidgetPart(g, style, itemBounds, info);
     }

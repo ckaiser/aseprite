@@ -344,7 +344,7 @@ protected:
           switch (scancode) {
             case kKeyEnter:
             case kKeyEnterPad: {
-              std::string cmd = text();
+              std::string cmd(text());
               setText("");
               Execute(cmd);
               return true;

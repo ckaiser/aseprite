@@ -249,7 +249,7 @@ private:
   {
     write32(s, static_cast<int>(lay->flags())); // Flags
     write16(s, static_cast<int>(lay->type()));  // Type
-    write_string(s, lay->name());
+    write_string(s, lay->name().data());
 
     switch (lay->type()) {
       case ObjectType::LayerImage:

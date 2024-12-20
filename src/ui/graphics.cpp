@@ -357,7 +357,7 @@ void Graphics::setFont(const text::FontRef& font)
   m_font = font;
 }
 
-void Graphics::drawText(const std::string& str,
+void Graphics::drawText(const std::string_view str,
                         gfx::Color fg,
                         gfx::Color bg,
                         const gfx::Point& origPt,
@@ -475,7 +475,7 @@ private:
 
 } // namespace
 
-void Graphics::drawUIText(const std::string& str,
+void Graphics::drawUIText(const std::string_view str,
                           gfx::Color fg,
                           gfx::Color bg,
                           const gfx::Point& pt,
@@ -490,29 +490,37 @@ void Graphics::drawUIText(const std::string& str,
   int y = m_dy + pt.y;
 
   DrawUITextDelegate delegate(m_surface.get(), m_font.get(), mnemonic);
-  text::draw_text(m_surface.get(), get_theme()->fontMgr(), m_font, str, fg, bg, x, y, &delegate);
+  text::draw_text(m_surface.get(),
+                  get_theme()->fontMgr(),
+                  m_font,
+                  str.data(),
+                  fg,
+                  bg,
+                  x,
+                  y,
+                  &delegate);
 
   dirty(delegate.bounds());
 }
 
-void Graphics::drawAlignedUIText(const std::string& str,
+void Graphics::drawAlignedUIText(const std::string_view str,
                                  gfx::Color fg,
                                  gfx::Color bg,
                                  const gfx::Rect& rc,
                                  const int align)
 {
-  doUIStringAlgorithm(str, fg, bg, rc, align, true);
+  doUIStringAlgorithm(str.data(), fg, bg, rc, align, true);
 }
 
-gfx::Size Graphics::measureText(const std::string& str)
+gfx::Size Graphics::measureText(const std::string_view str)
 {
   ASSERT(m_font);
   return gfx::Size(m_font->textLength(str), m_font->height());
 }
 
-gfx::Size Graphics::fitString(const std::string& str, int maxWidth, int align)
+gfx::Size Graphics::fitString(const std::string_view str, int maxWidth, int align)
 {
-  return doUIStringAlgorithm(str,
+  return doUIStringAlgorithm(str.data(),
                              gfx::ColorNone,
                              gfx::ColorNone,
                              gfx::Rect(0, 0, maxWidth, 0),
@@ -520,6 +528,8 @@ gfx::Size Graphics::fitString(const std::string& str, int maxWidth, int align)
                              false);
 }
 
+// TODO: The word separation here chokes with string view so we're making copies, needs
+// fixing/refactoring, making use of remove_prefix and remove_suffix if possible
 gfx::Size Graphics::doUIStringAlgorithm(const std::string& str,
                                         gfx::Color fg,
                                         gfx::Color bg,
@@ -559,8 +569,7 @@ gfx::Size Graphics::doUIStringAlgorithm(const std::string& str,
     // With char-wrap
     else if ((align & CHARWRAP) == CHARWRAP) {
       if (rc.w > 0) {
-        // TODO replace all this with std::string_view in the future
-        std::string sub(str.substr(beg));
+        std::string_view sub(str.substr(beg));
         base::utf8_decode it(sub);
         std::string progress;
         while (!it.is_end()) {
@@ -585,7 +594,7 @@ gfx::Size Graphics::doUIStringAlgorithm(const std::string& str,
         // If we have already a word to print (old_end != npos), and
         // we are out of the available width (rc.w) using the new "end"
         if ((old_end != std::string::npos) && (rc.w > 0) &&
-            (pt.x + m_font->textLength(str.substr(beg, end - beg)) > rc.w)) {
+            (pt.x + m_font->textLength(str.substr(beg, end - beg).data()) > rc.w)) {
           // We go back to the "old_end" and paint from "beg" to "end"
           end = old_end;
           break;

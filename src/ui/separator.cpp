@@ -22,7 +22,7 @@ namespace ui {
 
 using namespace gfx;
 
-Separator::Separator(const std::string& text, int align) : Widget(kSeparatorWidget)
+Separator::Separator(const std::string_view text, int align) : Widget(kSeparatorWidget)
 {
   enableFlags(IGNORE_MOUSE);
   setAlign(align);

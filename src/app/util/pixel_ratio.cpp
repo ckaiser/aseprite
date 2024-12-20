@@ -18,9 +18,9 @@
 namespace base {
 
 template<>
-doc::PixelRatio convert_to(const std::string& from)
+doc::PixelRatio convert_to(const std::string_view& from)
 {
-  std::vector<std::string> parts;
+  std::vector<std::string_view> parts;
   split_string(from, parts, ":");
   doc::PixelRatio pixelRatio(1, 1);
 

@@ -171,7 +171,7 @@ protected:
     deleteAllItems();
 
     // String to be autocompleted
-    std::string left_part = getEntryWidget()->text();
+    std::string left_part(getEntryWidget()->text());
     closeListBox();
 
     if (left_part.empty())
@@ -495,7 +495,7 @@ again:
     ASSERT(folder);
 
     // File name in the text entry field/combobox
-    std::string fn = m_fileName->getValue();
+    std::string fn(m_fileName->getValue());
     std::string buf;
     IFileItem* enter_folder = nullptr;
 
@@ -852,7 +852,7 @@ void FileSelector::onNewFolder()
   if (window.closer() == window.ok()) {
     IFileItem* currentFolder = m_fileList->currentFolder();
     if (currentFolder) {
-      std::string dirname = window.name()->text();
+      std::string dirname(window.name()->text());
 
       // Create the new directory
       try {
@@ -899,7 +899,7 @@ void FileSelector::onLocationCloseListBox()
       location()->getSelectedItem());
 
     if (comboFolderItem) {
-      std::string path = comboFolderItem->text();
+      std::string path(comboFolderItem->text());
       fileItem = FileSystemModule::instance()->getFileItemFromPath(path);
     }
   }
@@ -937,7 +937,7 @@ void FileSelector::onFileTypeChange()
 
   if (m_type == FileSelectorType::Save) {
     std::string newExtension = getSelectedExtension();
-    std::string fileName = m_fileName->getValue();
+    std::string fileName(m_fileName->getValue());
     std::string currentExtension = base::get_file_extension(fileName);
 
     if (!currentExtension.empty())
