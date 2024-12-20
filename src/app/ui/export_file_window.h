@@ -28,10 +28,10 @@ public:
 
   std::string outputFilenameValue() const;
   double resizeValue() const;
-  std::string areaValue() const;
-  std::string layersValue() const;
+  std::string_view areaValue() const;
+  std::string_view layersValue() const;
   int layersIndex() const;
-  std::string framesValue() const;
+  std::string_view framesValue() const;
   doc::AniDir aniDirValue() const;
   bool isPlaySubtags() const;
   bool applyPixelRatio() const;

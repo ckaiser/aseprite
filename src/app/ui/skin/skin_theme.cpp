@@ -1289,7 +1289,7 @@ void SkinTheme::drawEntryText(ui::Graphics* g, ui::Entry* widget)
   int scroll = delegate.index();
 
   if (!widget->text().empty()) {
-    const std::string& textString = widget->text();
+    const auto textString = widget->text();
     base::utf8_decode dec(textString);
     auto pos = dec.pos();
     for (int i = 0; i < scroll && dec.next(); ++i)
@@ -1297,8 +1297,7 @@ void SkinTheme::drawEntryText(ui::Graphics* g, ui::Entry* widget)
 
     IntersectClip clip(g, bounds);
     if (clip) {
-      // TODO use a string_view()
-      g->drawText(std::string(pos, textString.end()),
+      g->drawText(std::string(pos, textString.end()), // TODO: String_view substr
                   colors.text(),
                   ColorNone,
                   bounds.origin(),
@@ -1544,7 +1543,7 @@ void SkinTheme::paintSlider(PaintEvent& ev)
       drawRect2(g, rc, x, full_part.get(), empty_part.get());
 
     // Draw text
-    std::string old_text = widget->text();
+    std::string old_text(widget->text());
     widget->setTextQuiet(widget->convertValueToText(value));
 
     gfx::Rect textrc;
@@ -1640,7 +1639,7 @@ void SkinTheme::drawText(Graphics* g,
     g->setFont(widget->font());
 
     if (!t)
-      t = widget->text().c_str();
+      t = widget->text().data();
 
     textrc.setSize(g->measureText(t));
 

@@ -182,14 +182,14 @@ void Entry::deselectText()
   invalidate();
 }
 
-std::string Entry::selectedText() const
+std::string_view Entry::selectedText() const
 {
   Range range = selectedRange();
   if (!range.isEmpty())
     return text().substr(m_boxes[range.from].from,
                          m_boxes[range.to - 1].to - m_boxes[range.from].from);
   else
-    return std::string();
+    return std::string_view();
 }
 
 Entry::Range Entry::selectedRange() const
@@ -496,11 +496,11 @@ bool Entry::onProcessMessage(Message* msg)
 }
 
 // static
-gfx::Size Entry::sizeHintWithText(Entry* entry, const std::string& text)
+gfx::Size Entry::sizeHintWithText(Entry* entry, const std::string_view text)
 {
   const auto& font = entry->font();
 
-  int w = font->textLength(text) + +2 * entry->theme()->getEntryCaretSize(entry).w +
+  int w = font->textLength(text.data()) + +2 * entry->theme()->getEntryCaretSize(entry).w +
           entry->border().width();
 
   w = std::min(w, entry->display()->workareaSizeUIScale().w / 2);
@@ -603,7 +603,7 @@ void Entry::executeCmd(const EntryCmd cmd,
                        const base::codepoint_t unicodeChar,
                        const bool shift_pressed)
 {
-  std::string text = this->text();
+  std::string text(text());
   const Range range = selectedRange();
 
   switch (cmd) {
@@ -710,7 +710,7 @@ void Entry::executeCmd(const EntryCmd cmd,
       if (!range.isEmpty()) {
         // *cut* text!
         if (cmd == EntryCmd::Cut)
-          set_clipboard_text(selectedText());
+          set_clipboard_text(selectedText().data());
 
         // remove text
         deleteRange(range, text);
@@ -754,7 +754,7 @@ void Entry::executeCmd(const EntryCmd cmd,
 
     case EntryCmd::Copy:
       if (!range.isEmpty())
-        set_clipboard_text(selectedText());
+        set_clipboard_text(selectedText().data());
       break;
 
     case EntryCmd::DeleteBackward:
@@ -926,14 +926,14 @@ private:
   int m_end;
 };
 
-void Entry::recalcCharBoxes(const std::string& text)
+void Entry::recalcCharBoxes(const std::string_view text)
 {
   int lastTextIndex = int(text.size());
   CalcBoxesTextDelegate delegate(lastTextIndex);
   float lastX = text::draw_text(nullptr,
                                 theme()->fontMgr(),
                                 font(),
-                                text,
+                                std::string(text), // TODO: Copying for now.
                                 gfx::ColorNone,
                                 gfx::ColorNone,
                                 0,

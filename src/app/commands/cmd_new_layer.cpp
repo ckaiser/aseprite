@@ -517,8 +517,8 @@ int NewLayerCommand::getMaxLayerNum(const Layer* layer) const
   prefix += " ";
 
   int max = 0;
-  if (std::strncmp(layer->name().c_str(), prefix.c_str(), prefix.size()) == 0)
-    max = std::strtol(layer->name().c_str() + prefix.size(), NULL, 10);
+  if (std::strncmp(layer->name().data(), prefix.c_str(), prefix.size()) == 0)
+    max = std::strtol(layer->name().data() + prefix.size(), NULL, 10);
 
   if (layer->isGroup()) {
     for (const Layer* child : static_cast<const LayerGroup*>(layer)->layers()) {

@@ -89,7 +89,7 @@ bool TagWindow::show()
 
 std::string TagWindow::nameValue() const
 {
-  return name()->text();
+  return name()->text().data();
 }
 
 void TagWindow::rangeValue(doc::frame_t& from, doc::frame_t& to) const

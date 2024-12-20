@@ -1670,10 +1670,10 @@ int Dialog_get_data(lua_State* L)
             lua_pushnumber(L, widget->textDouble());
         }
         else {
-          lua_pushstring(L, widget->text().c_str());
+          lua_pushstring(L, widget->text().data());
         }
         break;
-      case ui::kLabelWidget: lua_pushstring(L, widget->text().c_str()); break;
+      case ui::kLabelWidget: lua_pushstring(L, widget->text().data()); break;
       case ui::kSliderWidget:
         if (auto slider = dynamic_cast<const ui::Slider*>(widget)) {
           lua_pushinteger(L, slider->getValue());
@@ -1682,7 +1682,7 @@ int Dialog_get_data(lua_State* L)
       case ui::kComboBoxWidget:
         if (auto combobox = dynamic_cast<const ui::ComboBox*>(widget)) {
           if (auto sel = combobox->getSelectedItem())
-            lua_pushstring(L, sel->text().c_str());
+            lua_pushstring(L, sel->text().data());
           else
             lua_pushnil(L);
         }

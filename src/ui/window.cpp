@@ -710,11 +710,11 @@ void Window::onBuildTitleLabel()
   }
   else {
     if (!m_titleLabel) {
-      m_titleLabel = new WindowTitleLabel(text());
+      m_titleLabel = new WindowTitleLabel(text().data());
       addChild(m_titleLabel);
     }
     else {
-      m_titleLabel->setText(text());
+      m_titleLabel->setText(text().data());
       m_titleLabel->setBounds(gfx::Rect(m_titleLabel->bounds()).setSize(m_titleLabel->sizeHint()));
     }
   }
@@ -800,7 +800,8 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
 
   // Get the region & the drawable region of the window
   Region oldDrawableRegion;
-  getDrawableRegion(oldDrawableRegion, kCutTopWindowsAndUseChildArea);
+  getDrawableRegion(oldDrawableRegion,
+                    ui::Widget::DrawableRegionFlags::kCutTopWindowsAndUseChildArea);
 
   // If the size of the window changes...
   if (old_pos.w != rect.w || old_pos.h != rect.h) {
@@ -816,7 +817,8 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
   // Get the new drawable region of the window (it's new because we
   // moved the window to "rect")
   Region newDrawableRegion;
-  getDrawableRegion(newDrawableRegion, kCutTopWindowsAndUseChildArea);
+  getDrawableRegion(newDrawableRegion,
+                    ui::Widget::DrawableRegionFlags::kCutTopWindowsAndUseChildArea);
 
   // First of all, we have to find the manager region to invalidate,
   // it's the old window drawable region without the new window

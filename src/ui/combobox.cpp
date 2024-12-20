@@ -220,7 +220,7 @@ Widget* ComboBox::getItem(const int itemIndex) const
     return nullptr;
 }
 
-const std::string& ComboBox::getItemText(int itemIndex) const
+std::string_view ComboBox::getItemText(int itemIndex) const
 {
   if (itemIndex >= 0 && (std::size_t)itemIndex < m_items.size()) {
     Widget* item = m_items[itemIndex];
@@ -294,7 +294,7 @@ void ComboBox::setSelectedItemIndex(int itemIndex)
 
     auto it = m_items.begin() + itemIndex;
     Widget* item = *it;
-    m_entry->setText(item->text());
+    m_entry->setText(std::string(item->text()));
     if (isEditable())
       m_entry->setCaretToEnd();
 
@@ -302,7 +302,7 @@ void ComboBox::setSelectedItemIndex(int itemIndex)
   }
 }
 
-std::string ComboBox::getValue() const
+std::string_view ComboBox::getValue() const
 {
   if (isEditable())
     return m_entry->text();
@@ -311,7 +311,7 @@ std::string ComboBox::getValue() const
     if (auto listItem = dynamic_cast<ListItem*>(m_items[index]))
       return listItem->getValue();
   }
-  return std::string();
+  return std::string_view();
 }
 
 void ComboBox::setValue(const std::string& value)

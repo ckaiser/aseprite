@@ -51,7 +51,7 @@ public:
   void selectText(int from, int to);
   void selectAllText();
   void deselectText();
-  std::string selectedText() const;
+  std::string_view selectedText() const;
   Range selectedRange() const;
 
   // Set to true if you want to persists the selection when the
@@ -70,7 +70,7 @@ public:
   gfx::PointF scale() const { return m_scale; }
   void setScale(const gfx::PointF& scale) { m_scale = scale; }
 
-  static gfx::Size sizeHintWithText(Entry* entry, const std::string& text);
+  static gfx::Size sizeHintWithText(Entry* entry, const std::string_view text);
 
   // Signals
   obs::signal<void()> Change;
@@ -116,7 +116,7 @@ private:
   Range wordRange(int pos);
   bool isPosInSelection(int pos);
   void showEditPopupMenu(const gfx::Point& pt);
-  void recalcCharBoxes(const std::string& text);
+  void recalcCharBoxes(const std::string_view text);
   bool shouldStartTimer(const bool hasFocus);
   void deleteRange(const Range& range, std::string& text);
   void startTimer();

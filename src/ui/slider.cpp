@@ -94,12 +94,12 @@ std::string Slider::convertValueToText(int value) const
   }
 }
 
-int Slider::convertTextToValue(const std::string& text) const
+int Slider::convertTextToValue(const std::string_view text) const
 {
   if (m_delegate)
-    return m_delegate->onGetValueFromText(text);
+    return m_delegate->onGetValueFromText(std::string(text)); // TODO
   else {
-    return std::strtol(text.c_str(), nullptr, 10);
+    return std::strtol(text.data(), nullptr, 10);
   }
 }
 

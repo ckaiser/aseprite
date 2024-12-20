@@ -37,7 +37,7 @@ public:
   FontPopup(const FontInfo& fontInfo);
   ~FontPopup();
 
-  void setSearchText(const std::string& searchText);
+  void setSearchText(const std::string_view searchText);
 
   void showPopup(ui::Display* display, const gfx::Rect& buttonBounds);
 

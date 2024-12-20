@@ -123,7 +123,7 @@ int Layer_get_next(lua_State* L)
 int Layer_get_name(lua_State* L)
 {
   auto layer = get_docobj<Layer>(L, 1);
-  lua_pushstring(L, layer->name().c_str());
+  lua_pushstring(L, layer->name().data());
   return 1;
 }
 

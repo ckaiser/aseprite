@@ -101,7 +101,7 @@ PaintWidgetPartInfo::PaintWidgetPartInfo()
 {
   bgColor = gfx::ColorNone;
   styleFlags = 0;
-  text = nullptr;
+  text = std::string_view();
   textBlob = nullptr;
   mnemonic = 0;
   icon = nullptr;
@@ -111,7 +111,7 @@ PaintWidgetPartInfo::PaintWidgetPartInfo(const Widget* widget)
 {
   bgColor = (!widget->isTransparent() ? widget->bgColor() : gfx::ColorNone);
   styleFlags = PaintWidgetPartInfo::getStyleFlagsForWidget(widget);
-  text = &widget->text();
+  text = widget->text();
   textBlob = widget->textBlob();
   mnemonic = widget->mnemonic();
   icon = nullptr;
@@ -259,7 +259,7 @@ void Theme::paintWidgetPart(Graphics* g,
                    paintLayer(g,
                               style,
                               layer,
-                              (info.text ? *info.text : std::string()),
+                              info.text,
                               info.textBlob,
                               info.mnemonic,
                               info.icon,
@@ -375,7 +375,7 @@ void Theme::paintTextBoxWithStyle(Graphics* g, const Widget* widget)
 void Theme::paintLayer(Graphics* g,
                        const Style* style,
                        const Style::Layer& layer,
-                       const std::string& text,
+                       const std::string_view text,
                        const text::TextBlobRef& textBlob,
                        const int mnemonic,
                        os::Surface* providedIcon,
@@ -666,7 +666,7 @@ void Theme::measureLayer(const Widget* widget,
         const text::FontRef& styleFont = style->font();
         gfx::Size textSize;
         if (styleFont && styleFont != widget->font()) {
-          textSize = gfx::Size(styleFont->textLength(widget->text()), styleFont->height());
+          textSize = gfx::Size(styleFont->textLength(widget->text().data()), styleFont->height());
         }
         else {
           // We can use Widget::textSize() because we're going to use
@@ -906,7 +906,7 @@ void Theme::drawTextBox(Graphics* g,
                         gfx::Color fg)
 {
   View* view = (g ? View::getView(widget) : nullptr);
-  char* text = const_cast<char*>(widget->text().c_str());
+  char* text = const_cast<char*>(widget->text().data());
   char *beg, *end;
   int x1, y1;
   int x, y, chr, len;

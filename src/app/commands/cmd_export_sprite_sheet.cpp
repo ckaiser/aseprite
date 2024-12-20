@@ -149,7 +149,7 @@ void destroy_doc(Context* ctx, Doc* doc)
 void insert_layers_to_selected_layers(Layer* layer, SelectedLayers& selectedLayers)
 {
   if (layer->isGroup()) {
-    auto children = static_cast<LayerGroup*>(layer)->layers();
+    auto& children = static_cast<LayerGroup*>(layer)->layers();
     for (auto child : children)
       insert_layers_to_selected_layers(child, selectedLayers);
   }
@@ -473,7 +473,9 @@ public:
       const bool sprite = (s.find("sprite") != std::string::npos);
       const bool borders = (s.find("borders") != std::string::npos);
       const bool output = (s.find("output") != std::string::npos);
-      sectionTabs()->getItem(kSectionLayout)->setSelected(layout || (!sprite & !borders && !output));
+      sectionTabs()
+        ->getItem(kSectionLayout)
+        ->setSelected(layout || (!sprite && !borders && !output));
       sectionTabs()->getItem(kSectionSprite)->setSelected(sprite);
       sectionTabs()->getItem(kSectionBorders)->setSelected(borders);
       sectionTabs()->getItem(kSectionOutput)->setSelected(output);
@@ -540,9 +542,9 @@ public:
     params.mergeDuplicates(mergeDupsValue());
     params.ignoreEmpty(ignoreEmptyValue());
     params.openGenerated(openGeneratedValue());
-    params.layer(layerValue());
+    params.layer(layerValue().data()); // TODO: Consistency?
     params.layerIndex(layerIndex());
-    params.tag(tagValue());
+    params.tag(tagValue().data());
     params.splitLayers(splitLayersValue());
     params.splitTags(splitTagsValue());
     params.listLayers(listLayersValue());
@@ -729,7 +731,7 @@ private:
 
   bool openGeneratedValue() const { return openGenerated()->isSelected(); }
 
-  std::string layerValue() const { return layers()->getValue(); }
+  std::string_view layerValue() const { return layers()->getValue(); }
 
   int layerIndex() const
   {
@@ -737,7 +739,7 @@ private:
     return i < 0 ? -1 : i;
   }
 
-  std::string tagValue() const { return frames()->getValue(); }
+  std::string_view tagValue() const { return frames()->getValue(); }
 
   bool splitLayersValue() const { return splitLayers()->isSelected(); }
 

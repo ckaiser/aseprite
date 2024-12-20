@@ -45,7 +45,7 @@ void Slices::remove(Slice* slice)
   slice->setOwner(nullptr);
 }
 
-Slice* Slices::getByName(const std::string& name) const
+Slice* Slices::getByName(const std::string_view name) const
 {
   for (Slice* slice : *this) {
     if (slice->name() == name)

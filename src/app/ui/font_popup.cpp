@@ -325,17 +325,17 @@ FontPopup::~FontPopup()
   m_timer.stop();
 }
 
-void FontPopup::setSearchText(const std::string& searchText)
+void FontPopup::setSearchText(const std::string_view searchText)
 {
   FontItem* firstItem = nullptr;
 
-  const MatchWords match(searchText);
+  const MatchWords match(searchText.data());
   for (auto* child : m_listBox.children()) {
     auto* childItem = dynamic_cast<FontItem*>(child);
     if (!childItem)
       continue;
 
-    const bool visible = match(childItem->text());
+    const bool visible = match(childItem->text().data());
     if (visible && !firstItem)
       firstItem = childItem;
     childItem->setVisible(visible);

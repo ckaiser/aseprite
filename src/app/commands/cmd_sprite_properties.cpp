@@ -113,7 +113,7 @@ private:
     for (auto layer : tileset->sprite()->allTilemaps()) {
       auto tilemap = static_cast<doc::LayerTilemap*>(layer);
       if (tilemap->tilesetIndex() == tsi) {
-        tilemapsNames += tilemap->name() + ", ";
+        tilemapsNames += std::string(tilemap->name()) + ", ";
       }
     }
     if (!tilemapsNames.empty()) {
@@ -393,7 +393,8 @@ void SpritePropertiesCommand::onExecute(Context* context)
 
     color_t index = (color_button ? color_button->getColor().getIndex() :
                                     sprite->transparentColor());
-    PixelRatio pixelRatio = base::convert_to<PixelRatio>(window.pixelRatio()->getValue());
+    PixelRatio pixelRatio = base::convert_to<PixelRatio>(
+      std::string(window.pixelRatio()->getValue())); // TODO: Bad.
 
     const UserData newUserData = window.getUserData();
 

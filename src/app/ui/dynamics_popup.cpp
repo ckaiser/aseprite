@@ -289,11 +289,11 @@ void DynamicsPopup::setOptionsGridVisibility(bool state)
     expandWindow(sizeHint());
 }
 
-std::string DynamicsPopup::ditheringMatrixName() const
+std::string_view DynamicsPopup::ditheringMatrixName() const
 {
   if (m_ditheringSel)
     return m_ditheringSel->getItemText(m_ditheringSel->getSelectedItemIndex());
-  return std::string();
+  return std::string_view();
 }
 
 void DynamicsPopup::loadDynamicsPref(bool sameInAllTools)
@@ -349,7 +349,8 @@ void DynamicsPopup::saveDynamicsPref(bool sameInAllTools)
   dynaPref->gradient(dyna.gradient);
 
   if (m_ditheringSel)
-    dynaPref->matrixName(m_ditheringSel->getItemText(m_ditheringSel->getSelectedItemIndex()));
+    dynaPref->matrixName(
+      m_ditheringSel->getItemText(m_ditheringSel->getSelectedItemIndex()).data());
 }
 
 tools::DynamicsOptions DynamicsPopup::getDynamics() const

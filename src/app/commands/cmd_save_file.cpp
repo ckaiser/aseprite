@@ -420,7 +420,7 @@ void SaveFileCopyAsCommand::onExecute(Context* context)
     layersIndex = win.layersIndex();
     frames = win.framesValue();
     scale = win.resizeValue();
-    params().slice(win.areaValue()); // Set slice
+    params().slice(win.areaValue().data()); // Set slice
     if (win.areaValue() == kSelectedCanvas && doc->isMaskVisible())
       bounds = doc->mask()->bounds();
     applyPixelRatio = win.applyPixelRatio();

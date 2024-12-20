@@ -262,7 +262,7 @@ FontEntry::FontEntry() : m_antialias("Antialias")
   });
 
   m_size.Change.connect([this]() {
-    const float newSize = std::strtof(m_size.getValue().c_str(), nullptr);
+    const float newSize = std::strtof(m_size.getValue().data(), nullptr);
     setInfo(FontInfo(m_info, newSize, m_info.style(), m_info.flags()), From::Size);
   });
 

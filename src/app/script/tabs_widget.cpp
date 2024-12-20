@@ -116,10 +116,10 @@ std::string Tabs::tabId(int index) const
                                                              std::string();
 }
 
-std::string Tabs::tabText(int index) const
+std::string_view Tabs::tabText(int index) const
 {
   return index >= 0 && index < m_buttons.children().size() ? m_buttons.children()[index]->text() :
-                                                             std::string();
+                                                             nullptr;
 }
 
 int Tabs::selectedTab() const

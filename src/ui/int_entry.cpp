@@ -53,7 +53,7 @@ IntEntry::~IntEntry()
 
 int IntEntry::getValue() const
 {
-  int value = m_slider->convertTextToValue(text());
+  int value = m_slider->convertTextToValue(text().data());
   return std::clamp(value, m_min, m_max);
 }
 

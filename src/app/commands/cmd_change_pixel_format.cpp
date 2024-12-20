@@ -314,7 +314,7 @@ public:
     // Save the dithering method used for the future
     if (m_ditheringSelector) {
       if (auto item = m_ditheringSelector->getSelectedItem()) {
-        pref.quantization.ditheringAlgorithm(item->text());
+        pref.quantization.ditheringAlgorithm(item->text().data());
 
         if (m_ditheringSelector->ditheringAlgorithm() ==
             render::DitheringAlgorithm::ErrorDiffusion) {

@@ -106,12 +106,12 @@ void PalettePopup::onPalChange(const doc::Palette* palette)
 
 void PalettePopup::onSearchChange()
 {
-  MatchWords match(m_popup->search()->text());
+  MatchWords match(std::string(m_popup->search()->text()));
   bool selected = false;
 
   for (auto child : m_paletteListBox.children()) {
     if (dynamic_cast<ResourceListItem*>(child)) {
-      const bool vis = match(child->text());
+      const bool vis = match(std::string(child->text()));
       child->setVisible(vis);
       if (!selected && vis) {
         selected = true;

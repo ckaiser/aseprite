@@ -111,11 +111,11 @@ void ExportFileWindow::savePref()
 {
   m_docPref.saveCopy.filename(outputFilenameValue());
   m_docPref.saveCopy.resizeScale(resizeValue());
-  m_docPref.saveCopy.area(areaValue());
-  m_docPref.saveCopy.layer(layersValue());
+  m_docPref.saveCopy.area(areaValue().data());
+  m_docPref.saveCopy.layer(layersValue().data());
   m_docPref.saveCopy.layerIndex(layersIndex());
   m_docPref.saveCopy.aniDir(aniDirValue());
-  m_docPref.saveCopy.frameTag(framesValue());
+  m_docPref.saveCopy.frameTag(framesValue().data());
   m_docPref.saveCopy.applyPixelRatio(applyPixelRatio());
   m_docPref.saveCopy.forTwitter(isForTwitter());
   m_docPref.saveCopy.playSubtags(isPlaySubtags());
@@ -132,12 +132,12 @@ double ExportFileWindow::resizeValue() const
   return std::clamp(value, 0.001, 100000000.0);
 }
 
-std::string ExportFileWindow::areaValue() const
+std::string_view ExportFileWindow::areaValue() const
 {
   return area()->getValue();
 }
 
-std::string ExportFileWindow::layersValue() const
+std::string_view ExportFileWindow::layersValue() const
 {
   return layers()->getValue();
 }
@@ -148,7 +148,7 @@ int ExportFileWindow::layersIndex() const
   return i < 0 ? -1 : i;
 }
 
-std::string ExportFileWindow::framesValue() const
+std::string_view ExportFileWindow::framesValue() const
 {
   return frames()->getValue();
 }
@@ -222,11 +222,11 @@ void ExportFileWindow::onOutputFilenameEntryChange()
 
 void ExportFileWindow::updateAniDir()
 {
-  std::string framesValue = this->framesValue();
+  std::string_view framesValue = this->framesValue();
   if (!framesValue.empty() && framesValue != kAllFrames && framesValue != kSelectedFrames) {
     SelectedFrames selFrames;
     Tag* tag =
-      calculate_selected_frames(UIContext::instance()->activeSite(), framesValue, selFrames);
+      calculate_selected_frames(UIContext::instance()->activeSite(), framesValue.data(), selFrames);
     if (tag)
       anidir()->setSelectedItemIndex(int(tag->aniDir()));
   }
@@ -236,7 +236,7 @@ void ExportFileWindow::updateAniDir()
 
 void ExportFileWindow::updatePlaySubtags()
 {
-  std::string framesValue = this->framesValue();
+  std::string_view framesValue = this->framesValue();
   playSubtags()->setVisible(framesValue != kSelectedFrames &&
                             // We hide the option if there is no tag
                             !m_doc->sprite()->tags().empty());

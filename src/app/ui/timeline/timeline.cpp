@@ -2142,7 +2142,7 @@ bool Timeline::getTagFrames(const doc::Tag* tag, col_t* fromFrame, col_t* toFram
 
 void Timeline::drawPart(ui::Graphics* g,
                         const gfx::Rect& bounds,
-                        const std::string* text,
+                        const std::string_view text,
                         ui::Style* style,
                         const bool is_active,
                         const bool is_hover,
@@ -2265,7 +2265,7 @@ void Timeline::drawHeaderFrame(ui::Graphics* g, col_t col)
 
   drawPart(g,
            bounds,
-           &text,
+           text,
            skinTheme()->styles.timelineHeaderFrame(),
            is_active,
            is_hover,
@@ -2383,7 +2383,7 @@ void Timeline::drawLayer(ui::Graphics* g, const int layerIdx)
   // Layer text
   drawPart(g,
            textBounds,
-           &layer->name(),
+           layer->name(),
            styles.timelineLayerTextOnly(),
            is_active,
            (hotlayer && m_hot.part == PART_ROW_TEXT),

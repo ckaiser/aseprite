@@ -167,7 +167,7 @@ void NewFileCommand::onExecute(Context* ctx)
     h = window.height()->textInt();
     bg = window.bgColor()->selectedItem();
     if (window.advancedCheck()->isSelected()) {
-      pixelRatio = base::convert_to<PixelRatio>(window.pixelRatio()->getValue());
+      pixelRatio = base::convert_to<PixelRatio>(std::string(window.pixelRatio()->getValue()));
     }
 
     static_assert(int(ColorMode::RGB) == 0, "RGB pixel format should be 0");
@@ -191,7 +191,7 @@ void NewFileCommand::onExecute(Context* ctx)
       pref.newFile.colorMode(colorMode);
       pref.newFile.backgroundColor(bg);
       pref.newFile.advanced(window.advancedCheck()->isSelected());
-      pref.newFile.pixelRatio(window.pixelRatio()->getValue());
+      pref.newFile.pixelRatio(window.pixelRatio()->getValue().data());
     }
 
     width = w;

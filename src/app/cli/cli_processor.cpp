@@ -830,14 +830,14 @@ void CliProcessor::saveFile(Context* ctx, const CliOpenFile& cof)
         FilenameInfo fnInfo;
         fnInfo.filename(fn);
         if (layer) {
-          fnInfo.layerName(layer->name());
+          fnInfo.layerName(layer->name().data());
 
           if (layer->isGroup())
-            fnInfo.groupName(layer->name());
+            fnInfo.groupName(layer->name().data());
           else if (layer->parent() != layer->sprite()->root())
-            fnInfo.groupName(layer->parent()->name());
+            fnInfo.groupName(layer->parent()->name().data());
 
-          itemCof.includeLayers.push_back(layer->name());
+          itemCof.includeLayers.push_back(layer->name().data());
         }
         if (tag) {
           fnInfo.innerTagName(tag->name()).outerTagName(tag->name());

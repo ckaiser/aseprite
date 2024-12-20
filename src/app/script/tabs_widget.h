@@ -49,7 +49,7 @@ public:
   int tabIndexById(const std::string& text) const;
   int tabIndexByText(const std::string& text) const;
   std::string tabId(int index) const;
-  std::string tabText(int index) const;
+  std::string_view tabText(int index) const;
   int selectedTab() const;
   int size() const { return m_pages.children().size(); };
 

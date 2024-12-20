@@ -87,7 +87,7 @@ void UserDataView::setVisible(bool state, bool saveAsDefault)
 void UserDataView::onEntryChange()
 {
   if (entry()->text() != m_userData.text()) {
-    m_userData.setText(entry()->text());
+    m_userData.setText(entry()->text().data());
     if (!m_selfUpdate)
       UserDataChange();
   }

@@ -284,7 +284,7 @@ private:
   bool getTagFrames(const doc::Tag* tag, col_t* fromFrame, col_t* toFrame) const;
   void drawPart(ui::Graphics* g,
                 const gfx::Rect& bounds,
-                const std::string* text,
+                const std::string_view text,
                 ui::Style* style,
                 const bool is_active = false,
                 const bool is_hover = false,

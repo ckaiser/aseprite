@@ -786,7 +786,7 @@ static void ase_file_write_layer_chunk(FILE* f,
   ase_file_write_padding(f, 3);
 
   // Layer name
-  ase_file_write_string(f, layer->name());
+  ase_file_write_string(f, layer->name().data());
 
   // Tileset index
   if (layer->isTilemap())

@@ -98,7 +98,7 @@ text::FontRef get_font_from_info(const FontInfo& fontInfo)
   return font;
 }
 
-text::TextBlobRef create_text_blob(const FontInfo& fontInfo, const std::string& text)
+text::TextBlobRef create_text_blob(const FontInfo& fontInfo, const std::string_view text)
 {
   const text::FontRef font = get_font_from_info(fontInfo);
   if (!font)
@@ -150,7 +150,7 @@ doc::ImageRef render_text_blob(const text::TextBlobRef& blob, gfx::Color color)
   return image;
 }
 
-doc::ImageRef render_text(const FontInfo& fontInfo, const std::string& text, gfx::Color color)
+doc::ImageRef render_text(const FontInfo& fontInfo, const std::string_view text, gfx::Color color)
 {
   const text::FontRef font = get_font_from_info(fontInfo);
   if (!font)

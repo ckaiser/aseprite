@@ -65,7 +65,7 @@ public:
   int getItemCount() const;
 
   Widget* getItem(const int itemIndex) const;
-  const std::string& getItemText(int itemIndex) const;
+  std::string_view getItemText(int itemIndex) const;
   void setItemText(int itemIndex, const std::string& text);
   int findItemIndex(const std::string& text) const;
   int findItemIndexByValue(const std::string& value) const;
@@ -76,7 +76,7 @@ public:
   int getSelectedItemIndex() const;
   void setSelectedItemIndex(int itemIndex);
 
-  std::string getValue() const;
+  std::string_view getValue() const;
   void setValue(const std::string& value);
 
   Entry* getEntryWidget();

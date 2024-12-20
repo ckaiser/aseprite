@@ -39,7 +39,7 @@ public:
   virtual void updateValue(int value);
 
   std::string convertValueToText(int value) const;
-  int convertTextToValue(const std::string& text) const;
+  int convertTextToValue(const std::string_view text) const;
 
   // Signals
   obs::signal<void()> Change;

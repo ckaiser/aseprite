@@ -1211,7 +1211,7 @@ public:
     dynaPref.maxPressureThreshold(m_dynamics.maxPressureThreshold);
     dynaPref.maxVelocityThreshold(m_dynamics.maxVelocityThreshold);
     dynaPref.colorFromTo(m_dynamics.colorFromTo);
-    dynaPref.matrixName(m_popup->ditheringMatrixName());
+    dynaPref.matrixName(m_popup->ditheringMatrixName().data());
 
     initTheme();
   }

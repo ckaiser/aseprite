@@ -285,8 +285,7 @@ void ColorShades::onPaint(ui::PaintEvent& ev)
   }
   else {
     ui::PaintWidgetPartInfo info;
-    const std::string& text = this->text();
-    info.text = &text;
+    info.text = text();
     theme->paintWidgetPart(g, theme->styles.shadeEmpty(), bounds, info);
   }
 }

@@ -657,7 +657,7 @@ Layer* DocApi::duplicateLayerAfter(Layer* sourceLayer, LayerGroup* parent, Layer
   ASSERT(parent);
   Layer* newLayerPtr = copy_layer(sourceLayer);
 
-  newLayerPtr->setName(newLayerPtr->name() + " Copy");
+  newLayerPtr->setName(std::string(newLayerPtr->name()) + " Copy");
 
   addLayer(parent, newLayerPtr, afterLayer);
 

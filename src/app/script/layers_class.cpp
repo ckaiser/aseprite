@@ -64,7 +64,7 @@ int Layers_index(lua_State* L)
     if (const char* name = lua_tostring(L, 2)) {
       for (ObjectId layerId : obj->layers) {
         Layer* layer = doc::get<Layer>(layerId);
-        if (layer && base::utf8_icmp(layer->name(), name) == 0) {
+        if (layer && base::utf8_icmp(layer->name().data(), name) == 0) {
           push_docobj<Layer>(L, layerId);
           return 1;
         }

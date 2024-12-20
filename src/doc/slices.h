@@ -34,7 +34,7 @@ public:
   void add(Slice* slice);
   void remove(Slice* slice);
 
-  Slice* getByName(const std::string& name) const;
+  Slice* getByName(const std::string_view name) const;
   Slice* getById(const ObjectId id) const;
 
   iterator begin() { return m_slices.begin(); }
