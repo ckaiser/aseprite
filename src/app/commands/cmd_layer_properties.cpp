@@ -427,7 +427,7 @@ private:
 
     const bool tilemapVisibility = (m_layer && m_layer->isTilemap());
     if (m_layer) {
-      name()->setText(m_layer->name().data());
+      name()->setText(m_layer->name());
       name()->setEnabled(true);
 
       if (m_layer->isImage() ||

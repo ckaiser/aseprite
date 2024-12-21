@@ -266,8 +266,7 @@ bool ask_access(lua_State* L,
     dlg.allow()->setText(allowButtonText);
     dlg.allow()->processMnemonicFromText();
 
-    dlg.script()->Click.connect(
-      [&dlg] { app::launcher::open_folder(dlg.script()->text().data()); });
+    dlg.script()->Click.connect([&dlg] { app::launcher::open_folder(dlg.script()->text()); });
 
     dlg.full()->Click.connect([&dlg, &allowButtonText]() {
       if (dlg.full()->isSelected()) {

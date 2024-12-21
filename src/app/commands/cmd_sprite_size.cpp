@@ -341,7 +341,7 @@ private:
 
     if (lockRatio()->isSelected()) {
       heightPx()->setTextf("%d", (int)(sprite->height() * width / 100));
-      heightPerc()->setText(widthPerc()->text().data());
+      heightPerc()->setText(widthPerc()->text());
     }
   }
 
@@ -355,7 +355,7 @@ private:
 
     if (lockRatio()->isSelected()) {
       widthPx()->setTextf("%d", (int)(sprite->width() * height / 100));
-      widthPerc()->setText(heightPerc()->text().data());
+      widthPerc()->setText(heightPerc()->text());
     }
   }
 

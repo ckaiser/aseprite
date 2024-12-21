@@ -800,8 +800,7 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
 
   // Get the region & the drawable region of the window
   Region oldDrawableRegion;
-  getDrawableRegion(oldDrawableRegion,
-                    ui::Widget::DrawableRegionFlags::kCutTopWindowsAndUseChildArea);
+  getDrawableRegion(oldDrawableRegion, kCutTopWindowsAndUseChildArea);
 
   // If the size of the window changes...
   if (old_pos.w != rect.w || old_pos.h != rect.h) {
@@ -817,8 +816,7 @@ void Window::moveWindow(const gfx::Rect& rect, bool use_blit)
   // Get the new drawable region of the window (it's new because we
   // moved the window to "rect")
   Region newDrawableRegion;
-  getDrawableRegion(newDrawableRegion,
-                    ui::Widget::DrawableRegionFlags::kCutTopWindowsAndUseChildArea);
+  getDrawableRegion(newDrawableRegion, kCutTopWindowsAndUseChildArea);
 
   // First of all, we have to find the manager region to invalidate,
   // it's the old window drawable region without the new window

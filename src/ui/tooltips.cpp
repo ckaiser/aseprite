@@ -300,7 +300,7 @@ void TipWindow::onBuildTitleLabel()
 {
   if (!text().empty()) {
     m_textBox->setVisible(true);
-    m_textBox->setText(text().data()); // TODO: view constructor
+    m_textBox->setText(text());
   }
   else
     m_textBox->setVisible(false);

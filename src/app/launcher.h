@@ -12,9 +12,9 @@
 
 namespace app { namespace launcher {
 
-void open_url(const std::string& url);
-void open_file(const std::string& file);
-void open_folder(const std::string& file);
+void open_url(const std::string_view url);
+void open_file(const std::string_view file);
+void open_folder(const std::string_view file);
 
 }} // namespace app::launcher
 
