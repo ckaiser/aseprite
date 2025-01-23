@@ -25,7 +25,7 @@ using namespace tinyxml2;
 Layouts::Layouts()
 {
   try {
-    std::string fn = m_userLayoutsFilename = UserLayoutsFilename();
+    const std::string& fn = m_userLayoutsFilename = UserLayoutsFilename();
     if (base::is_file(fn))
       load(fn);
   }
@@ -36,8 +36,7 @@ Layouts::Layouts()
 
 Layouts::~Layouts()
 {
-  if (!m_userLayoutsFilename.empty())
-    save(m_userLayoutsFilename);
+  saveUserLayouts();
 }
 
 LayoutPtr Layouts::getById(const std::string& id) const
@@ -57,10 +56,23 @@ bool Layouts::addLayout(const LayoutPtr& layout)
     *it = layout; // Replace existent layout
     return false;
   }
-  else {
-    m_layouts.push_back(layout);
-    return true;
+
+  m_layouts.push_back(layout);
+
+  if (layout->isDefault()) {
+    // Don't count default layouts as "added" for the purposes of this.
+    return false;
   }
+
+  return true;
+}
+
+void Layouts::saveUserLayouts() const
+{
+  if (!m_userLayoutsFilename.empty())
+    save(m_userLayoutsFilename);
+  // else
+  // LOG(kWarning, "Could not save user layouts, invalid filename.");
 }
 
 void Layouts::load(const std::string& fn)
@@ -78,6 +90,8 @@ void Layouts::load(const std::string& fn)
 
 void Layouts::save(const std::string& fn) const
 {
+  TRACE("Saving layouts to %s\n", fn.c_str());
+
   auto doc = std::make_unique<XMLDocument>();
   XMLElement* layoutsElem = doc->NewElement("layouts");
 

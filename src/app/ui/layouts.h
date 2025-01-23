@@ -28,6 +28,8 @@ public:
   // replaced.
   bool addLayout(const LayoutPtr& layout);
 
+  void saveUserLayouts() const;
+
   // To iterate layouts
   using List = std::vector<LayoutPtr>;
   using iterator = List::iterator;

@@ -692,8 +692,18 @@ void MainWindow::configureWorkspaceLayout()
       m_dock->top()->dock(CENTER, m_menuBar.get());
   }
   else {
-    if (m_menuBar->parent())
+    if (m_menuBar->parent()) {
       m_dock->undock(m_menuBar.get());
+
+      // TODO: MacOS layout is a little bonkers and it's not perfect but it works so
+      m_dock->undock(m_tabsBar.get());
+      m_dock->undock(m_notifications.get());
+      m_dock->undock(m_layoutSelector.get());
+
+      m_dock->top()->dock(ui::CENTER, m_tabsBar.get());
+      m_dock->top()->center()->right()->dock(ui::RIGHT, m_notifications.get());
+      m_dock->top()->center()->right()->dock(ui::CENTER, m_layoutSelector.get());
+    }
   }
 
   m_menuBar->setVisible(normal);

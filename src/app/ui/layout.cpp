@@ -190,4 +190,15 @@ bool Layout::loadLayout(Dock* dock) const
   return true;
 }
 
+bool Layout::isValidName(const std::string_view name)
+{
+  if (name.empty())
+    return false;
+  if (name[0] == '_')
+    return false;
+  if (name.length() > 128)
+    return false;
+  return true;
+}
+
 } // namespace app

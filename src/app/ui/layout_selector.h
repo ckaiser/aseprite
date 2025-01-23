@@ -47,8 +47,8 @@ public:
   LayoutSelector(ui::TooltipManager* tooltipManager);
   ~LayoutSelector();
 
-  LayoutPtr activeLayout();
-  std::string activeLayoutId() const { return m_activeLayoutId; }
+  LayoutPtr activeLayout() const;
+  const std::string& activeLayoutId() const { return m_activeLayoutId; }
 
   void addLayout(const LayoutPtr& layout);
   void updateActiveLayout(const LayoutPtr& layout);

@@ -34,6 +34,9 @@ public:
   bool matchId(const std::string& id) const;
   bool loadLayout(Dock* dock) const;
 
+  bool isDefault() const { return m_id == kDefault || m_id == kMirroredDefault; }
+  static bool isValidName(const std::string_view name);
+
 private:
   std::string m_id;
   std::string m_name;

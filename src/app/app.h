@@ -90,7 +90,7 @@ public:
   tools::Tool* activeTool() const;
   tools::ActiveToolManager* activeToolManager() const;
   RecentFiles* recentFiles() const;
-  MainWindow* mainWindow() const { return m_mainWindow.get(); }
+  MainWindow* mainWindow() { return m_mainWindow.get(); }
   Workspace* workspace() const;
   ContextBar* contextBar() const;
   Timeline* timeline() const;

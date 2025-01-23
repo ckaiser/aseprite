@@ -12,7 +12,10 @@
 
 #include "app/ui/dockable.h"
 #include "app/ui/skin/skin_theme.h"
+#include "layout_selector.h"
+#include "main_window.h"
 #include "ui/cursor_type.h"
+#include "ui/menu.h"
 #include "ui/message.h"
 #include "ui/paint_event.h"
 #include "ui/resize_event.h"
@@ -20,6 +23,8 @@
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 #include "ui/widget.h"
+
+#include <app/app.h>
 
 namespace app {
 
@@ -80,6 +85,7 @@ void DockTabs::onResize(ui::ResizeEvent& ev)
 
 void DockTabs::onPaint(ui::PaintEvent& ev)
 {
+  // TODO: EVERYTHING!
   Graphics* g = ev.graphics();
   g->fillRect(gfx::rgba(0, 0, 255), clientBounds());
 }
@@ -399,7 +405,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
     case kMouseMoveMessage: {
       if (hasCapture()) {
         if (m_hit.sideIndex >= 0) {
-          const gfx::Point pos = static_cast<MouseMessage*>(msg)->position();
+          const gfx::Point& pos = static_cast<MouseMessage*>(msg)->position();
           gfx::Size& sz = m_sizes[m_hit.sideIndex];
 
           switch (m_hit.sideIndex) {
@@ -422,13 +428,91 @@ bool Dock::onProcessMessage(ui::Message* msg)
     case kMouseUpMessage: {
       if (hasCapture()) {
         releaseMouse();
+        const auto* mouseMessage = static_cast<MouseMessage*>(msg);
+
+        if (m_hit.dockable && mouseMessage->right()) {
+          Menu menu;
+          MenuItem left("Dock Left of Parent");
+          MenuItem right("Dock Right of Parent");
+          MenuItem top("Dock Top of Parent");
+          MenuItem bottom("Dock Bottom of Parent");
+
+          MenuItem leftW("Dock Left of Window");
+          MenuItem rightW("Dock Right of Window");
+          MenuItem topW("Dock Top of Window");
+          MenuItem bottomW("Dock Bottom of Window");
+
+          if (m_hit.dockable->dockableAt() & ui::LEFT) {
+            menu.addChild(&left);
+            // menu.addChild(&leftW); // TODO: !
+          }
+          if (m_hit.dockable->dockableAt() & ui::RIGHT) {
+            menu.addChild(&right);
+            // menu.addChild(&rightW);
+          }
+          if (m_hit.dockable->dockableAt() & ui::TOP) {
+            menu.addChild(&top);
+            // menu.addChild(&topW);
+          }
+          if (m_hit.dockable->dockableAt() & ui::BOTTOM) {
+            menu.addChild(&bottom);
+            // menu.addChild(&bottomW);
+          }
+
+          auto* dockableWidget = dynamic_cast<Widget*>(m_hit.dockable);
+          auto* widgetDock = dynamic_cast<Dock*>(dockableWidget->parent());
+
+          assert(dockableWidget && widgetDock);
+
+          TRACE("Re-docking something, we're currently in %s\n",
+                App::instance()->mainWindow()->layoutSelector()->activeLayoutId().c_str());
+
+          auto dockNRoll = [&](const int side, bool w = false) {
+            widgetDock->undock(dockableWidget);
+
+            if (w) {
+              App::instance()->mainWindow()->customizableDock()->subdock(side)->dock(
+                side,
+                dockableWidget,
+                dockableWidget->size());
+            }
+            else {
+              widgetDock->dock(side, dockableWidget, dockableWidget->size());
+            }
+
+            invalidate();
+            layout();
+            Resize();
+            onUserResizedDock();
+          };
+
+          left.Click.connect([&dockNRoll] { dockNRoll(ui::LEFT); });
+          right.Click.connect([&dockNRoll] { dockNRoll(ui::RIGHT); });
+          top.Click.connect([&dockNRoll] { dockNRoll(ui::TOP); });
+          bottom.Click.connect([&dockNRoll] { dockNRoll(ui::BOTTOM); });
+
+          leftW.Click.connect([&dockNRoll] { dockNRoll(ui::LEFT, true); });
+          rightW.Click.connect([&dockNRoll] { dockNRoll(ui::RIGHT, true); });
+          topW.Click.connect([&dockNRoll] { dockNRoll(ui::TOP, true); });
+          bottomW.Click.connect([&dockNRoll] { dockNRoll(ui::BOTTOM, true); });
+
+          // TODO: How to Dock into tabb??
+
+          // TODO: Make-a da drag and da drop
+
+          menu.showPopup(mouseMessage->position(), display());
+          requestFocus();
+        }
+
+        // TODO: Here when we raise the mouse we can drop the currently dfragged thhing? idk
+
         onUserResizedDock();
       }
       break;
     }
 
     case kSetCursorMessage: {
-      const gfx::Point pos = static_cast<MouseMessage*>(msg)->position();
+      const gfx::Point& pos = static_cast<MouseMessage*>(msg)->position();
       ui::CursorType cursor = ui::kArrowCursor;
 
       if (!hasCapture())
