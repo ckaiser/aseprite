@@ -386,9 +386,7 @@ void MainWindow::setTimelineVisibility(bool visible)
 
 void MainWindow::popTimeline()
 {
-  Preferences& preferences = Preferences::instance();
-
-  if (!preferences.general.autoshowTimeline())
+  if (!Preferences::instance().general.autoshowTimeline())
     return;
 
   if (!getTimelineVisibility())

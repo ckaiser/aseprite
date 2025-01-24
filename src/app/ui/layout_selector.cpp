@@ -130,7 +130,7 @@ public:
         if (const auto& defaultLayout = win->layoutSelector()->m_layouts.getById(Layout::kDefault))
           m_layout = defaultLayout;
 
-        m_selector->m_activeLayoutId = Layout::kDefault;
+        m_selector->setActiveLayoutId(Layout::kDefault);
       } break;
       case MIRRORED_DEFAULT: {
         win->setMirroredDefaultLayout();
@@ -140,12 +140,12 @@ public:
           m_layout = mirroredLayout;
         }
 
-        m_selector->m_activeLayoutId = Layout::kMirroredDefault;
+        m_selector->setActiveLayoutId(Layout::kMirroredDefault);
       } break;
     }
 
     if (m_layout) {
-      m_selector->m_activeLayoutId = m_layout->id();
+      m_selector->setActiveLayoutId(m_layout->id());
       win->loadUserLayout(m_layout.get());
     }
   }
@@ -242,9 +242,7 @@ void LayoutSelector::LayoutComboBox::onCloseListBox()
 LayoutSelector::LayoutSelector(TooltipManager* tooltipManager)
   : m_button(SkinTheme::instance()->parts.iconUserData())
 {
-  m_activeLayoutId = Preferences::instance().general.workspaceLayout();
-  if (m_activeLayoutId.empty())
-    m_activeLayoutId = Layout::kDefault;
+  setActiveLayoutId(Preferences::instance().general.workspaceLayout());
 
   m_button.Click.connect([this]() { switchSelector(); });
 
@@ -301,11 +299,7 @@ void LayoutSelector::addLayout(const LayoutPtr& layout)
 void LayoutSelector::updateActiveLayout(const LayoutPtr& newLayout)
 {
   m_layouts.addLayout(newLayout);
-
-  if (m_activeLayoutId != newLayout->id()) {
-    m_activeLayoutId = newLayout->id();
-  }
-
+  setActiveLayoutId(newLayout->id());
   m_layouts.saveUserLayouts();
 }
 

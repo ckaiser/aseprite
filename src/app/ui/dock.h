@@ -21,14 +21,6 @@ namespace app {
 
 class Dockable;
 
-class DockTabs : public ui::Widget {
-public:
-protected:
-  void onSizeHint(ui::SizeHintEvent& ev) override;
-  void onResize(ui::ResizeEvent& ev) override;
-  void onPaint(ui::PaintEvent& ev) override;
-};
-
 class Dock : public ui::Widget {
 public:
   static constexpr const int kSides = 5;
@@ -60,7 +52,7 @@ public:
 
   // Functions useful to query/save the dock layout.
   int whichSideChildIsDocked(const ui::Widget* widget) const;
-  gfx::Size getUserDefinedSizeAtSide(int side) const;
+  const gfx::Size& getUserDefinedSizeAtSide(int side) const;
 
   obs::signal<void()> Resize;
   obs::signal<void()> UserResizedDock;
@@ -89,6 +81,8 @@ private:
     ui::Widget* widget = nullptr;
     Dockable* dockable = nullptr;
     int sideIndex = -1;
+    int dockedAt = -1;
+    int targetSide = -1;
   };
 
   Hit calcHit(const gfx::Point& pos);
@@ -107,6 +101,7 @@ private:
 
   // True when we paint/can drag-and-drop dockable widgets from handles.
   bool m_customizing = false;
+  bool m_dragging = false;
 };
 
 } // namespace app
