@@ -8,6 +8,7 @@
 #define APP_UI_DOCK_H_INCLUDED
 #pragma once
 
+#include "dockable.h"
 #include "gfx/rect.h"
 #include "gfx/size.h"
 #include "ui/widget.h"
@@ -20,6 +21,7 @@
 namespace app {
 
 class Dockable;
+class DockDropzonePlaceholder;
 
 class Dock : public ui::Widget {
 public:
@@ -102,6 +104,7 @@ private:
   // True when we paint/can drag-and-drop dockable widgets from handles.
   bool m_customizing = false;
   bool m_dragging = false;
+  DockDropzonePlaceholder* m_dropzonePlaceholder = nullptr;
 };
 
 } // namespace app

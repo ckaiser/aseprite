@@ -12,11 +12,14 @@
 
 #include "app/app.h"
 #include "app/i18n/strings.h"
+#include "app/modules/gfx.h"
+#include "app/pref/preferences.h"
 #include "app/ui/dockable.h"
 #include "app/ui/skin/skin_theme.h"
 #include "layout_selector.h"
 #include "main_window.h"
 #include "ui/cursor_type.h"
+#include "ui/label.h"
 #include "ui/menu.h"
 #include "ui/message.h"
 #include "ui/paint_event.h"
@@ -25,8 +28,6 @@
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 #include "ui/widget.h"
-
-#include <app/pref/preferences.h>
 
 namespace app {
 
@@ -171,6 +172,7 @@ void Dock::undock(Widget* widget)
     for (int i = 0; i < kSides; ++i) {
       if (parentDock->m_sides[i] == widget) {
         parentDock->setSide(i, nullptr);
+        m_sizes[i] = gfx::Size();
         break;
       }
     }
@@ -328,6 +330,40 @@ void Dock::onInitTheme(ui::InitThemeEvent& ev)
   setChildSpacing(4 * ui::guiscale());
 }
 
+class DockDropzonePlaceholder final : public Widget,
+                                      public Dockable {
+public:
+  explicit DockDropzonePlaceholder(Widget* dragWidget) : Widget(kGenericWidget)
+  {
+    setSizeHint(dragWidget->sizeHint());
+    setMinSize(dragWidget->size());
+    setExpansive(true);
+  }
+
+protected:
+  void onPaint(PaintEvent& ev) override
+  {
+    auto* g = ev.graphics();
+
+    gfx::Rect bounds = clientBounds();
+    g->fillRect(bgColor(), bounds);
+
+    bounds.shrink(2);
+
+    auto color = gfx::rgba(89, 77, 87);
+    g->drawRect(color, bounds);
+
+    g->drawLine(color, bounds.center(), bounds.origin());
+    g->drawLine(color, bounds.center(), bounds.point2());
+    g->drawLine(color, bounds.center(), bounds.point2() - gfx::Point(bounds.w, 0));
+    g->drawLine(color, bounds.center(), bounds.origin() + gfx::Point(bounds.w, 0));
+
+    g->drawRect(color, gfx::Rect(bounds.center() - gfx::Point(2, 2), gfx::Size(4, 4)));
+  }
+
+  int dockHandleSide() const override { return 0; }
+};
+
 bool Dock::onProcessMessage(ui::Message* msg)
 {
   switch (msg->type()) {
@@ -345,6 +381,9 @@ bool Dock::onProcessMessage(ui::Message* msg)
 
         if (m_hit.dockable) {
           m_dragging = true;
+
+          auto* dragWidget = dynamic_cast<Widget*>(m_hit.dockable);
+          m_dropzonePlaceholder = new DockDropzonePlaceholder(dragWidget);
           invalidate();
         }
 
@@ -380,53 +419,53 @@ bool Dock::onProcessMessage(ui::Message* msg)
             if (!parentDock)
               break;
 
-            const auto originSide = parentDock->whichSideChildIsDocked(dragWidget); // TODO: Cache
-                                                                                    // when hitting?
+            // TODO: Make when hitting?
+            const auto originSide = parentDock->whichSideChildIsDocked(dragWidget);
             const auto& bounds = parentDock->bounds();
 
             ASSERT(originSide > 0)
-
-            m_hit.targetSide = -1;
 
             if (!bounds.contains(pos))
               break; // Do not handle anything outside the bounds of the dock.
 
             const int BUFFER_ZONE = 15 * guiscale(); // TODO: Move somewhere else
 
+            int newTargetSide = -1;
             if (m_hit.dockable->dockableAt() & LEFT && !(originSide & LEFT) &&
                 pos.x < bounds.x + BUFFER_ZONE) {
-              if (m_hit.targetSide != LEFT)
-                TRACE("Changing target side to LEFT\n");
-
-              m_hit.targetSide = LEFT;
+              newTargetSide = LEFT;
             }
             else if (m_hit.dockable->dockableAt() & RIGHT && !(originSide & RIGHT) &&
                      pos.x > (bounds.w - BUFFER_ZONE)) {
-              if (m_hit.targetSide != RIGHT)
-                TRACE("Changing target side to RIGHT\n");
-
-              m_hit.targetSide = RIGHT;
+              newTargetSide = RIGHT;
             }
             else if (m_hit.dockable->dockableAt() & TOP && !(originSide & TOP) &&
                      pos.y < bounds.y + BUFFER_ZONE) {
-              if (m_hit.targetSide != TOP)
-                TRACE("Changing target side to TOP\n");
-
-              m_hit.targetSide = TOP;
+              newTargetSide = TOP;
             }
             else if (m_hit.dockable->dockableAt() & BOTTOM && !(originSide & BOTTOM) &&
                      pos.y > (bounds.h - BUFFER_ZONE)) {
-              if (m_hit.targetSide != BOTTOM)
-                TRACE("Changing target side to BOTTOM\n");
-
-              m_hit.targetSide = BOTTOM;
+              newTargetSide = BOTTOM;
             }
-            else {
-              if (m_hit.targetSide != -1)
-                TRACE("Resetting target side\n");
 
-              m_hit.targetSide = -1;
+            if (m_hit.targetSide == newTargetSide)
+              break;
+
+            m_hit.targetSide = newTargetSide;
+
+            // Dock the placeholder if we wanna
+            if (m_dropzonePlaceholder && m_dropzonePlaceholder->parent()) {
+              auto* placeholderCurrentDock = dynamic_cast<Dock*>(m_dropzonePlaceholder->parent());
+              placeholderCurrentDock->undock(m_dropzonePlaceholder);
             }
+
+            if (m_hit.targetSide != -1 && m_dropzonePlaceholder) {
+              if (auto* widgetDock = dynamic_cast<Dock*>(dragWidget->parent()))
+                widgetDock->dock(m_hit.targetSide, m_dropzonePlaceholder, dragWidget->sizeHint());
+            }
+
+            App::instance()->mainWindow()->invalidate();
+            layout();
           }
         }
       }
@@ -437,6 +476,12 @@ bool Dock::onProcessMessage(ui::Message* msg)
       if (hasCapture()) {
         releaseMouse();
         const auto* mouseMessage = static_cast<MouseMessage*>(msg);
+
+        if (m_dropzonePlaceholder && m_dropzonePlaceholder->parent()) {
+          // Always undock the dropzone placeholder to avoid dangling sizes.
+          auto* placeholderCurrentDock = dynamic_cast<Dock*>(m_dropzonePlaceholder->parent());
+          placeholderCurrentDock->undock(m_dropzonePlaceholder);
+        }
 
         if (m_hit.dockable) {
           auto* dockableWidget = dynamic_cast<Widget*>(m_hit.dockable);
@@ -450,7 +495,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
 
             if (dockableWidget->id() == "timeline") {
               // TODO: The timeline is special, but it shouldn't be. Dockables should know when
-              // they've been redocked to adjust.
+              // they've been re-docked to adjust.
               auto pos = gen::TimelinePosition::LEFT;
               if (side & RIGHT)
                 pos = gen::TimelinePosition::RIGHT;
@@ -461,7 +506,6 @@ bool Dock::onProcessMessage(ui::Message* msg)
 
             App::instance()->mainWindow()->invalidate();
             layout();
-            Resize();
             onUserResizedDock();
           };
 
@@ -500,9 +544,14 @@ bool Dock::onProcessMessage(ui::Message* msg)
           }
         }
 
-        onUserResizedDock();
         m_dragging = false;
+        if (m_dropzonePlaceholder) {
+          delete m_dropzonePlaceholder;
+          m_dropzonePlaceholder = nullptr;
+        }
         m_hit = Hit();
+
+        onUserResizedDock();
       }
       break;
     }
@@ -602,7 +651,7 @@ void Dock::forEachSide(gfx::Rect bounds,
 {
   for (int i = 0; i < kSides; ++i) {
     auto* widget = m_sides[i];
-    if (!widget || !widget->isVisible()) {
+    if (!widget || !widget->isVisible() || widget->isDecorative()) {
       continue;
     }
 

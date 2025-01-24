@@ -14,16 +14,17 @@
 #include "app/i18n/strings.h"
 #include "app/match_words.h"
 #include "app/pref/preferences.h"
-#include "app/ui/button_set.h"
 #include "app/ui/main_window.h"
 #include "app/ui/separator_in_view.h"
 #include "app/ui/skin/skin_theme.h"
+#include "fmt/printf.h"
+#include "ui/alert.h"
 #include "ui/entry.h"
+#include "ui/label.h"
 #include "ui/listitem.h"
 #include "ui/tooltips.h"
 #include "ui/window.h"
 
-#include "fmt/printf.h"
 #include "new_layout.xml.h"
 
 #define ANI_TICKS 2
@@ -85,7 +86,7 @@ private:
 
 }; // namespace
 
-class LayoutSelector::LayoutItem : public ListItem {
+class LayoutSelector::LayoutItem final : public ListItem {
 public:
   enum LayoutOption {
     DEFAULT,
@@ -102,7 +103,76 @@ public:
     , m_option(option)
     , m_selector(selector)
     , m_layout(layout)
+    , m_actionButton(nullptr)
   {
+    auto* hbox = new HBox;
+    hbox->setTransparent(true);
+    addChild(hbox);
+
+    auto* filler = new BoxFiller();
+    filler->setTransparent(true);
+    hbox->addChild(filler);
+
+    if (option == USER_DEFINED || ((option == DEFAULT || option == MIRRORED_DEFAULT) && layout)) {
+      // TODO: Icons for reset & delete? trash can? or just this X
+      m_actionButton = new IconButton(SkinTheme::instance()->parts.iconClose());
+      m_actionButton->setSizeHint(
+        gfx::Size(m_actionButton->textHeight(), m_actionButton->textHeight()));
+
+      m_actionButton->setTransparent(true);
+
+      m_actionButton->InitTheme.connect(
+        [this] { m_actionButton->setBgColor(gfx::rgba(0, 0, 0, 0)); });
+
+      if (option == USER_DEFINED)
+        m_actionButton->Click.connect([&text] {
+          const auto alert = Alert::create("Deleting Layout");
+          alert->addLabel(fmt::sprintf("Are you sure you want to delete the layout '%s'?", text),
+                          LEFT);
+          alert->addButton(Strings::general_ok());
+          alert->addButton(Strings::general_cancel());
+          if (alert->show() == 1) {
+            TRACE("TODO: Delete this layout!");
+          }
+        });
+      else
+        m_actionButton->Click.connect([&text] {
+          const auto alert = Alert::create("Restoring Layout");
+          alert->addLabel(fmt::sprintf("Are you sure you want to restore the %s layout?", text),
+                          LEFT);
+          alert->addButton(Strings::general_ok());
+          alert->addButton(Strings::general_cancel());
+          if (alert->show() == 1) {
+            TRACE("TODO: Delete THIS layout, but like, the default one! With extra defaultiness!");
+          }
+        });
+
+      hbox->addChild(m_actionButton);
+
+      // TODO: Setting this here makes it just.. not visible at all? HALP?
+      // m_actionButton->setVisible(false);
+    }
+  }
+
+  bool onProcessMessage(Message* msg) override
+  {
+    switch (msg->type()) {
+      case kMouseEnterMessage: {
+        if (m_actionButton) {
+          m_actionButton->setVisible(true);
+          invalidate();
+        }
+      } break;
+      case kMouseLeaveMessage: {
+        if (m_actionButton) {
+          m_actionButton->setVisible(false);
+          invalidate();
+        }
+      } break;
+      default: break;
+    }
+
+    return ListItem::onProcessMessage(msg);
   }
 
   std::string_view getLayoutId() const
@@ -156,11 +226,6 @@ public:
       return;
 
     MainWindow* win = App::instance()->mainWindow();
-
-    // Select the "Layout" separator (it's like selecting nothing)
-    // TODO: Improve the ComboBox to select a real "nothing" (with a placeholder text)
-    m_selector->m_comboBox.setSelectedItemIndex(0);
-
     gen::NewLayout window;
 
     if (m_selector->m_layouts.size() > 0)
@@ -188,8 +253,8 @@ public:
       item->setValue(layout->id());
       window.base()->addItem(item);
 
-      if (m_selector->m_activeLayoutId == layout->id()) // TODO: Duplicated, awful, terrible, take a
-                                                        // lap.
+      // TODO: Duplicated, awful, terrible, take a lap.
+      if (m_selector->m_activeLayoutId == layout->id())
         window.base()->setSelectedItemIndex(window.base()->getItemCount() - 1);
     }
 
@@ -219,6 +284,7 @@ private:
   LayoutOption m_option;
   LayoutSelector* m_selector;
   LayoutPtr m_layout;
+  Button* m_actionButton;
 };
 
 void LayoutSelector::LayoutComboBox::onChange()
@@ -275,25 +341,8 @@ LayoutPtr LayoutSelector::activeLayout() const
 
 void LayoutSelector::addLayout(const LayoutPtr& layout)
 {
-  bool added = m_layouts.addLayout(layout);
-  if (added) {
-    auto* item = new LayoutItem(this, LayoutItem::USER_DEFINED, layout->name(), layout);
-    m_comboBox.insertItem(m_comboBox.getItemCount() - 1, // Above the "New Layout" item
-                          item);
-
-    m_comboBox.setSelectedItem(item);
-  }
-  else {
-    for (auto* item : m_comboBox) {
-      if (auto* layoutItem = dynamic_cast<LayoutItem*>(item)) {
-        if (layoutItem->layout() && layoutItem->layout()->id() == layout->id()) {
-          layoutItem->setLayout(layout);
-          m_comboBox.setSelectedItem(item);
-          break;
-        }
-      }
-    }
-  }
+  m_layouts.addLayout(layout);
+  populateComboBox();
 }
 
 void LayoutSelector::updateActiveLayout(const LayoutPtr& newLayout)
@@ -352,29 +401,7 @@ void LayoutSelector::switchSelector()
 
     // Create the combobox for first time
     if (m_comboBox.getItemCount() == 0) {
-      m_comboBox.addItem(new SeparatorInView(Strings::main_window_layout(), HORIZONTAL));
-      m_comboBox.addItem(new LayoutItem(this,
-                                        LayoutItem::DEFAULT,
-                                        Strings::main_window_default_layout(),
-                                        m_layouts.getById(Layout::kDefault)));
-      m_comboBox.addItem(new LayoutItem(this,
-                                        LayoutItem::MIRRORED_DEFAULT,
-                                        Strings::main_window_mirrored_default_layout(),
-                                        m_layouts.getById(Layout::kMirroredDefault)));
-      m_comboBox.addItem(new SeparatorInView(Strings::main_window_user_layouts(), HORIZONTAL));
-      for (const auto& layout : m_layouts) {
-        if (layout->isDefault()) {
-          auto* defaultItem = m_comboBox.getItem(layout->id() == Layout::kDefault ? 1 : 2);
-          defaultItem->setText(defaultItem->text() + "*"); // Indicate we've modified this by a
-                                                           // subtle asterisk.
-        }
-        else {
-          m_comboBox.addItem(
-            new LayoutItem(this, LayoutItem::USER_DEFINED, layout->name(), layout));
-        }
-      }
-      m_comboBox.addItem(
-        new LayoutItem(this, LayoutItem::NEW_LAYOUT, Strings::main_window_new_layout(), nullptr));
+      populateComboBox();
     }
 
     m_comboBox.setVisible(true);
@@ -414,6 +441,39 @@ void LayoutSelector::setupTooltips(TooltipManager* tooltipManager)
   tooltipManager->addTooltipFor(&m_button, Strings::main_window_layout(), TOP);
 }
 
+void LayoutSelector::populateComboBox()
+{
+  m_comboBox.deleteAllItems();
+
+  m_comboBox.addItem(new SeparatorInView(Strings::main_window_layout(), HORIZONTAL));
+  m_comboBox.addItem(new LayoutItem(this,
+                                    LayoutItem::DEFAULT,
+                                    Strings::main_window_default_layout(),
+                                    m_layouts.getById(Layout::kDefault)));
+  m_comboBox.addItem(new LayoutItem(this,
+                                    LayoutItem::MIRRORED_DEFAULT,
+                                    Strings::main_window_mirrored_default_layout(),
+                                    m_layouts.getById(Layout::kMirroredDefault)));
+  m_comboBox.addItem(new SeparatorInView(Strings::main_window_user_layouts(), HORIZONTAL));
+  for (const auto& layout : m_layouts) {
+    LayoutItem* item;
+    if (layout->isDefault()) {
+      item = dynamic_cast<LayoutItem*>(
+        m_comboBox.getItem(layout->id() == Layout::kDefault ? 1 : 2));
+      // Indicate we've modified this with an asterisk.
+      item->setText(item->text() + "*");
+    }
+    else {
+      item = new LayoutItem(this, LayoutItem::USER_DEFINED, layout->name(), layout);
+      m_comboBox.addItem(item);
+    }
+
+    if (layout->id() == m_activeLayoutId)
+      m_comboBox.setSelectedItem(item);
+  }
+  m_comboBox.addItem(
+    new LayoutItem(this, LayoutItem::NEW_LAYOUT, Strings::main_window_new_layout(), nullptr));
+}
 LayoutSelector::LayoutItem* LayoutSelector::getItemByLayoutId(const std::string& id)
 {
   for (auto* child : m_comboBox) {

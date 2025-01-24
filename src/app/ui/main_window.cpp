@@ -699,8 +699,8 @@ void MainWindow::configureWorkspaceLayout()
       m_dock->undock(m_layoutSelector.get());
 
       m_dock->top()->dock(ui::CENTER, m_tabsBar.get());
-      m_dock->top()->center()->right()->dock(ui::RIGHT, m_notifications.get());
-      m_dock->top()->center()->right()->dock(ui::CENTER, m_layoutSelector.get());
+      // m_dock->top()->center()->right()->dock(ui::RIGHT, m_notifications.get());
+      m_dock->top()->center()->right()->dock(ui::RIGHT, m_layoutSelector.get());
     }
   }
 

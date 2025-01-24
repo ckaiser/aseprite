@@ -76,6 +76,7 @@ private:
     m_activeLayoutId = layoutId;
   }
 
+  void populateComboBox();
   LayoutItem* getItemByLayoutId(const std::string& id);
   void onAnimationFrame() override;
   void onAnimationStop(int animation) override;
