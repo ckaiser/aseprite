@@ -98,11 +98,11 @@ public:
   LayoutItem(LayoutSelector* selector,
              const LayoutOption option,
              const std::string& text,
-             const LayoutPtr& layout)
+             const std::string& layoutId = "")
     : ListItem(text)
     , m_option(option)
     , m_selector(selector)
-    , m_layout(layout)
+    , m_layoutId(layoutId)
     , m_actionButton(nullptr)
   {
     auto* hbox = new HBox;
@@ -113,81 +113,90 @@ public:
     filler->setTransparent(true);
     hbox->addChild(filler);
 
-    if (option == USER_DEFINED || ((option == DEFAULT || option == MIRRORED_DEFAULT) && layout)) {
-      // TODO: Icons for reset & delete? trash can? or just this X
-      m_actionButton = new IconButton(SkinTheme::instance()->parts.iconClose());
-      m_actionButton->setSizeHint(
-        gfx::Size(m_actionButton->textHeight(), m_actionButton->textHeight()));
-
-      m_actionButton->setTransparent(true);
-
-      m_actionButton->InitTheme.connect(
-        [this] { m_actionButton->setBgColor(gfx::rgba(0, 0, 0, 0)); });
-
-      if (option == USER_DEFINED)
-        m_actionButton->Click.connect([&text] {
-          const auto alert = Alert::create("Deleting Layout");
-          alert->addLabel(fmt::sprintf("Are you sure you want to delete the layout '%s'?", text),
-                          LEFT);
-          alert->addButton(Strings::general_ok());
-          alert->addButton(Strings::general_cancel());
-          if (alert->show() == 1) {
-            TRACE("TODO: Delete this layout!");
-          }
-        });
-      else
-        m_actionButton->Click.connect([&text] {
-          const auto alert = Alert::create("Restoring Layout");
-          alert->addLabel(fmt::sprintf("Are you sure you want to restore the %s layout?", text),
-                          LEFT);
-          alert->addButton(Strings::general_ok());
-          alert->addButton(Strings::general_cancel());
-          if (alert->show() == 1) {
-            TRACE("TODO: Delete THIS layout, but like, the default one! With extra defaultiness!");
-          }
-        });
-
-      hbox->addChild(m_actionButton);
-
-      // TODO: Setting this here makes it just.. not visible at all? HALP?
-      // m_actionButton->setVisible(false);
+    if (option == USER_DEFINED ||
+        ((option == DEFAULT || option == MIRRORED_DEFAULT) && !layoutId.empty())) {
+      addActionButton();
     }
   }
 
-  bool onProcessMessage(Message* msg) override
+  ~LayoutItem() { m_actionConn.disconnect(); }
+
+  // Separated from the constructor so we can add it on the fly when modifying Default/Mirrored
+  // Default
+  void addActionButton()
   {
+    ASSERT(m_actionButton == nullptr);
+
+    // TODO: Separate icons for reset & delete? trash can? or just this X
+    m_actionButton = new IconButton(SkinTheme::instance()->parts.iconClose());
+    m_actionButton->setSizeHint(
+      gfx::Size(m_actionButton->textHeight(), m_actionButton->textHeight()));
+
+    m_actionButton->setTransparent(true);
+
+    m_actionButton->InitTheme.connect(
+      [this] { m_actionButton->setBgColor(gfx::rgba(0, 0, 0, 0)); });
+
+    if (m_option == USER_DEFINED) {
+      m_actionConn = m_actionButton->Click.connect([&] {
+        const auto alert = Alert::create("Deleting Layout");
+        alert->addLabel(fmt::sprintf("Are you sure you want to delete the layout '%s'?", text()),
+                        LEFT);
+        alert->addButton(Strings::general_ok());
+        alert->addButton(Strings::general_cancel());
+        if (alert->show() == 1) {
+          if (m_layoutId == m_selector->activeLayoutId()) {
+            m_selector->setActiveLayoutId(Layout::kDefault);
+            App::instance()->mainWindow()->setDefaultLayout();
+          }
+          m_selector->removeLayout(m_layoutId);
+        }
+      });
+    }
+    else {
+      m_actionConn = m_actionButton->Click.connect([&] {
+        const auto alert = Alert::create("Restoring Layout");
+        alert->addLabel(fmt::sprintf("Are you sure you want to restore the %s layout?",
+                                     text().substr(0, text().size() - 1)),
+                        LEFT);
+        alert->addButton(Strings::general_ok());
+        alert->addButton(Strings::general_cancel());
+        if (alert->show() == 1) {
+          if (m_layoutId == Layout::kDefault) {
+            App::instance()->mainWindow()->setDefaultLayout();
+          }
+          else {
+            App::instance()->mainWindow()->setMirroredDefaultLayout();
+          }
+          m_selector->setActiveLayoutId(m_layoutId);
+          m_selector->removeLayout(m_layoutId);
+        }
+      });
+    }
+
+    children()[0]->addChild(m_actionButton);
+    // m_actionButton->setVisible(false);
+  }
+
+  /*
+  // TODO: Breaks input (sometimes) and when set to visible before it just breaks.
+  bool onProcessMessage(Message* msg) override {
     switch (msg->type()) {
       case kMouseEnterMessage: {
-        if (m_actionButton) {
+        if (m_actionButton)
           m_actionButton->setVisible(true);
-          invalidate();
-        }
       } break;
       case kMouseLeaveMessage: {
-        if (m_actionButton) {
+        if (m_actionButton)
           m_actionButton->setVisible(false);
-          invalidate();
-        }
       } break;
-      default: break;
-    }
+    };
 
     return ListItem::onProcessMessage(msg);
   }
+  */
 
-  std::string_view getLayoutId() const
-  {
-    if (m_layout)
-      return m_layout->id();
-
-    return std::string_view();
-  }
-
-  bool matchId(const std::string& id) const { return (m_layout && m_layout->matchId(id)); }
-
-  const LayoutPtr& layout() const { return m_layout; }
-
-  void setLayout(const LayoutPtr& layout) { m_layout = layout; }
+  std::string_view getLayoutId() const { return m_layoutId; }
 
   void selectImmediately()
   {
@@ -195,28 +204,34 @@ public:
 
     switch (m_option) {
       case DEFAULT: {
-        win->setDefaultLayout();
-
-        if (const auto& defaultLayout = win->layoutSelector()->m_layouts.getById(Layout::kDefault))
-          m_layout = defaultLayout;
+        if (const auto& defaultLayout = win->layoutSelector()->m_layouts.getById(
+              Layout::kDefault)) {
+          win->loadUserLayout(defaultLayout.get());
+        }
+        else {
+          win->setDefaultLayout();
+        }
 
         m_selector->setActiveLayoutId(Layout::kDefault);
       } break;
       case MIRRORED_DEFAULT: {
-        win->setMirroredDefaultLayout();
-
         if (const auto& mirroredLayout = win->layoutSelector()->m_layouts.getById(
               Layout::kMirroredDefault)) {
-          m_layout = mirroredLayout;
+          win->loadUserLayout(mirroredLayout.get());
+        }
+        else {
+          win->setMirroredDefaultLayout();
         }
 
         m_selector->setActiveLayoutId(Layout::kMirroredDefault);
       } break;
-    }
-
-    if (m_layout) {
-      m_selector->setActiveLayoutId(m_layout->id());
-      win->loadUserLayout(m_layout.get());
+      case USER_DEFINED: {
+        auto selectedLayout = m_selector->m_layouts.getById(m_layoutId);
+        ASSERT(!m_layoutId.empty());
+        ASSERT(selectedLayout);
+        m_selector->setActiveLayoutId(m_layoutId);
+        win->loadUserLayout(selectedLayout.get());
+      } break;
     }
   }
 
@@ -225,6 +240,9 @@ public:
     if (m_option != NEW_LAYOUT)
       return;
 
+    //
+    // Adding a NEW_LAYOUT
+    //
     MainWindow* win = App::instance()->mainWindow();
     gen::NewLayout window;
 
@@ -258,8 +276,11 @@ public:
         window.base()->setSelectedItemIndex(window.base()->getItemCount() - 1);
     }
 
-    window.name()->Change.connect(
-      [&] { window.ok()->setEnabled(Layout::isValidName(window.name()->text())); });
+    window.name()->Change.connect([&] {
+      bool valid = Layout::isValidName(window.name()->text()) &&
+                   m_selector->m_layouts.getById(window.name()->text()) == nullptr;
+      window.ok()->setEnabled(valid);
+    });
 
     window.openWindowInForeground();
     if (window.closer() == window.ok()) {
@@ -268,23 +289,27 @@ public:
       else if (window.base()->getValue() == "_mirrored_default_original_") // TODO: No hardcoding
         win->setMirroredDefaultLayout();
       else {
-        m_layout = m_selector->m_layouts.getById(window.base()->getValue());
-        ASSERT(m_layout);
-        selectImmediately();
+        auto baseLayout = m_selector->m_layouts.getById(window.base()->getValue());
+        ASSERT(baseLayout);
+        win->loadUserLayout(baseLayout.get());
       }
 
       const auto layout =
         Layout::MakeFromDock(window.name()->text(), window.name()->text(), win->customizableDock());
+
       m_selector->addLayout(layout);
       m_selector->m_layouts.saveUserLayouts();
+      m_selector->setActiveLayoutId(layout->id());
+      win->loadUserLayout(layout.get());
     }
   }
 
 private:
   LayoutOption m_option;
   LayoutSelector* m_selector;
-  LayoutPtr m_layout;
+  std::string m_layoutId;
   Button* m_actionButton;
+  obs::connection m_actionConn;
 };
 
 void LayoutSelector::LayoutComboBox::onChange()
@@ -342,14 +367,40 @@ LayoutPtr LayoutSelector::activeLayout() const
 void LayoutSelector::addLayout(const LayoutPtr& layout)
 {
   m_layouts.addLayout(layout);
-  populateComboBox();
+
+  auto* msg = new CallbackMessage([this] { populateComboBox(); });
+  msg->setRecipient(this);
+  manager()->enqueueMessage(msg);
+}
+
+void LayoutSelector::removeLayout(const LayoutPtr& layout)
+{
+  m_layouts.removeLayout(layout);
+  m_layouts.saveUserLayouts();
+
+  // HACK: Because this function is called from inside a LayoutItem, clearing the combobox items
+  // will crash.
+  // TODO: Is there a better way to do this.
+  auto* msg = new CallbackMessage([this] { populateComboBox(); });
+  msg->setRecipient(this);
+  manager()->enqueueMessage(msg);
+}
+
+void LayoutSelector::removeLayout(const std::string& layoutId)
+{
+  removeLayout(m_layouts.getById(layoutId));
 }
 
 void LayoutSelector::updateActiveLayout(const LayoutPtr& newLayout)
 {
-  m_layouts.addLayout(newLayout);
+  bool added = m_layouts.addLayout(newLayout);
   setActiveLayoutId(newLayout->id());
   m_layouts.saveUserLayouts();
+
+  if (added && newLayout->isDefault()) {
+    // Mark it with an asterisk if we're editing a default layout.
+    populateComboBox();
+  }
 }
 
 void LayoutSelector::onAnimationFrame()
@@ -446,14 +497,11 @@ void LayoutSelector::populateComboBox()
   m_comboBox.deleteAllItems();
 
   m_comboBox.addItem(new SeparatorInView(Strings::main_window_layout(), HORIZONTAL));
-  m_comboBox.addItem(new LayoutItem(this,
-                                    LayoutItem::DEFAULT,
-                                    Strings::main_window_default_layout(),
-                                    m_layouts.getById(Layout::kDefault)));
+  m_comboBox.addItem(
+    new LayoutItem(this, LayoutItem::DEFAULT, Strings::main_window_default_layout()));
   m_comboBox.addItem(new LayoutItem(this,
                                     LayoutItem::MIRRORED_DEFAULT,
-                                    Strings::main_window_mirrored_default_layout(),
-                                    m_layouts.getById(Layout::kMirroredDefault)));
+                                    Strings::main_window_mirrored_default_layout()));
   m_comboBox.addItem(new SeparatorInView(Strings::main_window_user_layouts(), HORIZONTAL));
   for (const auto& layout : m_layouts) {
     LayoutItem* item;
@@ -462,9 +510,10 @@ void LayoutSelector::populateComboBox()
         m_comboBox.getItem(layout->id() == Layout::kDefault ? 1 : 2));
       // Indicate we've modified this with an asterisk.
       item->setText(item->text() + "*");
+      item->addActionButton();
     }
     else {
-      item = new LayoutItem(this, LayoutItem::USER_DEFINED, layout->name(), layout);
+      item = new LayoutItem(this, LayoutItem::USER_DEFINED, layout->name(), layout->id());
       m_comboBox.addItem(item);
     }
 
@@ -472,13 +521,20 @@ void LayoutSelector::populateComboBox()
       m_comboBox.setSelectedItem(item);
   }
   m_comboBox.addItem(
-    new LayoutItem(this, LayoutItem::NEW_LAYOUT, Strings::main_window_new_layout(), nullptr));
+    new LayoutItem(this, LayoutItem::NEW_LAYOUT, Strings::main_window_new_layout(), ""));
+
+  if (m_activeLayoutId == Layout::kDefault)
+    m_comboBox.setSelectedItemIndex(1);
+  if (m_activeLayoutId == Layout::kMirroredDefault)
+    m_comboBox.setSelectedItemIndex(2);
+
+  m_comboBox.getEntryWidget()->deselectText();
 }
 LayoutSelector::LayoutItem* LayoutSelector::getItemByLayoutId(const std::string& id)
 {
   for (auto* child : m_comboBox) {
     if (auto* item = dynamic_cast<LayoutItem*>(child)) {
-      if (item->matchId(id))
+      if (item->getLayoutId() == id)
         return item;
     }
   }

@@ -51,6 +51,8 @@ public:
   const std::string& activeLayoutId() const { return m_activeLayoutId; }
 
   void addLayout(const LayoutPtr& layout);
+  void removeLayout(const LayoutPtr& layout);
+  void removeLayout(const std::string& layoutId);
   void updateActiveLayout(const LayoutPtr& layout);
   void switchSelector();
   void switchSelectorFromCommand();

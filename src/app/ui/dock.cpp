@@ -340,7 +340,7 @@ public:
     setExpansive(true);
   }
 
-protected:
+private:
   void onPaint(PaintEvent& ev) override
   {
     auto* g = ev.graphics();
@@ -350,7 +350,7 @@ protected:
 
     bounds.shrink(2);
 
-    auto color = gfx::rgba(89, 77, 87);
+    constexpr gfx::Color color = gfx::rgba(89, 77, 87);
     g->drawRect(color, bounds);
 
     g->drawLine(color, bounds.center(), bounds.origin());
@@ -546,7 +546,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
 
         m_dragging = false;
         if (m_dropzonePlaceholder) {
-          delete m_dropzonePlaceholder;
+          manager()->addToGarbage(m_dropzonePlaceholder);
           m_dropzonePlaceholder = nullptr;
         }
         m_hit = Hit();

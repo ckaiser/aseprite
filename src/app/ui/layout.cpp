@@ -144,11 +144,10 @@ static void load_dock_layout(const XMLElement* elem, Dock* dock)
 LayoutPtr Layout::MakeFromXmlElement(const XMLElement* layoutElem)
 {
   auto layout = std::make_shared<Layout>();
-  if (auto name = layoutElem->Attribute("name")) {
-    layout->m_id = name;
-    layout->m_name = name;
-  }
+  layout->m_name = layoutElem->Attribute("name");
+  layout->m_id = layoutElem->Attribute("id");
   layout->m_elem = layoutElem->DeepClone(&layout->m_dummyDoc)->ToElement();
+  ASSERT(!layout->m_name.empty() && !layout->m_id.empty());
   return layout;
 }
 
@@ -160,6 +159,7 @@ LayoutPtr Layout::MakeFromDock(const std::string& id, const std::string& name, c
   layout->m_name = name;
 
   layout->m_elem = layout->m_dummyDoc.NewElement("layout");
+  layout->m_elem->SetAttribute("id", id.c_str());
   layout->m_elem->SetAttribute("name", name.c_str());
   save_dock_layout(layout->m_elem, dock);
 

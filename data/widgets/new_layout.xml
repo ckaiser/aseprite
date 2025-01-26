@@ -3,18 +3,16 @@
 <gui>
 <window id="new_layout" text="@.title">
   <vbox>
-    <hbox>
+    <grid columns="2">
       <label text="@.base" />
       <combobox id="base" expansive="true">
         <listitem text="@main_window.default_layout" value="_default_original_" />
         <listitem text="@main_window.mirrored_default_layout" value="_mirrored_default_original_" />
       </combobox>
-    </hbox>
 
-    <hbox>
       <label text="@.name" />
       <entry maxsize="128" id="name" magnet="true" expansive="true" />
-    </hbox>
+    </grid>
 
     <separator horizontal="true" />
 

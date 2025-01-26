@@ -442,8 +442,13 @@ void MainWindow::loadUserLayout(const Layout* layout)
 
   m_customizableDock->resetDocks();
 
-  if (!layout->loadLayout(m_customizableDock))
+  if (!layout->loadLayout(m_customizableDock)) {
+    TRACE("Layout %s failed to load, resetting to default.\n", layout->id().c_str());
     setDefaultLayout();
+  }
+  else {
+    TRACE("Loadded Layout %s, shufflin'.\n", layout->id().c_str());
+  }
 
   this->layout();
 }

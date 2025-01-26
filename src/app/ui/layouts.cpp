@@ -58,21 +58,43 @@ bool Layouts::addLayout(const LayoutPtr& layout)
   }
 
   m_layouts.push_back(layout);
-
-  if (layout->isDefault()) {
-    // Don't count default layouts as "added" for the purposes of this.
-    return false;
-  }
-
   return true;
 }
 
-void Layouts::saveUserLayouts() const
+void Layouts::removeLayout(const LayoutPtr& layout)
 {
-  if (!m_userLayoutsFilename.empty())
-    save(m_userLayoutsFilename);
-  // else
-  // LOG(kWarning, "Could not save user layouts, invalid filename.");
+  if (m_layouts.size() <= 1) {
+    m_layouts.clear();
+    return;
+  }
+
+  auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
+    return l->matchId(layout->id());
+  });
+
+  m_layouts.erase(it);
+}
+
+void Layouts::saveUserLayouts()
+{
+  if (m_userLayoutsFilename.empty())
+    return;
+
+  save(m_userLayoutsFilename);
+
+  // TODO: We most definitely have too much I/O here, but it's the easiest way to keep the XML and
+  // internal representations synced up.
+  reload();
+}
+
+void Layouts::reload()
+{
+  if (m_userLayoutsFilename.empty())
+    return;
+
+  TRACE("Reloading Layouts from file.\n");
+  m_layouts.clear();
+  load(m_userLayoutsFilename);
 }
 
 void Layouts::load(const std::string& fn)
@@ -82,10 +104,12 @@ void Layouts::load(const std::string& fn)
   XMLElement* layoutElem =
     handle.FirstChildElement("layouts").FirstChildElement("layout").ToElement();
 
+  TRACE("Loading layouts: %d\n", m_layouts.size());
   while (layoutElem) {
     m_layouts.push_back(Layout::MakeFromXmlElement(layoutElem));
     layoutElem = layoutElem->NextSiblingElement();
   }
+  TRACE("Finished loading layouts: %d\n", m_layouts.size());
 }
 
 void Layouts::save(const std::string& fn) const
