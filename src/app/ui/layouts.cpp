@@ -104,9 +104,10 @@ void Layouts::load(const std::string& fn)
   XMLElement* layoutElem =
     handle.FirstChildElement("layouts").FirstChildElement("layout").ToElement();
 
-  TRACE("Loading layouts: %d\n", m_layouts.size());
   while (layoutElem) {
-    m_layouts.push_back(Layout::MakeFromXmlElement(layoutElem));
+    if (auto layout = Layout::MakeFromXmlElement(layoutElem)) {
+      m_layouts.push_back(layout);
+    }
     layoutElem = layoutElem->NextSiblingElement();
   }
   TRACE("Finished loading layouts: %d\n", m_layouts.size());

@@ -143,11 +143,27 @@ static void load_dock_layout(const XMLElement* elem, Dock* dock)
 // static
 LayoutPtr Layout::MakeFromXmlElement(const XMLElement* layoutElem)
 {
+  const char* name = layoutElem->Attribute("name");
+  const char* id = layoutElem->Attribute("id");
+
+  if (id == nullptr || name == nullptr) {
+    LOG(WARNING, "Invalid XML layout provided\n");
+    return nullptr;
+  }
+
   auto layout = std::make_shared<Layout>();
-  layout->m_name = layoutElem->Attribute("name");
-  layout->m_id = layoutElem->Attribute("id");
+  layout->m_id = id;
+  layout->m_name = name;
   layout->m_elem = layoutElem->DeepClone(&layout->m_dummyDoc)->ToElement();
+
   ASSERT(!layout->m_name.empty() && !layout->m_id.empty());
+
+  if (layout->m_elem->ChildElementCount() == 0) // TODO: More error checking here.
+    return nullptr;
+
+  if (layout->m_name.empty() || layout->m_id.empty())
+    return nullptr;
+
   return layout;
 }
 
