@@ -19,6 +19,7 @@
 #include "app/ui/skin/skin_theme.h"
 #include "layout_selector.h"
 #include "main_window.h"
+#include "os/system.h"
 #include "ui/cursor_type.h"
 #include "ui/label.h"
 #include "ui/menu.h"
@@ -337,17 +338,69 @@ void Dock::onInitTheme(ui::InitThemeEvent& ev)
 class DockDropzonePlaceholder final : public Widget,
                                       public Dockable {
 public:
-  explicit DockDropzonePlaceholder(Widget* dragWidget) : Widget(kGenericWidget)
+  explicit DockDropzonePlaceholder() : Widget(kGenericWidget)
   {
     setId("dock_dropzone");
-    setWidget(dragWidget);
     setExpansive(true);
   }
 
-  void setWidget(Widget* dragWidget)
+  ~DockDropzonePlaceholder() { m_floatingUILayer.reset(); }
+
+  void setWidget(Widget* dragWidget, const gfx::Point& mousePosition)
   {
     setSizeHint(dragWidget->sizeHint());
     setMinSize(dragWidget->size());
+
+    m_mouseOffset = mousePosition - dragWidget->bounds().origin();
+
+    os::SurfaceRef surface = os::System::instance()->makeRgbaSurface(dragWidget->size().w,
+                                                                     dragWidget->size().h);
+    {
+      const os::SurfaceLock lock(surface.get());
+      os::Paint paint;
+      paint.color(gfx::rgba(0, 0, 0, 0));
+      paint.style(os::Paint::Fill);
+      surface->drawRect(gfx::Rect(0, 0, surface->width(), surface->height()), paint);
+    }
+
+    {
+      ui::Graphics g(display(), surface, 0, 0);
+      g.setFont(font());
+
+      os::Paint paint;
+      paint.color(gfx::rgba(0, 0, 0, 200));
+
+      // TODO: This will definitely render any open things/overlays, do we care?
+      auto backLayerSurface = display()->backLayer()->surface();
+      g.drawSurface(backLayerSurface.get(),
+                    dragWidget->bounds(),
+                    gfx::Rect(0, 0, surface->width(), surface->height()),
+                    os::Sampling(),
+                    &paint);
+    }
+
+    removeGhost();
+
+    m_floatingUILayer = ui::UILayer::Make();
+    m_floatingUILayer->setSurface(surface);
+    m_floatingUILayer->setPosition(dragWidget->bounds().origin());
+    display()->addLayer(m_floatingUILayer);
+  }
+
+  void removeGhost()
+  {
+    if (m_floatingUILayer) {
+      display()->dirtyRect(m_floatingUILayer->bounds());
+      display()->removeLayer(m_floatingUILayer);
+      m_floatingUILayer.reset();
+    }
+  }
+
+  void setGhostPosition(const gfx::Point& position)
+  {
+    display()->dirtyRect(m_floatingUILayer->bounds());
+    m_floatingUILayer->setPosition(position - m_mouseOffset);
+    display()->dirtyRect(m_floatingUILayer->bounds());
   }
 
 private:
@@ -372,6 +425,9 @@ private:
   }
 
   int dockHandleSide() const override { return 0; }
+
+  gfx::Point m_mouseOffset;
+  ui::UILayerRef m_floatingUILayer;
 };
 
 bool Dock::onProcessMessage(ui::Message* msg)
@@ -395,9 +451,9 @@ bool Dock::onProcessMessage(ui::Message* msg)
           ASSERT(dragWidget);
 
           if (m_dropzonePlaceholder == nullptr)
-            m_dropzonePlaceholder = new DockDropzonePlaceholder(dragWidget);
-          else
-            m_dropzonePlaceholder->setWidget(dragWidget);
+            m_dropzonePlaceholder = new DockDropzonePlaceholder();
+
+          m_dropzonePlaceholder->setWidget(dragWidget, pos);
 
           invalidate();
         }
@@ -410,6 +466,9 @@ bool Dock::onProcessMessage(ui::Message* msg)
     case kMouseMoveMessage: {
       if (hasCapture()) {
         const gfx::Point& pos = static_cast<MouseMessage*>(msg)->position();
+
+        if (m_dropzonePlaceholder)
+          m_dropzonePlaceholder->setGhostPosition(pos);
 
         if (m_hit.sideIndex >= 0) {
           gfx::Size& sz = m_sizes[m_hit.sideIndex];
@@ -443,7 +502,8 @@ bool Dock::onProcessMessage(ui::Message* msg)
             if (!bounds.contains(pos))
               break; // Do not handle anything outside the bounds of the dock.
 
-            const int BUFFER_ZONE = 20 * guiscale(); // TODO: Move somewhere else
+            const int BUFFER_ZONE = std::max(12 * guiscale(),
+                                             std::min(dragWidget->size().w, dragWidget->size().h));
 
             int newTargetSide = -1;
             if (m_hit.dockable->dockableAt() & LEFT && !(originSide & LEFT) &&
@@ -572,6 +632,9 @@ bool Dock::onProcessMessage(ui::Message* msg)
           }
         }
 
+        if (m_dropzonePlaceholder)
+          m_dropzonePlaceholder->removeGhost();
+
         m_dragging = false;
         m_hit = Hit();
       }
@@ -592,9 +655,6 @@ bool Dock::onProcessMessage(ui::Message* msg)
           case kLeftIndex:
           case kRightIndex:  cursor = ui::kSizeWECursor; break;
         }
-      }
-      else if (m_hit.dockable) {
-        cursor = (m_hit.targetSide == -1) ? ui::kMoveCursor : ui::kCrosshairCursor;
       }
 
       ui::set_mouse_cursor(cursor);
