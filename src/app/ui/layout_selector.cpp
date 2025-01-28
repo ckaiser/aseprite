@@ -147,6 +147,7 @@ public:
             m_selector->setActiveLayoutId(Layout::kDefault);
             App::instance()->mainWindow()->setDefaultLayout();
           }
+
           m_selector->removeLayout(m_layoutId);
         }
       });
@@ -159,6 +160,7 @@ public:
           LEFT);
         alert->addButton(Strings::general_ok());
         alert->addButton(Strings::general_cancel());
+
         if (alert->show() == 1) {
           if (m_layoutId == Layout::kDefault) {
             App::instance()->mainWindow()->setDefaultLayout();
@@ -166,6 +168,7 @@ public:
           else {
             App::instance()->mainWindow()->setMirroredDefaultLayout();
           }
+
           m_selector->setActiveLayoutId(m_layoutId);
           m_selector->removeLayout(m_layoutId);
         }
@@ -282,9 +285,9 @@ public:
 
     window.openWindowInForeground();
     if (window.closer() == window.ok()) {
-      if (window.base()->getValue() == "_default_original_")
+      if (window.base()->getValue() == Layout::kDefaultOriginal)
         win->setDefaultLayout();
-      else if (window.base()->getValue() == "_mirrored_default_original_") // TODO: No hardcoding
+      else if (window.base()->getValue() == Layout::kMirroredDefaultOriginal)
         win->setMirroredDefaultLayout();
       else {
         const auto baseLayout = m_selector->m_layouts.getById(window.base()->getValue());
@@ -366,6 +369,9 @@ void LayoutSelector::addLayout(const LayoutPtr& layout)
 {
   m_layouts.addLayout(layout);
 
+  // HACK: Because this function is called from inside a LayoutItem, clearing the combobox items
+  // will crash.
+  // TODO: Is there a better way to do this?
   auto* msg = new CallbackMessage([this] { populateComboBox(); });
   msg->setRecipient(this);
   manager()->enqueueMessage(msg);
@@ -376,9 +382,7 @@ void LayoutSelector::removeLayout(const LayoutPtr& layout)
   m_layouts.removeLayout(layout);
   m_layouts.saveUserLayouts();
 
-  // HACK: Because this function is called from inside a LayoutItem, clearing the combobox items
-  // will crash.
-  // TODO: Is there a better way to do this.
+  // TODO: See addLayout
   auto* msg = new CallbackMessage([this] { populateComboBox(); });
   msg->setRecipient(this);
   manager()->enqueueMessage(msg);

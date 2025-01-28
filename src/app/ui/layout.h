@@ -24,6 +24,9 @@ public:
   static constexpr const char* kDefault = "_default_";
   static constexpr const char* kMirroredDefault = "_mirrored_default_";
 
+  static constexpr const char* kDefaultOriginal = "_default_original_";
+  static constexpr const char* kMirroredDefaultOriginal = "_mirrored_default_original_";
+
   static LayoutPtr MakeFromXmlElement(const tinyxml2::XMLElement* layoutElem);
   static LayoutPtr MakeFromDock(const std::string& id, const std::string& name, const Dock* dock);
 

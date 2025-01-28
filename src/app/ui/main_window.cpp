@@ -60,9 +60,9 @@ namespace app {
 
 using namespace ui;
 
-static const char* kLegacyLayoutMainWindowSection = "layout:main_window";
-static const char* kLegacyLayoutTimelineSplitter = "timeline_splitter";
-static const char* kLegacyLayoutColorBarSplitter = "color_bar_splitter";
+static constexpr const char* kLegacyLayoutMainWindowSection = "layout:main_window";
+static constexpr const char* kLegacyLayoutTimelineSplitter = "timeline_splitter";
+static constexpr const char* kLegacyLayoutColorBarSplitter = "color_bar_splitter";
 
 class ScreenScalePanic : public INotificationDelegate {
 public:
@@ -692,7 +692,7 @@ void MainWindow::configureWorkspaceLayout()
 
   if (os::System::instance()->menus() == nullptr || pref.general.showMenuBar()) {
     if (!m_menuBar->parent())
-      m_dock->top()->dock(CENTER, m_menuBar.get());
+      m_dock->top()->dock(ui::CENTER, m_menuBar.get());
   }
   else {
     if (m_menuBar->parent()) {
@@ -704,7 +704,7 @@ void MainWindow::configureWorkspaceLayout()
       m_dock->undock(m_layoutSelector.get());
 
       m_dock->top()->dock(ui::CENTER, m_tabsBar.get());
-      // m_dock->top()->center()->right()->dock(ui::RIGHT, m_notifications.get());
+      m_dock->top()->center()->right()->dock(ui::RIGHT, m_notifications.get());
       m_dock->top()->center()->right()->dock(ui::RIGHT, m_layoutSelector.get());
     }
   }
@@ -723,47 +723,11 @@ void MainWindow::configureWorkspaceLayout()
   m_contextBar->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode));
 
   // Configure timeline
-  {
-    const gfx::Rect workspaceBounds = m_customizableDock->center()->center()->bounds();
-    // Get legacy timeline position and splitter position
-    auto timelinePosition = pref.general.timelinePosition();
-    auto timelineSplitterPos =
-      get_config_double(kLegacyLayoutMainWindowSection, kLegacyLayoutTimelineSplitter, 75.0) /
-      100.0;
-    int side = ui::BOTTOM;
-
-    m_customizableDock->undock(m_timeline.get());
-
-    int w, h;
-    w = h = 64;
-
-    switch (timelinePosition) {
-      case gen::TimelinePosition::LEFT:
-        side = ui::LEFT;
-        w = (workspaceBounds.w * (1.0 - timelineSplitterPos)) / guiscale();
-        break;
-      case gen::TimelinePosition::RIGHT:
-        side = ui::RIGHT;
-        w = (workspaceBounds.w * (1.0 - timelineSplitterPos)) / guiscale();
-        break;
-      case gen::TimelinePosition::BOTTOM:
-        side = ui::BOTTOM;
-        h = (workspaceBounds.h * (1.0 - timelineSplitterPos)) / guiscale();
-        break;
-    }
-
-    // Listen to resizing changes in the dock that contains the
-    // timeline (so we save the new splitter position)
-    m_timelineResizeConn = m_customizableDock->center()->center()->Resize.connect(
-      [this] { saveTimelineConfiguration(); });
-
-    m_customizableDock->center()->center()->dock(side,
-                                                 m_timeline.get(),
-                                                 gfx::Size(w * guiscale(), h * guiscale()));
-
-    m_timeline->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
-                           pref.general.visibleTimeline());
-  }
+  m_timelineResizeConn = dynamic_cast<Dock*>(m_timeline->parent())->Resize.connect([this] {
+    saveTimelineConfiguration();
+  });
+  m_timeline->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
+                         pref.general.visibleTimeline());
 
   if (m_contextBar->isVisible()) {
     m_contextBar->updateForActiveTool();
