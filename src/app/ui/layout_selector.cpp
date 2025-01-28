@@ -88,7 +88,7 @@ private:
 
 class LayoutSelector::LayoutItem final : public ListItem {
 public:
-  enum LayoutOption {
+  enum LayoutOption : uint8_t {
     DEFAULT,
     MIRRORED_DEFAULT,
     USER_DEFINED,
@@ -103,7 +103,6 @@ public:
     , m_option(option)
     , m_selector(selector)
     , m_layoutId(layoutId)
-    , m_actionButton(nullptr)
   {
     auto* hbox = new HBox;
     hbox->setTransparent(true);
@@ -119,7 +118,7 @@ public:
     }
   }
 
-  ~LayoutItem() { m_actionConn.disconnect(); }
+  ~LayoutItem() override { m_actionConn.disconnect(); }
 
   // Separated from the constructor so we can add it on the fly when modifying Default/Mirrored
   // Default
@@ -138,10 +137,9 @@ public:
       [this] { m_actionButton->setBgColor(gfx::rgba(0, 0, 0, 0)); });
 
     if (m_option == USER_DEFINED) {
-      m_actionConn = m_actionButton->Click.connect([&] {
-        const auto alert = Alert::create("Deleting Layout");
-        alert->addLabel(fmt::sprintf("Are you sure you want to delete the layout '%s'?", text()),
-                        LEFT);
+      m_actionConn = m_actionButton->Click.connect([this] {
+        const auto alert = Alert::create(Strings::new_layout_deleting_layout());
+        alert->addLabel(Strings::new_layout_deleting_layout_confirmation(text()), LEFT);
         alert->addButton(Strings::general_ok());
         alert->addButton(Strings::general_cancel());
         if (alert->show() == 1) {
@@ -154,11 +152,11 @@ public:
       });
     }
     else {
-      m_actionConn = m_actionButton->Click.connect([&] {
-        const auto alert = Alert::create("Restoring Layout");
-        alert->addLabel(fmt::sprintf("Are you sure you want to restore the %s layout?",
-                                     text().substr(0, text().size() - 1)),
-                        LEFT);
+      m_actionConn = m_actionButton->Click.connect([this] {
+        const auto alert = Alert::create(Strings::new_layout_restoring_layout());
+        alert->addLabel(
+          Strings::new_layout_restoring_layout_confirmation(text().substr(0, text().size() - 1)),
+          LEFT);
         alert->addButton(Strings::general_ok());
         alert->addButton(Strings::general_cancel());
         if (alert->show() == 1) {
@@ -198,7 +196,7 @@ public:
 
   std::string_view getLayoutId() const { return m_layoutId; }
 
-  void selectImmediately()
+  void selectImmediately() const
   {
     MainWindow* win = App::instance()->mainWindow();
 
@@ -226,7 +224,7 @@ public:
         m_selector->setActiveLayoutId(Layout::kMirroredDefault);
       } break;
       case USER_DEFINED: {
-        auto selectedLayout = m_selector->m_layouts.getById(m_layoutId);
+        const auto selectedLayout = m_selector->m_layouts.getById(m_layoutId);
         ASSERT(!m_layoutId.empty());
         ASSERT(selectedLayout);
         m_selector->setActiveLayoutId(m_layoutId);
@@ -235,7 +233,7 @@ public:
     }
   }
 
-  void selectAfterClose()
+  void selectAfterClose() const
   {
     if (m_option != NEW_LAYOUT)
       return;
@@ -289,7 +287,7 @@ public:
       else if (window.base()->getValue() == "_mirrored_default_original_") // TODO: No hardcoding
         win->setMirroredDefaultLayout();
       else {
-        auto baseLayout = m_selector->m_layouts.getById(window.base()->getValue());
+        const auto baseLayout = m_selector->m_layouts.getById(window.base()->getValue());
         ASSERT(baseLayout);
         win->loadUserLayout(baseLayout.get());
       }
@@ -308,7 +306,7 @@ private:
   LayoutOption m_option;
   LayoutSelector* m_selector;
   std::string m_layoutId;
-  Button* m_actionButton;
+  Button* m_actionButton = nullptr;
   obs::connection m_actionConn;
 };
 

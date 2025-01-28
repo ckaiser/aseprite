@@ -33,7 +33,7 @@ using namespace tinyxml2;
 
 static void save_dock_layout(XMLElement* elem, const Dock* dock)
 {
-  for (const auto child : dock->children()) {
+  for (const auto* child : dock->children()) {
     const int side = dock->whichSideChildIsDocked(child);
     const gfx::Size& size = dock->getUserDefinedSizeAtSide(side);
 
@@ -44,13 +44,14 @@ static void save_dock_layout(XMLElement* elem, const Dock* dock)
       case ui::TOP:    sideStr = "top"; break;
       case ui::BOTTOM: sideStr = "bottom"; break;
       case ui::CENTER:
+      default:
         // Empty side attribute
         break;
     }
 
     XMLElement* childElem = elem->InsertNewChildElement("");
 
-    if (auto subdock = dynamic_cast<const Dock*>(child)) {
+    if (const auto* subdock = dynamic_cast<const Dock*>(child)) {
       childElem->SetValue("dock");
       if (!sideStr.empty())
         childElem->SetAttribute("side", sideStr.c_str());
@@ -87,7 +88,7 @@ static void load_dock_layout(const XMLElement* elem, Dock* dock)
   Dock* subdock = nullptr;
 
   int side = ui::CENTER;
-  if (auto sideStr = elem->Attribute("side")) {
+  if (const auto* sideStr = elem->Attribute("side")) {
     if (std::strcmp(sideStr, "left") == 0)
       side = ui::LEFT;
     if (std::strcmp(sideStr, "right") == 0)
@@ -129,7 +130,7 @@ static void load_dock_layout(const XMLElement* elem, Dock* dock)
   }
 
   if (subdock) {
-    auto childElem = elem->FirstChildElement();
+    const auto* childElem = elem->FirstChildElement();
     while (childElem) {
       load_dock_layout(childElem, subdock);
       childElem = childElem->NextSiblingElement();
@@ -182,14 +183,15 @@ LayoutPtr Layout::MakeFromDock(const std::string& id, const std::string& name, c
   return layout;
 }
 
-bool Layout::matchId(const std::string& id) const
+bool Layout::matchId(const std::string_view id) const
 {
   if (m_id == id)
     return true;
-  else if ((m_id.empty() && id == kDefault) || (m_id == kDefault && id.empty()))
+
+  if ((m_id.empty() && id == kDefault) || (m_id == kDefault && id.empty()))
     return true;
-  else
-    return false;
+
+  return false;
 }
 
 bool Layout::loadLayout(Dock* dock) const

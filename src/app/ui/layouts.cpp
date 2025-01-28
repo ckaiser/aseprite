@@ -36,7 +36,12 @@ Layouts::Layouts()
 
 Layouts::~Layouts()
 {
-  saveUserLayouts();
+  try {
+    saveUserLayouts();
+  }
+  catch (const std::exception& ex) {
+    LOG(ERROR, "LAY: Error saving user layouts on exit: %s\n", ex.what());
+  }
 }
 
 LayoutPtr Layouts::getById(const std::string& id) const
@@ -49,7 +54,7 @@ LayoutPtr Layouts::getById(const std::string& id) const
 
 bool Layouts::addLayout(const LayoutPtr& layout)
 {
-  auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
+  const auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
     return l->matchId(layout->id());
   });
   if (it != m_layouts.end()) {
@@ -68,7 +73,7 @@ void Layouts::removeLayout(const LayoutPtr& layout)
     return;
   }
 
-  auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
+  const auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
     return l->matchId(layout->id());
   });
 
@@ -82,7 +87,7 @@ void Layouts::saveUserLayouts()
 
   save(m_userLayoutsFilename);
 
-  // TODO: We most definitely have too much I/O here, but it's the easiest way to keep the XML and
+  // TODO: We probably have too much I/O here, but it's the easiest way to keep the XML and
   // internal representations synced up.
   reload();
 }
@@ -99,7 +104,7 @@ void Layouts::reload()
 
 void Layouts::load(const std::string& fn)
 {
-  XMLDocumentRef doc = app::open_xml(fn);
+  const XMLDocumentRef doc = app::open_xml(fn);
   XMLHandle handle(doc.get());
   XMLElement* layoutElem =
     handle.FirstChildElement("layouts").FirstChildElement("layout").ToElement();
@@ -124,7 +129,7 @@ void Layouts::save(const std::string& fn) const
     layoutsElem->InsertEndChild(layout->xmlElement()->DeepClone(doc.get()));
   }
 
-  doc->InsertEndChild(doc->NewDeclaration("xml version=\"1.0\" encoding=\"utf-8\""));
+  doc->InsertEndChild(doc->NewDeclaration(R"(xml version="1.0" encoding="utf-8")"));
   doc->InsertEndChild(layoutsElem);
   save_xml(doc.get(), fn);
 }

@@ -31,7 +31,7 @@ public:
   const std::string& name() const { return m_name; }
   const tinyxml2::XMLElement* xmlElement() const { return m_elem; }
 
-  bool matchId(const std::string& id) const;
+  bool matchId(std::string_view id) const;
   bool loadLayout(Dock* dock) const;
 
   bool isDefault() const { return m_id == kDefault || m_id == kMirroredDefault; }
