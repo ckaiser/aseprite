@@ -723,9 +723,10 @@ void MainWindow::configureWorkspaceLayout()
   m_contextBar->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode));
 
   // Configure timeline
-  m_timelineResizeConn = dynamic_cast<Dock*>(m_timeline->parent())->Resize.connect([this] {
-    saveTimelineConfiguration();
-  });
+  if (m_timeline && m_timeline->parent()) // TODO: Why do I need this sometimes?
+    m_timelineResizeConn = dynamic_cast<Dock*>(m_timeline->parent())->Resize.connect([this] {
+      saveTimelineConfiguration();
+    });
   m_timeline->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
                          pref.general.visibleTimeline());
 

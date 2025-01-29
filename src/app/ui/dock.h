@@ -54,7 +54,7 @@ public:
 
   // Functions useful to query/save the dock layout.
   int whichSideChildIsDocked(const ui::Widget* widget) const;
-  const gfx::Size& getUserDefinedSizeAtSide(int side) const;
+  const gfx::Size getUserDefinedSizeAtSide(int side) const;
 
   obs::signal<void()> Resize;
   obs::signal<void()> UserResizedDock;

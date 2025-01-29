@@ -199,7 +199,7 @@ int Dock::whichSideChildIsDocked(const ui::Widget* widget) const
   return 0;
 }
 
-const gfx::Size& Dock::getUserDefinedSizeAtSide(int side) const
+const gfx::Size Dock::getUserDefinedSizeAtSide(int side) const
 {
   int i = side_index(side);
   // Only EXPANSIVE sides can be user-defined (has a splitter so the
@@ -344,7 +344,13 @@ public:
     setExpansive(true);
   }
 
-  ~DockDropzonePlaceholder() { m_floatingUILayer.reset(); }
+  ~DockDropzonePlaceholder()
+  {
+    if (m_floatingUILayer)
+      display()->removeLayer(m_floatingUILayer);
+
+    m_floatingUILayer.reset();
+  }
 
   void setWidget(Widget* dragWidget, const gfx::Point& mousePosition)
   {
