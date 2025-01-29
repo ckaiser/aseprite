@@ -349,7 +349,7 @@ public:
     if (m_floatingUILayer)
       display()->removeLayer(m_floatingUILayer);
 
-    m_floatingUILayer.reset();
+    m_floatingUILayer = nullptr;
   }
 
   void setWidget(Widget* dragWidget, const gfx::Point& mousePosition)
@@ -398,7 +398,6 @@ public:
     if (m_floatingUILayer) {
       display()->dirtyRect(m_floatingUILayer->bounds());
       display()->removeLayer(m_floatingUILayer);
-      m_floatingUILayer.reset();
     }
   }
 
@@ -427,7 +426,9 @@ private:
     g->drawLine(color, bounds.center(), bounds.point2() - gfx::Point(bounds.w, 0));
     g->drawLine(color, bounds.center(), bounds.origin() + gfx::Point(bounds.w, 0));
 
-    g->drawRect(color, gfx::Rect(bounds.center() - gfx::Point(2, 2), gfx::Size(4, 4)));
+    g->drawRect(
+      color,
+      gfx::Rect(bounds.center() - gfx::Point(2, 2) * guiscale(), gfx::Size(4, 4) * guiscale()));
   }
 
   int dockHandleSide() const override { return 0; }
@@ -440,7 +441,8 @@ bool Dock::onProcessMessage(ui::Message* msg)
 {
   switch (msg->type()) {
     case kMouseDownMessage: {
-      const gfx::Point& pos = static_cast<MouseMessage*>(msg)->position();
+      auto* mouseMessage = static_cast<MouseMessage*>(msg);
+      const gfx::Point& pos = mouseMessage->position();
 
       if (m_hit.sideIndex >= 0 || m_hit.dockable) {
         m_startPos = pos;
@@ -450,7 +452,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
 
         captureMouse();
 
-        if (m_hit.dockable) {
+        if (m_hit.dockable && !mouseMessage->right()) {
           m_dragging = true;
 
           auto* dragWidget = dynamic_cast<Widget*>(m_hit.dockable);
@@ -568,6 +570,8 @@ bool Dock::onProcessMessage(ui::Message* msg)
           auto* dockableWidget = dynamic_cast<Widget*>(m_hit.dockable);
           auto* widgetDock = dynamic_cast<Dock*>(dockableWidget->parent());
 
+          int currentSide = widgetDock->whichSideChildIsDocked(dockableWidget);
+
           assert(dockableWidget && widgetDock);
 
           auto dockNRoll = [&](const int side) {
@@ -603,7 +607,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
             onUserResizedDock();
           };
 
-          if (mouseMessage->right()) {
+          if (mouseMessage->right() && !m_dragging) {
             // Menu
             Menu menu;
             MenuItem left(Strings::dock_left());
@@ -611,16 +615,16 @@ bool Dock::onProcessMessage(ui::Message* msg)
             MenuItem top(Strings::dock_top());
             MenuItem bottom(Strings::dock_bottom());
 
-            if (m_hit.dockable->dockableAt() & ui::LEFT) {
+            if (m_hit.dockable->dockableAt() & ui::LEFT && currentSide != ui::LEFT) {
               menu.addChild(&left);
             }
-            if (m_hit.dockable->dockableAt() & ui::RIGHT) {
+            if (m_hit.dockable->dockableAt() & ui::RIGHT && currentSide != ui::RIGHT) {
               menu.addChild(&right);
             }
-            if (m_hit.dockable->dockableAt() & ui::TOP) {
+            if (m_hit.dockable->dockableAt() & ui::TOP && currentSide != ui::TOP) {
               menu.addChild(&top);
             }
-            if (m_hit.dockable->dockableAt() & ui::BOTTOM) {
+            if (m_hit.dockable->dockableAt() & ui::BOTTOM && currentSide != ui::BOTTOM) {
               menu.addChild(&bottom);
             }
 
@@ -661,6 +665,9 @@ bool Dock::onProcessMessage(ui::Message* msg)
           case kLeftIndex:
           case kRightIndex:  cursor = ui::kSizeWECursor; break;
         }
+      }
+      else if (m_hit.dockable && m_hit.targetSide == -1) {
+        cursor = ui::kMoveCursor;
       }
 
       ui::set_mouse_cursor(cursor);

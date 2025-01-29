@@ -122,12 +122,16 @@ public:
 
   // Separated from the constructor so we can add it on the fly when modifying Default/Mirrored
   // Default
-  void addActionButton()
+  void addActionButton(const std::string& newLayoutId = "")
   {
-    ASSERT(m_actionButton == nullptr);
+    if (!newLayoutId.empty())
+      m_layoutId = newLayoutId;
+
+    ASSERT(!m_layoutId.empty());
 
     // TODO: Separate icons for reset & delete? trash can? or just this X
-    m_actionButton = new IconButton(SkinTheme::instance()->parts.iconClose());
+    m_actionButton = std::unique_ptr<IconButton>(
+      new IconButton(SkinTheme::instance()->parts.iconClose()));
     m_actionButton->setSizeHint(
       gfx::Size(m_actionButton->textHeight(), m_actionButton->textHeight()));
 
@@ -175,27 +179,8 @@ public:
       });
     }
 
-    children()[0]->addChild(m_actionButton);
-    // m_actionButton->setVisible(false);
+    children()[0]->addChild(m_actionButton.get());
   }
-
-  /*
-  // TODO: Breaks input (sometimes) and when set to visible before it just breaks.
-  bool onProcessMessage(Message* msg) override {
-    switch (msg->type()) {
-      case kMouseEnterMessage: {
-        if (m_actionButton)
-          m_actionButton->setVisible(true);
-      } break;
-      case kMouseLeaveMessage: {
-        if (m_actionButton)
-          m_actionButton->setVisible(false);
-      } break;
-    };
-
-    return ListItem::onProcessMessage(msg);
-  }
-  */
 
   std::string_view getLayoutId() const { return m_layoutId; }
 
@@ -309,7 +294,7 @@ private:
   LayoutOption m_option;
   LayoutSelector* m_selector;
   std::string m_layoutId;
-  Button* m_actionButton = nullptr;
+  std::unique_ptr<IconButton> m_actionButton;
   obs::connection m_actionConn;
 };
 
@@ -390,7 +375,9 @@ void LayoutSelector::removeLayout(const LayoutPtr& layout)
 
 void LayoutSelector::removeLayout(const std::string& layoutId)
 {
-  removeLayout(m_layouts.getById(layoutId));
+  auto layout = m_layouts.getById(layoutId);
+  ASSERT(layout);
+  removeLayout(layout);
 }
 
 void LayoutSelector::updateActiveLayout(const LayoutPtr& newLayout)
@@ -512,7 +499,7 @@ void LayoutSelector::populateComboBox()
         m_comboBox.getItem(layout->id() == Layout::kDefault ? 1 : 2));
       // Indicate we've modified this with an asterisk.
       item->setText(item->text() + "*");
-      item->addActionButton();
+      item->addActionButton(layout->id());
     }
     else {
       item = new LayoutItem(this, LayoutItem::USER_DEFINED, layout->name(), layout->id());

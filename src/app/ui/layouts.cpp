@@ -54,9 +54,12 @@ LayoutPtr Layouts::getById(const std::string& id) const
 
 bool Layouts::addLayout(const LayoutPtr& layout)
 {
+  ASSERT(layout);
+
   const auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
     return l->matchId(layout->id());
   });
+
   if (it != m_layouts.end()) {
     *it = layout; // Replace existent layout
     return false;
@@ -72,6 +75,8 @@ void Layouts::removeLayout(const LayoutPtr& layout)
     m_layouts.clear();
     return;
   }
+
+  ASSERT(layout);
 
   const auto it = std::find_if(m_layouts.begin(), m_layouts.end(), [layout](const LayoutPtr& l) {
     return l->matchId(layout->id());

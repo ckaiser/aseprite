@@ -185,8 +185,8 @@ void MainWindow::initialize()
   m_dock->dock(ui::CENTER, m_customizableDockPlaceholder.get());
 
   // After the user resizes the dock we save the updated layout
-  m_saveDockLayoutConn = m_customizableDock->UserResizedDock.connect(
-    [this] { saveActiveLayout(); });
+  m_saveDockLayoutConn = m_customizableDock->UserResizedDock.connect(&MainWindow::saveActiveLayout,
+                                                                     this);
 
   setDefaultLayout();
   if (LayoutPtr layout = m_layoutSelector->activeLayout())
@@ -202,7 +202,7 @@ void MainWindow::initialize()
 
   AppMenus::instance()->rebuildRecentList();
 
-  // When the language is change, we reload the menu bar strings and
+  // When the language is changed, we reload the menu bar strings and
   // relayout the whole main window.
   Strings::instance()->LanguageChange.connect([this] { onLanguageChange(); });
 }
@@ -715,8 +715,8 @@ void MainWindow::configureWorkspaceLayout()
 
   // TODO set visibility of color bar widgets
   m_colorBar->setVisible(normal && isDoc);
-  m_colorBarResizeConn = m_customizableDock->Resize.connect(
-    [this] { saveColorBarConfiguration(); });
+  m_colorBarResizeConn = m_customizableDock->Resize.connect(&MainWindow::saveColorBarConfiguration,
+                                                            this);
 
   m_toolBar->setVisible(normal && isDoc);
   m_statusBar->setVisible(normal);
@@ -724,9 +724,9 @@ void MainWindow::configureWorkspaceLayout()
 
   // Configure timeline
   if (m_timeline && m_timeline->parent()) // TODO: Why do I need this sometimes?
-    m_timelineResizeConn = dynamic_cast<Dock*>(m_timeline->parent())->Resize.connect([this] {
-      saveTimelineConfiguration();
-    });
+    m_timelineResizeConn = dynamic_cast<Dock*>(m_timeline->parent())
+                             ->Resize.connect(&MainWindow::saveTimelineConfiguration, this);
+
   m_timeline->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode) &&
                          pref.general.visibleTimeline());
 
