@@ -344,13 +344,7 @@ public:
     setExpansive(true);
   }
 
-  ~DockDropzonePlaceholder()
-  {
-    if (m_floatingUILayer)
-      display()->removeLayer(m_floatingUILayer);
-
-    m_floatingUILayer = nullptr;
-  }
+  ~DockDropzonePlaceholder() override { removeGhost(); }
 
   void setWidget(Widget* dragWidget, const gfx::Point& mousePosition)
   {
@@ -359,21 +353,21 @@ public:
 
     m_mouseOffset = mousePosition - dragWidget->bounds().origin();
 
-    os::SurfaceRef surface = os::System::instance()->makeRgbaSurface(dragWidget->size().w,
-                                                                     dragWidget->size().h);
+    const os::SurfaceRef surface = os::System::instance()->makeRgbaSurface(dragWidget->size().w,
+                                                                           dragWidget->size().h);
     {
       const os::SurfaceLock lock(surface.get());
-      os::Paint paint;
+      Paint paint;
       paint.color(gfx::rgba(0, 0, 0, 0));
       paint.style(os::Paint::Fill);
       surface->drawRect(gfx::Rect(0, 0, surface->width(), surface->height()), paint);
     }
 
     {
-      ui::Graphics g(display(), surface, 0, 0);
+      Graphics g(display(), surface, 0, 0);
       g.setFont(font());
 
-      os::Paint paint;
+      Paint paint;
       paint.color(gfx::rgba(0, 0, 0, 200));
 
       // TODO: This will definitely render any open things/overlays, do we care?
@@ -387,13 +381,13 @@ public:
 
     removeGhost();
 
-    m_floatingUILayer = ui::UILayer::Make();
+    m_floatingUILayer = UILayer::Make();
     m_floatingUILayer->setSurface(surface);
     m_floatingUILayer->setPosition(dragWidget->bounds().origin());
     display()->addLayer(m_floatingUILayer);
   }
 
-  void removeGhost()
+  void removeGhost() const
   {
     if (m_floatingUILayer) {
       display()->dirtyRect(m_floatingUILayer->bounds());
@@ -401,8 +395,10 @@ public:
     }
   }
 
-  void setGhostPosition(const gfx::Point& position)
+  void setGhostPosition(const gfx::Point& position) const
   {
+    ASSERT(m_floatingUILayer);
+
     display()->dirtyRect(m_floatingUILayer->bounds());
     m_floatingUILayer->setPosition(position - m_mouseOffset);
     display()->dirtyRect(m_floatingUILayer->bounds());
@@ -458,11 +454,10 @@ bool Dock::onProcessMessage(ui::Message* msg)
           auto* dragWidget = dynamic_cast<Widget*>(m_hit.dockable);
           ASSERT(dragWidget);
 
-          if (m_dropzonePlaceholder == nullptr)
-            m_dropzonePlaceholder = new DockDropzonePlaceholder();
-
+          m_dropzonePlaceholder.reset(new DockDropzonePlaceholder());
           m_dropzonePlaceholder->setWidget(dragWidget, pos);
 
+          ASSERT(m_dropzonePlaceholder);
           invalidate();
         }
 
@@ -539,12 +534,14 @@ bool Dock::onProcessMessage(ui::Message* msg)
             // Undock the placeholder before moving it, if it exists
             if (m_dropzonePlaceholder && m_dropzonePlaceholder->parent()) {
               auto* placeholderCurrentDock = dynamic_cast<Dock*>(m_dropzonePlaceholder->parent());
-              placeholderCurrentDock->undock(m_dropzonePlaceholder);
+              placeholderCurrentDock->undock(m_dropzonePlaceholder.get());
             }
 
             if (m_hit.targetSide != -1 && m_dropzonePlaceholder) {
               if (auto* widgetDock = dynamic_cast<Dock*>(dragWidget->parent()))
-                widgetDock->dock(m_hit.targetSide, m_dropzonePlaceholder, dragWidget->sizeHint());
+                widgetDock->dock(m_hit.targetSide,
+                                 m_dropzonePlaceholder.get(),
+                                 dragWidget->sizeHint());
             }
 
             App::instance()->mainWindow()->invalidate();
@@ -563,7 +560,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
         if (m_dropzonePlaceholder && m_dropzonePlaceholder->parent()) {
           // Always undock the dropzone placeholder to avoid dangling sizes.
           auto* placeholderCurrentDock = dynamic_cast<Dock*>(m_dropzonePlaceholder->parent());
-          placeholderCurrentDock->undock(m_dropzonePlaceholder);
+          placeholderCurrentDock->undock(m_dropzonePlaceholder.get());
         }
 
         if (m_hit.dockable) {
@@ -642,9 +639,7 @@ bool Dock::onProcessMessage(ui::Message* msg)
           }
         }
 
-        if (m_dropzonePlaceholder)
-          m_dropzonePlaceholder->removeGhost();
-
+        m_dropzonePlaceholder = nullptr;
         m_dragging = false;
         m_hit = Hit();
       }

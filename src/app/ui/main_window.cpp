@@ -696,34 +696,28 @@ void MainWindow::configureWorkspaceLayout()
   }
   else {
     if (m_menuBar->parent()) {
-      m_dock->undock(m_menuBar.get());
-
-      // TODO: MacOS layout is a little bonkers and it's not perfect but it works so
-      m_dock->undock(m_tabsBar.get());
-      m_dock->undock(m_notifications.get());
-      m_dock->undock(m_layoutSelector.get());
-
+      m_dock->undock(m_dock->top());
+      m_dock->top()->resetDocks();
       m_dock->top()->dock(ui::CENTER, m_tabsBar.get());
-      m_dock->top()->center()->right()->dock(ui::RIGHT, m_notifications.get());
-      m_dock->top()->center()->right()->dock(ui::RIGHT, m_layoutSelector.get());
+
+      // TODO: I've tried a dozen different ways but I cannot get this to dock well
+      m_dock->top()->right()->dock(ui::CENTER, m_notifications.get());
+      m_dock->top()->right()->dock(ui::RIGHT, m_layoutSelector.get());
     }
   }
 
   m_menuBar->setVisible(normal);
   m_notifications->setVisible(normal && m_notifications->hasNotifications());
   m_tabsBar->setVisible(normal);
-
-  // TODO set visibility of color bar widgets
   m_colorBar->setVisible(normal && isDoc);
   m_colorBarResizeConn = m_customizableDock->Resize.connect(&MainWindow::saveColorBarConfiguration,
                                                             this);
-
   m_toolBar->setVisible(normal && isDoc);
   m_statusBar->setVisible(normal);
   m_contextBar->setVisible(isDoc && (m_mode == NormalMode || m_mode == ContextBarAndTimelineMode));
 
   // Configure timeline
-  if (m_timeline && m_timeline->parent()) // TODO: Why do I need this sometimes?
+  if (m_timeline && m_timeline->parent())
     m_timelineResizeConn = dynamic_cast<Dock*>(m_timeline->parent())
                              ->Resize.connect(&MainWindow::saveTimelineConfiguration, this);
 

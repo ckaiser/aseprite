@@ -67,14 +67,12 @@ private:
   {
     if (layoutId.empty()) {
       m_activeLayoutId = Layout::kDefault;
-      TRACE("Active layout is now default (given an empty id).\n");
       return;
     }
 
     if (layoutId == m_activeLayoutId)
       return;
 
-    TRACE("Active layout is now: %s\n", layoutId.c_str());
     m_activeLayoutId = layoutId;
   }
 

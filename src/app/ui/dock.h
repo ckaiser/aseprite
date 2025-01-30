@@ -104,7 +104,7 @@ private:
   // True when we paint/can drag-and-drop dockable widgets from handles.
   bool m_customizing = false;
   bool m_dragging = false;
-  DockDropzonePlaceholder* m_dropzonePlaceholder = nullptr;
+  std::unique_ptr<DockDropzonePlaceholder> m_dropzonePlaceholder;
 };
 
 } // namespace app
