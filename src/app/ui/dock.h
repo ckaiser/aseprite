@@ -68,8 +68,8 @@ protected:
   void onUserResizedDock();
 
 private:
-  void setSide(const int i, ui::Widget* newWidget);
-  int calcAlign(const int i);
+  void setSide(int i, ui::Widget* newWidget);
+  int calcAlign(int i);
   void updateDockVisibility();
   void forEachSide(gfx::Rect bounds,
                    std::function<void(ui::Widget* widget,

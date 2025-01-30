@@ -147,7 +147,7 @@ void Dock::dockRelativeTo(ui::Widget* relative,
   Widget* parent = relative->parent();
   ASSERT(parent);
 
-  Dock* subdock = new Dock;
+  auto* subdock = new Dock;
   subdock->m_autoDelete = true;
   subdock->m_customizing = m_customizing;
   parent->replaceChild(relative, subdock);
@@ -155,7 +155,7 @@ void Dock::dockRelativeTo(ui::Widget* relative,
   subdock->dock(side, widget, prefSize);
 
   // Fix the m_sides item if the parent is a Dock
-  if (auto relativeDock = dynamic_cast<Dock*>(parent)) {
+  if (auto* relativeDock = dynamic_cast<Dock*>(parent)) {
     for (int i = 0; i < kSides; ++i) {
       if (relativeDock->m_sides[i] == relative) {
         relativeDock->setSide(i, subdock);

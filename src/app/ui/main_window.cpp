@@ -215,6 +215,8 @@ MainWindow::~MainWindow()
 
   m_dock->resetDocks();
   m_customizableDock->resetDocks();
+  removeChild(m_dock); // Leaving them in the hierarchy can cause crashes when cleaning up.
+  removeChild(m_customizableDock);
 
   m_layoutSelector.reset();
   m_scalePanic.reset();
@@ -698,11 +700,18 @@ void MainWindow::configureWorkspaceLayout()
     if (m_menuBar->parent()) {
       m_dock->undock(m_dock->top());
       m_dock->top()->resetDocks();
-      m_dock->top()->dock(ui::CENTER, m_tabsBar.get());
 
-      // TODO: I've tried a dozen different ways but I cannot get this to dock well
-      m_dock->top()->right()->dock(ui::CENTER, m_notifications.get());
-      m_dock->top()->right()->dock(ui::RIGHT, m_layoutSelector.get());
+      // TODO: I've tried a dozen different ways but I cannot get this combination to dock well
+      // without running into sizing problems for the notifications & selector buttons.
+
+      if (m_tabsBar)
+        m_dock->top()->dock(ui::CENTER, m_tabsBar.get());
+
+      if (m_notifications)
+        m_dock->top()->right()->dock(ui::CENTER, m_notifications.get());
+
+      if (m_layoutSelector)
+        m_dock->top()->right()->dock(ui::RIGHT, m_layoutSelector.get());
     }
   }
 
