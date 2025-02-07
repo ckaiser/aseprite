@@ -209,6 +209,9 @@ Editor::Editor(Doc* document, EditorFlags flags, EditorStatePtr state)
   m_document->add_observer(this);
 
   m_state->onEnterState(this);
+
+  m_audioPlayer.initialize();
+  m_audioPlayer.load("test.wav" /* TODO: Config! */);
 }
 
 Editor::~Editor()

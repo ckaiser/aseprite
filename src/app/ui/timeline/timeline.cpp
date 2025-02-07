@@ -250,6 +250,7 @@ Timeline::Timeline(TooltipManager* tooltipManager)
   , m_scroll(false)
   , m_fromTimeline(false)
   , m_aniControls(tooltipManager)
+  , m_soundControls(tooltipManager)
 {
   enableFlags(CTRL_RIGHT_CLICK | ALLOW_DROP);
 
@@ -260,6 +261,7 @@ Timeline::Timeline(TooltipManager* tooltipManager)
 
   setDoubleBuffered(true);
   addChild(&m_aniControls);
+  addChild(&m_soundControls);
   addChild(&m_hbar);
   addChild(&m_vbar);
 
@@ -322,6 +324,7 @@ void Timeline::updateUsingEditor(Editor* editor)
   }
 
   m_aniControls.updateUsingEditor(editor);
+  m_soundControls.updateUsingEditor(editor);
 
   // Save active m_tagFocusBand into the old focused editor
   if (m_editor)
@@ -1645,12 +1648,21 @@ void Timeline::onResize(ui::ResizeEvent& ev)
   gfx::Rect rc = ev.bounds();
   setBoundsQuietly(rc);
 
-  gfx::Size sz = m_aniControls.sizeHint();
+  const auto y = rc.y + (visibleTagBands() - 1) * oneTagHeight();
+  const gfx::Size& sz = m_aniControls.sizeHint();
   m_aniControls.setBounds(gfx::Rect(
     rc.x,
-    rc.y + (visibleTagBands() - 1) * oneTagHeight(),
+    y,
     (!m_sprite || m_sprite->tags().empty() ? std::min(sz.w, rc.w) : std::min(sz.w, separatorX())),
     oneTagHeight()));
+
+  if (m_adapter) {
+    auto headerLeftBounds = getFrameHeadersBounds();
+    m_soundControls.setBounds(gfx::Rect(std::max(rc.x + sz.w + 2, rc.x + headerLeftBounds.x),
+                                        y,
+                                        (lastFrame() + 1) * frameBoxWidth(),
+                                        oneTagHeight()));
+  }
 
   updateScrollBars();
 }
@@ -2015,6 +2027,7 @@ void Timeline::onAfterLayerVisibilityChange(DocEvent& ev)
 void Timeline::onStateChanged(Editor* editor)
 {
   m_aniControls.updateUsingEditor(editor);
+  m_soundControls.updateUsingEditor(editor);
 }
 
 void Timeline::onAfterFrameChanged(Editor* editor)
@@ -4726,7 +4739,10 @@ void Timeline::setSeparatorX(int newValue)
 void Timeline::updateTimelineAdapter(bool allTags)
 {
   m_adapter = std::make_unique<view::FullSpriteTimelineAdapter>(m_sprite);
-  invalidate();
+  resetSizeHint();
+
+  // Forces a resize event when we have an adapter so the audio controls can exist. TODO: Why? No.
+  setBounds(bounds());
 }
 
 // static

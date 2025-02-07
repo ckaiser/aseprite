@@ -16,6 +16,7 @@
 #include "app/ui/editor/editor_observer.h"
 #include "app/ui/input_chain_element.h"
 #include "app/ui/timeline/ani_controls.h"
+#include "app/ui/timeline/sound_controls.h"
 #include "app/ui/timeline/timeline_observer.h"
 #include "base/debug.h"
 #include "doc/frame.h"
@@ -464,6 +465,7 @@ private:
   bool m_fromTimeline;
 
   AniControls m_aniControls;
+  SoundControls m_soundControls;
 
   // Data used for thumbnails.
   bool m_thumbnailsOverlayVisible;

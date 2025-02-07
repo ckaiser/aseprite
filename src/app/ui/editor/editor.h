@@ -22,25 +22,19 @@
 #include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/editor_states_history.h"
 #include "app/ui/tile_source.h"
+#include "app/util/audio.h"
 #include "app/util/tiled_mode.h"
 #include "doc/algorithm/flip_type.h"
 #include "doc/frame.h"
-#include "doc/image_buffer.h"
 #include "doc/selected_objects.h"
-#include "filters/tiled_mode.h"
 #include "gfx/fwd.h"
 #include "obs/connection.h"
-#include "os/color_space.h"
 #include "render/projection.h"
 #include "render/zoom.h"
-#include "ui/base.h"
 #include "ui/cursor_type.h"
 #include "ui/pointer_type.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
-
-#include <memory>
-#include <set>
 
 namespace doc {
 class Layer;
@@ -281,6 +275,8 @@ public:
   // Gets the brush preview controller.
   BrushPreview& brushPreview() { return m_brushPreview; }
 
+  Audio& audioPlayer() { return m_audioPlayer; };
+
   static EditorRender& renderEngine() { return *m_renderEngine; }
 
   // IColorSource
@@ -495,6 +491,8 @@ private:
   // When true, modifications to slices positions/sizes will transform the
   // pixels inside their boundaries.
   bool m_slicesTransforms = false;
+
+  Audio m_audioPlayer;
 
   // Active sprite editor with the keyboard focus.
   static Editor* m_activeEditor;

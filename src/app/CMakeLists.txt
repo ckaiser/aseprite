@@ -684,6 +684,7 @@ target_sources(app-lib PRIVATE
   ui/tile_button.cpp
   ui/tileset_selector.cpp
   ui/timeline/ani_controls.cpp
+  ui/timeline/sound_controls.cpp
   ui/timeline/timeline.cpp
   ui/toolbar.cpp
   ui/user_data_view.cpp
@@ -693,6 +694,7 @@ target_sources(app-lib PRIVATE
   ui/workspace_tabs.cpp
   ui/zoom_entry.cpp
   ui_context.cpp
+  util/audio.cpp
   util/autocrop.cpp
   util/buffer_region.cpp
   util/cel_ops.cpp
