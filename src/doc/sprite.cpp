@@ -500,6 +500,14 @@ int Sprite::frameDuration(frame_t frame) const
     return 0;
 }
 
+int Sprite::frameRangeDuration(const frame_t from, const frame_t to) const
+{
+  int duration = 0;
+  for (frame_t frame = from; frame < to; ++frame)
+    duration += frameDuration(frame);
+  return duration; // TODO: also cache THIS value.
+}
+
 int Sprite::totalAnimationDuration() const
 {
   int duration = 0;

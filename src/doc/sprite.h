@@ -180,6 +180,7 @@ public:
   void setTotalFrames(frame_t frames);
 
   int frameDuration(frame_t frame) const;
+  int frameRangeDuration(frame_t from, frame_t to) const;
   int totalAnimationDuration() const;
   void setFrameDuration(frame_t frame, int msecs);
   void setFrameRangeDuration(frame_t from, frame_t to, int msecs);

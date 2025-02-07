@@ -194,6 +194,7 @@ set(SIMPLEINI_DIR       ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simpleini)
 set(TINYEXIF_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/TinyEXIF)
 set(TINYXML_DIR         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyxml2)
 set(ZLIB_DIR            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib)
+set(MINIAUDIO_DIR       ${CMAKE_CURRENT_SOURCE_DIR}/third_party/miniaudio)
 
 # Search in the "cmake" directory for additional CMake modules.
 list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
@@ -341,6 +342,9 @@ endif()
 
 # simpleini
 include_directories(${SIMPLEINI_DIR})
+
+# miniaudio
+include_directories(${MINIAUDIO_DIR})
 
 # Third parties
 add_subdirectory(third_party)

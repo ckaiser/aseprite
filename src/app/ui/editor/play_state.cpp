@@ -48,6 +48,9 @@ PlayState::PlayState(const bool playOnce, const bool playAll, const bool playSub
   m_ctxConn = UIContext::instance()->BeforeCommandExecution.connect(
     &PlayState::onBeforeCommandExecution,
     this);
+
+  m_audioPlayer.initialize();
+  m_audioPlayer.load("" /* TODO: Config! */);
 }
 
 Tag* PlayState::playingTag() const
@@ -91,6 +94,8 @@ void PlayState::onEnterState(Editor* editor)
 
   m_toScroll = false;
 
+  m_audioPlayer.setSpeedMultiplier(m_editor->getAnimationSpeedMultiplier());
+
   // Maybe we came from ScrollingState and the timer is already
   // running. Which also means there was a Playback in course, so
   // don't create a new one (this fixes an issue when the editor
@@ -109,6 +114,10 @@ void PlayState::onEnterState(Editor* editor)
     m_nextFrameTime = getNextFrameTime();
     m_curFrameTick = base::current_tick();
     m_playTimer.start();
+
+    const auto& seekPos = m_editor->sprite()->frameRangeDuration(0, m_editor->frame());
+    if (seekPos < m_audioPlayer.soundLength())
+      m_audioPlayer.seek(seekPos);
   }
 }
 
@@ -122,6 +131,9 @@ EditorState::LeaveAction PlayState::onLeaveState(Editor* editor, EditorState* ne
     if (m_playOnce || Preferences::instance().general.rewindOnStop())
       m_editor->setFrame(m_refFrame);
   }
+
+  m_audioPlayer.stop();
+
   return KeepState;
 }
 
@@ -214,12 +226,18 @@ void PlayState::onPlaybackTick()
 
   while (m_nextFrameTime <= 0) {
     doc::frame_t frame = m_playback.nextFrame();
+    TRACE("Frame: %d\n", frame);
+    if ((!m_audioPlayer.isPlaying() || frame == 0) &&
+        m_editor->sprite()->sprite()->frameRangeDuration(0, frame) < m_audioPlayer.soundLength())
+      m_audioPlayer.play();
+
     if (m_playback.isStopped() ||
         // TODO invalid frame from Playback::nextFrame(), in this way
         //      we avoid any kind of crash or assert fail
         frame < 0 || frame > m_editor->sprite()->lastFrame()) {
       TRACEARGS("!!! PlayState: invalid frame from Playback::nextFrame() frame=", frame);
       m_editor->stop();
+      m_audioPlayer.stop();
       break;
     }
     m_editor->setFrame(frame);

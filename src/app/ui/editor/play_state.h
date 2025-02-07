@@ -10,6 +10,7 @@
 #pragma once
 
 #include "app/ui/editor/state_with_wheel_behavior.h"
+#include "app/util/audio.h"
 #include "base/time.h"
 #include "doc/frame.h"
 #include "doc/playback.h"
@@ -64,6 +65,8 @@ private:
 
   doc::frame_t m_refFrame;
   doc::Tag* m_tag;
+
+  Audio m_audioPlayer;
 
   obs::scoped_connection m_ctxConn;
 };

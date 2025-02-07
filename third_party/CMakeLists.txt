@@ -234,3 +234,6 @@ endif()
 # qoi
 add_library(qoi INTERFACE)
 target_include_directories(qoi INTERFACE qoi)
+
+# miniaudio
+include_directories("miniaudio")
