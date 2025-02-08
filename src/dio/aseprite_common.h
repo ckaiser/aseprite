@@ -74,8 +74,8 @@
 #define ASE_EXTERNAL_FILE_TILESET         1
 #define ASE_EXTERNAL_FILE_EXTENSION       2
 #define ASE_EXTERNAL_FILE_TILE_MANAGEMENT 3
-#define ASE_EXTERNAL_FILE_TYPES           4
-
+#define ASE_EXTERNAL_FILE_AUDIO           4
+#define ASE_EXTERNAL_FILE_TYPES           5
 namespace dio {
 
 struct AsepriteHeader {

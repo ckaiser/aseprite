@@ -50,7 +50,7 @@ PlayState::PlayState(const bool playOnce, const bool playAll, const bool playSub
     this);
 
   m_audioPlayer.initialize();
-  m_audioPlayer.load("" /* TODO: Config! */);
+  m_audioPlayer.load("test_audio.wav" /* TODO: Config! */);
 }
 
 Tag* PlayState::playingTag() const
@@ -277,6 +277,9 @@ void PlayState::onBeforeCommandExecution(CommandExecutionEvent& ev)
 
 double PlayState::getNextFrameTime()
 {
+  // React to any changes in speed from before - TODO: Guard.
+  m_audioPlayer.setSpeedMultiplier(m_editor->getAnimationSpeedMultiplier());
+
   return m_editor->sprite()->frameDuration(m_editor->frame()) /
          m_editor->getAnimationSpeedMultiplier(); // The "speed multiplier" is a "duration divider"
 }
