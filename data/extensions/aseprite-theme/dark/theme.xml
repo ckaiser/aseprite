@@ -73,6 +73,8 @@
         <color id="listitem_normal_face" value="#41444a" />
         <color id="listitem_selected_text" value="#41444a" />
         <color id="listitem_selected_face" value="#e1b85f" />
+        <color id="listitem_hot_text" value="#dbc48f" />
+        <color id="listitem_hot_face" value="#ab8637" />
         <color id="slider_empty_text" value="#202125" />
         <color id="slider_full_text" value="#c0c0c0" />
         <color id="tab_normal_text" value="#7d7d7d" />

@@ -23,7 +23,7 @@ public:
   ListBox();
 
   bool isMultiselect() const { return m_multiselect; }
-  void setMultiselect(const bool multiselect);
+  void setMultiselect(bool multiselect);
 
   Widget* getSelectedChild();
   int getSelectedIndex();
@@ -35,17 +35,17 @@ public:
 
   void makeChildVisible(Widget* item);
   void centerScroll();
-  void sortItems();
-  void sortItems(bool (*cmp)(Widget* a, Widget* b));
+  virtual void sortItems();
+  void sortItems(const std::function<bool(Widget*, Widget*)>& cmp);
 
   obs::signal<void()> Change;
   obs::signal<void()> DoubleClickItem;
 
 protected:
-  virtual bool onProcessMessage(Message* msg) override;
-  virtual void onPaint(PaintEvent& ev) override;
-  virtual void onResize(ResizeEvent& ev) override;
-  virtual void onSizeHint(SizeHintEvent& ev) override;
+  bool onProcessMessage(Message* msg) override;
+  void onPaint(PaintEvent& ev) override;
+  void onResize(ResizeEvent& ev) override;
+  void onSizeHint(SizeHintEvent& ev) override;
   virtual void onChange();
   virtual void onDoubleClickItem();
   virtual bool onAcceptKeyInput();

@@ -44,9 +44,11 @@ void IconButton::onSizeHint(SizeHintEvent& ev)
 
 void IconButton::onPaint(PaintEvent& ev)
 {
-  auto theme = SkinTheme::get(this);
+  const auto* theme = SkinTheme::get(this);
   Graphics* g = ev.graphics();
-  gfx::Color fg, bg;
+
+  gfx::Color fg;
+  gfx::Color bg;
 
   if (isSelected()) {
     fg = theme->colors.menuitemHighlightText();
@@ -61,14 +63,16 @@ void IconButton::onPaint(PaintEvent& ev)
     bg = bgColor();
   }
 
-  g->fillRect(bg, g->getClipBounds());
+  if (!isTransparent()) {
+    g->fillRect(bg, g->getClipBounds());
+  }
 
-  gfx::Rect bounds = clientBounds();
+  const gfx::Rect bounds = clientBounds();
   os::Surface* icon = m_part->bitmap(0);
   g->drawColoredRgbaSurface(icon,
                             fg,
-                            bounds.x + bounds.w / 2 - icon->width() / 2,
-                            bounds.y + bounds.h / 2 - icon->height() / 2);
+                            bounds.x + (bounds.w / 2) - (icon->width() / 2),
+                            bounds.y + (bounds.h / 2) - (icon->height() / 2));
 }
 
 } // namespace app

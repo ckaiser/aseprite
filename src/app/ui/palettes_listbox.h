@@ -12,29 +12,34 @@
 #include "obs/connection.h"
 #include "ui/tooltips.h"
 
+#include <unordered_set>
+
 namespace doc {
 class Palette;
 }
 
 namespace app {
 
-class PalettesListBox : public ResourcesListBox {
+class PalettesListBox final : public ResourcesListBox {
 public:
   PalettesListBox();
-
   const doc::Palette* selectedPalette();
+
+  void sortItems() override;
 
   obs::signal<void(const doc::Palette*)> PalChange;
 
 protected:
-  virtual ResourceListItem* onCreateResourceItem(Resource* resource) override;
-  virtual void onResourceChange(Resource* resource) override;
-  virtual void onPaintResource(ui::Graphics* g, gfx::Rect& bounds, Resource* resource) override;
-  virtual void onResourceSizeHint(Resource* resource, gfx::Size& size) override;
+  ResourceListItem* onCreateResourceItem(Resource* resource) override;
+  void onResourceChange(Resource* resource) override;
+  void onPaintResource(ui::Graphics* g, gfx::Rect& bounds, Resource* resource) override;
+  void onResourceSizeHint(Resource* resource, gfx::Size& size) override;
 
+private:
   ui::TooltipManager m_tooltips;
   obs::scoped_connection m_extPaletteChanges;
   obs::scoped_connection m_extPresetsChanges;
+  std::unordered_set<std::string> m_favorites;
 };
 
 } // namespace app

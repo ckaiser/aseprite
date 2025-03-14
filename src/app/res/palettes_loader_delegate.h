@@ -19,8 +19,8 @@ public:
   PalettesLoaderDelegate();
 
   // ResourcesLoaderDelegate impl
-  virtual void getResourcesPaths(std::map<std::string, std::string>& idAndPath) const override;
-  virtual Resource* loadResource(const std::string& id, const std::string& path) override;
+  void getResourcesPaths(std::map<std::string, std::string>& idAndPath) const override;
+  Resource* loadResource(const std::string& id, const std::string& path) override;
 
 private:
   FileOpConfig m_config;

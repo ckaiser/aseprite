@@ -185,7 +185,7 @@ void ListBox::sortItems()
   sortItems(&sort_by_text);
 }
 
-void ListBox::sortItems(bool (*cmp)(Widget* a, Widget* b))
+void ListBox::sortItems(const std::function<bool(Widget*, Widget*)>& cmp)
 {
   WidgetsList widgets = children();
   std::sort(widgets.begin(), widgets.end(), cmp);

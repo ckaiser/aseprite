@@ -49,8 +49,8 @@ public:
   obs::signal<void()> FinishLoading;
 
 protected:
-  virtual bool onProcessMessage(ui::Message* msg) override;
-  virtual void onChange() override;
+  bool onProcessMessage(ui::Message* msg) override;
+  void onChange() override;
   virtual ResourceListItem* onCreateResourceItem(Resource* resource);
 
   // abstract
