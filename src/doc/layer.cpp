@@ -351,6 +351,7 @@ void LayerImage::removeCel(Cel* cel)
   m_cels.erase(it);
 
   cel->setParentLayer(NULL);
+  delete cel;
 }
 
 void LayerImage::moveCel(Cel* cel, frame_t frame)
@@ -553,6 +554,7 @@ void LayerGroup::removeLayer(Layer* layer)
   m_layers.erase(it);
 
   layer->setParent(nullptr);
+  delete layer;
 }
 
 void LayerGroup::insertLayer(Layer* layer, Layer* after)

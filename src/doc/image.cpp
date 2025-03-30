@@ -34,33 +34,34 @@ int Image::getMemSize() const
 }
 
 // static
-Image* Image::create(PixelFormat format, int width, int height, const ImageBufferPtr& buffer)
+std::unique_ptr<Image> Image::create(PixelFormat format, int width, int height, const ImageBufferPtr& buffer)
 {
   return Image::create(ImageSpec((ColorMode)format, width, height, 0), buffer);
 }
 
 // static
-Image* Image::create(const ImageSpec& spec, const ImageBufferPtr& buffer)
+std::unique_ptr<Image> Image::create(const ImageSpec& spec, const ImageBufferPtr& buffer)
 {
   ASSERT(spec.width() >= 1 && spec.height() >= 1);
   if (spec.width() < 1 || spec.height() < 1)
     return nullptr;
 
+  std::unique_ptr<Image> image;
   switch (spec.colorMode()) {
-    case ColorMode::RGB:       return new ImageImpl<RgbTraits>(spec, buffer);
-    case ColorMode::GRAYSCALE: return new ImageImpl<GrayscaleTraits>(spec, buffer);
-    case ColorMode::INDEXED:   return new ImageImpl<IndexedTraits>(spec, buffer);
-    case ColorMode::BITMAP:    return new ImageImpl<BitmapTraits>(spec, buffer);
-    case ColorMode::TILEMAP:   return new ImageImpl<TilemapTraits>(spec, buffer);
+    case ColorMode::RGB:       image.reset(new ImageImpl<RgbTraits>(spec, buffer)); break;
+    case ColorMode::GRAYSCALE: image.reset(new ImageImpl<GrayscaleTraits>(spec, buffer)); break;
+    case ColorMode::INDEXED:   image.reset(new ImageImpl<IndexedTraits>(spec, buffer)); break;
+    case ColorMode::BITMAP:    image.reset(new ImageImpl<BitmapTraits>(spec, buffer)); break;
+    case ColorMode::TILEMAP:   image.reset(new ImageImpl<TilemapTraits>(spec, buffer)); break;
   }
-  return nullptr;
+  return image;
 }
 
 // static
-Image* Image::createCopy(const Image* image, const ImageBufferPtr& buffer)
+std::unique_ptr<Image> Image::createCopy(const Image* image, const ImageBufferPtr& buffer)
 {
   ASSERT(image);
-  return crop_image(image, 0, 0, image->width(), image->height(), image->maskColor(), buffer);
+  return std::unique_ptr<Image>(crop_image(image, 0, 0, image->width(), image->height(), image->maskColor(), buffer));
 }
 
 } // namespace doc
