@@ -14,6 +14,7 @@
 #include "render/dithering_matrix.h"
 
 #include <map>
+#include <optional>
 #include <string>
 #include <vector>
 
@@ -83,6 +84,18 @@ public:
     ThemeInfo(const std::string& path, const std::string& variant) : path(path), variant(variant) {}
   };
 
+#ifdef ENABLE_SCRIPTING
+  enum class CustomFormatType { Load, Save }; // TODO: Rename
+
+  struct CustomFormat {
+    std::string id;
+    std::vector<std::string> extensions;
+    bool binary = true;
+    int onloadRef = -1;
+    int onsaveRef = -1;
+  };
+#endif
+
   using Languages = std::map<std::string, LangInfo>;
   using Themes = std::map<std::string, ThemeInfo>;
   using DitheringMatrices = std::map<std::string, DitheringMatrixInfo>;
@@ -122,6 +135,8 @@ public:
   void removeMenuGroup(const std::string& id);
 
   void addMenuSeparator(ui::Widget* widget);
+  void addCustomFormat(const CustomFormat& format);
+  void removeCustomFormat(const std::string& formatId);
 #endif
 
   bool isEnabled() const { return m_isEnabled; }
@@ -137,6 +152,13 @@ public:
 #ifdef ENABLE_SCRIPTING
   bool hasScripts() const { return !m_plugin.scripts.empty(); }
   void addScript(const std::string& fn);
+  bool hasCustomFormats() const { return !m_customFormats.empty(); }
+  // TODO: Rename lol
+  std::optional<std::string> implementsCustomFormat(const std::string& ext,
+                                                    const Extension::CustomFormatType type) const;
+  void runCustomFormatAction(const std::string formatId,
+                             const std::string& path,
+                             const Extension::CustomFormatType type) const;
 #endif
 
   bool isCurrentTheme() const;
@@ -174,6 +196,7 @@ private:
     std::vector<ScriptItem> scripts;
     std::vector<PluginItem> items;
   } m_plugin;
+  std::vector<CustomFormat> m_customFormats;
 #endif
 
   std::string m_path;
@@ -218,6 +241,10 @@ public:
   // image file. These pointers cannot be deleted.
   std::vector<Extension::DitheringMatrixInfo*> ditheringMatrices();
 
+  // Returns a list of the extensions of custom formats (TODO: reword, extension is not Extension is
+  // not extensions)
+  std::vector<std::string> customFormatExtensions();
+
   obs::signal<void(Extension*)> NewExtension;
   obs::signal<void(Extension*)> KeysChange;
   obs::signal<void(Extension*)> LanguagesChange;
@@ -225,6 +252,7 @@ public:
   obs::signal<void(Extension*)> PalettesChange;
   obs::signal<void(Extension*)> DitheringMatricesChange;
   obs::signal<void(Extension*)> ScriptsChange;
+  obs::signal<void(Extension*)> CustomFormatsChange;
 
 private:
   Extension* loadExtension(const std::string& path,

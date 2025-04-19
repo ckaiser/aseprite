@@ -17,6 +17,7 @@
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/drm.h"
+#include "app/extensions.h"
 #include "app/file/file_data.h"
 #include "app/file/file_format.h"
 #include "app/file/file_formats_manager.h"
@@ -193,6 +194,11 @@ base::paths get_readable_extensions()
     if (format->support(FILE_SUPPORT_LOAD))
       format->getExtensions(paths);
   }
+
+  for (const auto& extension : App::instance()->extensions().customFormatExtensions()) {
+    paths.push_back(extension);
+  }
+
   return paths;
 }
 
@@ -366,6 +372,28 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context,
   // Get the format through the extension of the filename
   fop->m_format = FileFormatsManager::instance()->getFileFormat(dio::detect_format(filename));
   if (!fop->m_format || !fop->m_format->support(FILE_SUPPORT_LOAD)) {
+    // Check extensions for formats
+    const std::string ext = base::string_to_lower(base::get_file_extension(filename));
+
+    for (const auto& ext_ext : App::instance()->extensions().customFormatExtensions()) {
+      if (base::string_to_lower(ext_ext) == ext) {
+        // TIME TO DO THE THINGS
+        // Deletegate to the extension responsible for this.
+        // Do we find it again now?
+
+        for (Extension* da_ext : App::instance()->extensions()) {
+          if (!da_ext->isEnabled())
+            continue;
+
+          auto idOpt = da_ext->implementsCustomFormat(ext, Extension::CustomFormatType::Load);
+          if (idOpt) {
+            da_ext->runCustomFormatAction(*idOpt, filename, Extension::CustomFormatType::Load);
+            goto done;
+          }
+        }
+      }
+    }
+
     fop->setError("%s can't load \"%s\" file (\"%s\")\n",
                   get_app_name(),
                   filename.c_str(),

@@ -358,6 +358,25 @@ void Extension::addMenuSeparator(ui::Widget* widget)
   m_plugin.items.push_back(item);
 }
 
+void Extension::addCustomFormat(const CustomFormat& format)
+{
+  // TODO: ¿Perform some validation here, prevent duplicates, etc. How do we return that? Bool?
+
+  m_customFormats.push_back(format);
+}
+
+void Extension::removeCustomFormat(const std::string& formatId)
+{
+  auto it = std::find_if(m_customFormats.begin(),
+                         m_customFormats.end(),
+                         [&formatId](const CustomFormat& format) { return format.id == formatId; });
+
+  if (it == m_customFormats.end())
+    throw base::Exception("Format ID was not found or is not registered to this extension.");
+
+  m_customFormats.erase(it);
+}
+
 #endif
 
 bool Extension::canBeDisabled() const
@@ -769,6 +788,60 @@ void Extension::addScript(const std::string& fn)
   updateCategory(Category::Scripts);
 }
 
+std::optional<std::string> Extension::implementsCustomFormat(
+  const std::string& ext,
+  const Extension::CustomFormatType type) const
+{
+  if (!hasCustomFormats())
+    return std::nullopt;
+
+  for (const auto& cmf : m_customFormats) {
+    for (const auto& ext_ext : cmf.extensions) {
+      if (base::string_to_lower(ext_ext) == base::string_to_lower(ext)) {
+        if (type == CustomFormatType::Load && cmf.onloadRef != -1 ||
+            type == CustomFormatType::Save && cmf.onsaveRef != -1)
+          return cmf.id;
+      }
+    }
+  }
+
+  return std::nullopt;
+}
+
+void Extension::runCustomFormatAction(const std::string formatId,
+                                      const std::string& path,
+                                      const Extension::CustomFormatType type) const
+{
+  const CustomFormat* format = nullptr;
+  for (const CustomFormat& f : m_customFormats) {
+    if (f.id == formatId) { // TODO: Need to register these somewhere so they're unique
+      format = &f;
+      break;
+    }
+  }
+
+  ASSERT(format);
+
+  auto* engine = App::instance()->scriptEngine();
+  lua_State* L = engine->luaState();
+
+  // TODO: Need to actually call things - and more importantly:
+  // do we do the file setup here? after? create the sprite with everything here? what's next in the
+  // path?
+  if (type == CustomFormatType::Load) {
+    // ASSERT(format->onloadRef);
+    // lua_rawgeti(L, LUA_REGISTRYINDEX, m_plugin.pluginRef); // ?
+
+    // lua_rawgeti(L, LUA_REGISTRYINDEX, format->onloadRef);
+    // lua_pcall(L, 1, 0, 0);
+  }
+  else {
+    ASSERT(format->onsaveRef);
+    // lua_rawgeti(L, LUA_REGISTRYINDEX, format->onsaveRef);
+    // lua_pcall(L, 1, 0, 0);
+  }
+}
+
 #endif // ENABLE_SCRIPTING
 
 //////////////////////////////////////////////////////////////////////
@@ -920,6 +993,22 @@ std::vector<Extension::DitheringMatrixInfo*> Extensions::ditheringMatrices()
     for (auto& it : ext->m_ditheringMatrices)
       result.push_back(&it.second);
   }
+  return result;
+}
+
+std::vector<std::string> Extensions::customFormatExtensions()
+{
+  std::vector<std::string> result;
+  for (auto ext : m_extensions) {
+    if (!ext->isEnabled()) // Ignore disabled themes
+      continue;
+
+    for (const auto& format : ext->m_customFormats) {
+      for (const auto& extension : format.extensions)
+        result.push_back(extension);
+    }
+  }
+
   return result;
 }
 
@@ -1255,6 +1344,8 @@ void Extensions::generateExtensionSignals(Extension* extension)
 #ifdef ENABLE_SCRIPTING
   if (extension->hasScripts())
     ScriptsChange(extension);
+  if (extension->hasCustomFormats())
+    CustomFormatsChange(extension);
 #endif
 }
 
