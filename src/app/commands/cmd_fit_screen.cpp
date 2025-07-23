@@ -25,7 +25,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-FitScreenCommand::FitScreenCommand() : Command(CommandId::FitScreen(), CmdUIOnlyFlag)
+FitScreenCommand::FitScreenCommand() : Command(CommandId::FitScreen())
 {
 }
 

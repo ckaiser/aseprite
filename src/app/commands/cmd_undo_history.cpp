@@ -497,13 +497,19 @@ public:
   UndoHistoryCommand();
 
 protected:
+  bool onEnabled(Context* context) override;
   void onExecute(Context* ctx) override;
 };
 
 static UndoHistoryWindow* g_window = NULL;
 
-UndoHistoryCommand::UndoHistoryCommand() : Command(CommandId::UndoHistory(), CmdUIOnlyFlag)
+UndoHistoryCommand::UndoHistoryCommand() : Command(CommandId::UndoHistory())
 {
+}
+
+bool UndoHistoryCommand::onEnabled(Context* context)
+{
+  return context->isUIAvailable();
 }
 
 void UndoHistoryCommand::onExecute(Context* ctx)

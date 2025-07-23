@@ -30,7 +30,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-LayerLockCommand::LayerLockCommand() : Command(CommandId::LayerLock(), CmdRecordableFlag)
+LayerLockCommand::LayerLockCommand() : Command(CommandId::LayerLock())
 {
 }
 

@@ -29,8 +29,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-LayerVisibilityCommand::LayerVisibilityCommand()
-  : Command(CommandId::LayerVisibility(), CmdRecordableFlag)
+LayerVisibilityCommand::LayerVisibilityCommand() : Command(CommandId::LayerVisibility())
 {
 }
 

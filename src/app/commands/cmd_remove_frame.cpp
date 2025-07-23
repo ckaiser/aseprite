@@ -29,7 +29,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-RemoveFrameCommand::RemoveFrameCommand() : Command(CommandId::RemoveFrame(), CmdRecordableFlag)
+RemoveFrameCommand::RemoveFrameCommand() : Command(CommandId::RemoveFrame())
 {
 }
 

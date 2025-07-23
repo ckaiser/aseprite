@@ -282,8 +282,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-CanvasSizeCommand::CanvasSizeCommand()
-  : CommandWithNewParams(CommandId::CanvasSize(), CmdRecordableFlag)
+CanvasSizeCommand::CanvasSizeCommand() : CommandWithNewParams(CommandId::CanvasSize())
 {
 }
 

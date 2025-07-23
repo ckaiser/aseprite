@@ -28,7 +28,7 @@ using namespace ui;
 
 class CloseFileCommand : public Command {
 public:
-  CloseFileCommand() : Command(CommandId::CloseFile(), CmdUIOnlyFlag) {}
+  CloseFileCommand() : Command(CommandId::CloseFile()) {}
 
 protected:
   bool onEnabled(Context* context) override
@@ -51,12 +51,15 @@ protected:
 
 class CloseAllFilesCommand : public Command {
 public:
-  CloseAllFilesCommand() : Command(CommandId::CloseAllFiles(), CmdRecordableFlag)
-  {
-    m_quitting = false;
-  }
+  CloseAllFilesCommand() : Command(CommandId::CloseAllFiles()) { m_quitting = false; }
 
 protected:
+  bool onEnabled(Context* context) override
+  {
+    // Null if we are in --batch mode
+    return App::instance()->workspace() != nullptr;
+  }
+
   void onLoadParams(const Params& params) override { m_quitting = params.get_as<bool>("quitting"); }
 
   void onExecute(Context* context) override

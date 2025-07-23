@@ -43,14 +43,14 @@ protected:
   void onExecute(Context* ctx) override;
 };
 
-PasteTextCommand::PasteTextCommand() : Command(CommandId::PasteText(), CmdUIOnlyFlag)
+PasteTextCommand::PasteTextCommand() : Command(CommandId::PasteText())
 {
 }
 
 bool PasteTextCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                         ContextFlags::ActiveLayerIsEditable);
+  return ctx->isUIAvailable() && ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                                                 ContextFlags::ActiveLayerIsEditable);
 }
 
 class PasteTextWindow : public app::gen::PasteText {

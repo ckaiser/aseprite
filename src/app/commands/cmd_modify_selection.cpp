@@ -52,13 +52,15 @@ private:
   Modifier m_modifier;
   int m_quantity;
   doc::BrushType m_brushType;
+  bool m_ui;
 };
 
 ModifySelectionCommand::ModifySelectionCommand()
-  : Command(CommandId::ModifySelection(), CmdRecordableFlag)
+  : Command(CommandId::ModifySelection())
   , m_modifier(Modifier::Expand)
   , m_quantity(0)
   , m_brushType(doc::kCircleBrushType)
+  , m_ui(true)
 {
 }
 
@@ -80,6 +82,11 @@ void ModifySelectionCommand::onLoadParams(const Params& params)
     m_brushType = doc::kCircleBrushType;
   else if (brush == "square")
     m_brushType = doc::kSquareBrushType;
+
+  if (params.has_param("ui"))
+    m_ui = params.get_as<bool>("ui");
+  else
+    m_ui = true;
 }
 
 bool ModifySelectionCommand::onEnabled(Context* context)
@@ -92,7 +99,7 @@ void ModifySelectionCommand::onExecute(Context* context)
   int quantity = m_quantity;
   doc::BrushType brush = m_brushType;
 
-  if (quantity == 0) {
+  if (quantity == 0 && m_ui && context->isUIAvailable()) {
     Preferences& pref = Preferences::instance();
     ModifySelectionWindow window;
 

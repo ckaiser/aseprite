@@ -32,7 +32,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-UnlinkCelCommand::UnlinkCelCommand() : Command(CommandId::UnlinkCel(), CmdRecordableFlag)
+UnlinkCelCommand::UnlinkCelCommand() : Command(CommandId::UnlinkCel())
 {
 }
 

@@ -39,7 +39,7 @@ protected:
 };
 
 NewSpriteFromSelectionCommand::NewSpriteFromSelectionCommand()
-  : Command(CommandId::NewSpriteFromSelection(), CmdUIOnlyFlag)
+  : Command(CommandId::NewSpriteFromSelection())
 {
 }
 

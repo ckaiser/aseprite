@@ -28,7 +28,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-DeselectMaskCommand::DeselectMaskCommand() : Command(CommandId::DeselectMask(), CmdRecordableFlag)
+DeselectMaskCommand::DeselectMaskCommand() : Command(CommandId::DeselectMask())
 {
 }
 

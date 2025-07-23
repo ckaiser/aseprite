@@ -27,8 +27,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-ReopenClosedFileCommand::ReopenClosedFileCommand()
-  : Command(CommandId::ReopenClosedFile(), CmdUIOnlyFlag)
+ReopenClosedFileCommand::ReopenClosedFileCommand() : Command(CommandId::ReopenClosedFile())
 {
 }
 

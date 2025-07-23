@@ -203,8 +203,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-MaskByColorCommand::MaskByColorCommand()
-  : CommandWithNewParams(CommandId::MaskByColor(), CmdUIOnlyFlag)
+MaskByColorCommand::MaskByColorCommand() : CommandWithNewParams(CommandId::MaskByColor())
 {
 }
 

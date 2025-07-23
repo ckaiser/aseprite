@@ -35,8 +35,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-MergeDownLayerCommand::MergeDownLayerCommand()
-  : Command(CommandId::MergeDownLayer(), CmdRecordableFlag)
+MergeDownLayerCommand::MergeDownLayerCommand() : Command(CommandId::MergeDownLayer())
 {
 }
 

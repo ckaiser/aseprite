@@ -37,7 +37,7 @@ private:
   gfx::Rect m_bounds;
 };
 
-CropSpriteCommand::CropSpriteCommand() : Command(CommandId::CropSprite(), CmdRecordableFlag)
+CropSpriteCommand::CropSpriteCommand() : Command(CommandId::CropSprite())
 {
 }
 
@@ -95,8 +95,7 @@ private:
   bool m_byGrid = false;
 };
 
-AutocropSpriteCommand::AutocropSpriteCommand()
-  : Command(CommandId::AutocropSprite(), CmdRecordableFlag)
+AutocropSpriteCommand::AutocropSpriteCommand() : Command(CommandId::AutocropSprite())
 {
 }
 

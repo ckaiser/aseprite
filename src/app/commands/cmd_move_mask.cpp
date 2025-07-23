@@ -30,7 +30,7 @@
 
 namespace app {
 
-MoveMaskCommand::MoveMaskCommand() : Command(CommandId::MoveMask(), CmdRecordableFlag)
+MoveMaskCommand::MoveMaskCommand() : Command(CommandId::MoveMask())
 {
 }
 

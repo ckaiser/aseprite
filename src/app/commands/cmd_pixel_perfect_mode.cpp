@@ -28,8 +28,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-PixelPerfectModeCommand::PixelPerfectModeCommand()
-  : Command(CommandId::PixelPerfectMode(), CmdUIOnlyFlag)
+PixelPerfectModeCommand::PixelPerfectModeCommand() : Command(CommandId::PixelPerfectMode())
 {
 }
 

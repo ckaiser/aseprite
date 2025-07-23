@@ -38,7 +38,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-MaskContentCommand::MaskContentCommand() : Command(CommandId::MaskContent(), CmdRecordableFlag)
+MaskContentCommand::MaskContentCommand() : Command(CommandId::MaskContent())
 {
 }
 
@@ -87,9 +87,11 @@ void MaskContentCommand::onExecute(Context* context)
   }
 
   // Select marquee tool
-  if (tools::Tool* tool = App::instance()->toolBox()->getToolById(
-        tools::WellKnownTools::RectangularMarquee)) {
-    ToolBar::instance()->selectTool(tool);
+  if (context->isUIAvailable()) {
+    if (tools::Tool* tool = App::instance()->toolBox()->getToolById(
+          tools::WellKnownTools::RectangularMarquee)) {
+      ToolBar::instance()->selectTool(tool);
+    }
   }
 
   update_screen_for_document(document);

@@ -28,7 +28,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-ReselectMaskCommand::ReselectMaskCommand() : Command(CommandId::ReselectMask(), CmdRecordableFlag)
+ReselectMaskCommand::ReselectMaskCommand() : Command(CommandId::ReselectMask())
 {
 }
 

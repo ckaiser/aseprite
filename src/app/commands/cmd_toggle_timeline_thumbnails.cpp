@@ -22,9 +22,7 @@ using namespace gfx;
 
 class ToggleTimelineThumbnailsCommand : public Command {
 public:
-  ToggleTimelineThumbnailsCommand() : Command(CommandId::ToggleTimelineThumbnails(), CmdUIOnlyFlag)
-  {
-  }
+  ToggleTimelineThumbnailsCommand() : Command(CommandId::ToggleTimelineThumbnails()) {}
 
 protected:
   bool onChecked(Context* context) override

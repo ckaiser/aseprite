@@ -64,7 +64,7 @@ private:
   int m_slot;
 };
 
-ChangeBrushCommand::ChangeBrushCommand() : Command(CommandId::ChangeBrush(), CmdUIOnlyFlag)
+ChangeBrushCommand::ChangeBrushCommand() : Command(CommandId::ChangeBrush())
 {
   m_change = None;
   m_slot = 0;

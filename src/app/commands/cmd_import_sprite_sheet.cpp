@@ -518,7 +518,7 @@ protected:
 };
 
 ImportSpriteSheetCommand::ImportSpriteSheetCommand()
-  : CommandWithNewParams(CommandId::ImportSpriteSheet(), CmdRecordableFlag)
+  : CommandWithNewParams(CommandId::ImportSpriteSheet())
 {
 }
 

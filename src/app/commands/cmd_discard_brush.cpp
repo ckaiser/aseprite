@@ -28,12 +28,15 @@ protected:
   void onExecute(Context* context) override;
 };
 
-DiscardBrushCommand::DiscardBrushCommand() : Command(CommandId::DiscardBrush(), CmdUIOnlyFlag)
+DiscardBrushCommand::DiscardBrushCommand() : Command(CommandId::DiscardBrush())
 {
 }
 
 bool DiscardBrushCommand::onEnabled(Context* context)
 {
+  if (!context->isUIAvailable())
+    return false;
+
   ContextBar* ctxBar = App::instance()->contextBar();
   return (ctxBar->activeBrush()->type() == kImageBrushType);
 }

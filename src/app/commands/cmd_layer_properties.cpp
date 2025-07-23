@@ -500,14 +500,14 @@ private:
   bool m_remapAfterConfigure = false;
 };
 
-LayerPropertiesCommand::LayerPropertiesCommand()
-  : Command(CommandId::LayerProperties(), CmdRecordableFlag)
+LayerPropertiesCommand::LayerPropertiesCommand() : Command(CommandId::LayerProperties())
 {
 }
 
 bool LayerPropertiesCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer);
+  return context->isUIAvailable() &&
+         context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer);
 }
 
 void LayerPropertiesCommand::onExecute(Context* context)

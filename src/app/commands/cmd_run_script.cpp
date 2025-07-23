@@ -46,7 +46,7 @@ private:
   Params m_params;
 };
 
-RunScriptCommand::RunScriptCommand() : Command(CommandId::RunScript(), CmdRecordableFlag)
+RunScriptCommand::RunScriptCommand() : Command(CommandId::RunScript())
 {
 }
 

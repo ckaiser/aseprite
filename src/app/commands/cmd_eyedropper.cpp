@@ -28,7 +28,7 @@ namespace app {
 
 using namespace ui;
 
-EyedropperCommand::EyedropperCommand() : Command(CommandId::Eyedropper(), CmdUIOnlyFlag)
+EyedropperCommand::EyedropperCommand() : Command(CommandId::Eyedropper())
 {
   m_background = false;
 }

@@ -42,7 +42,7 @@
 
 namespace app {
 
-FlipCommand::FlipCommand() : Command(CommandId::Flip(), CmdRecordableFlag)
+FlipCommand::FlipCommand() : Command(CommandId::Flip())
 {
   m_flipMask = false;
   m_flipType = doc::algorithm::FlipHorizontal;

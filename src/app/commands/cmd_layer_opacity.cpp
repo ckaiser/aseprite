@@ -40,7 +40,7 @@ private:
   int m_opacity;
 };
 
-LayerOpacityCommand::LayerOpacityCommand() : Command(CommandId::LayerOpacity(), CmdUIOnlyFlag)
+LayerOpacityCommand::LayerOpacityCommand() : Command(CommandId::LayerOpacity())
 {
   m_opacity = 255;
 }

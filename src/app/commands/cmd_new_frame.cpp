@@ -57,7 +57,7 @@ private:
   Content m_content;
 };
 
-NewFrameCommand::NewFrameCommand() : Command(CommandId::NewFrame(), CmdRecordableFlag)
+NewFrameCommand::NewFrameCommand() : Command(CommandId::NewFrame())
 {
 }
 

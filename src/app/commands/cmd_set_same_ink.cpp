@@ -27,7 +27,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-SetSameInkCommand::SetSameInkCommand() : Command(CommandId::SetSameInk(), CmdUIOnlyFlag)
+SetSameInkCommand::SetSameInkCommand() : Command(CommandId::SetSameInk())
 {
 }
 

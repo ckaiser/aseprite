@@ -1187,8 +1187,7 @@ private:
 
 } // anonymous namespace
 
-ExportSpriteSheetCommand::ExportSpriteSheetCommand(const char* id)
-  : CommandWithNewParams(id, CmdRecordableFlag)
+ExportSpriteSheetCommand::ExportSpriteSheetCommand(const char* id) : CommandWithNewParams(id)
 {
 }
 

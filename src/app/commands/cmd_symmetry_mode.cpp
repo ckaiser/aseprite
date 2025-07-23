@@ -37,7 +37,7 @@ private:
   app::gen::SymmetryMode m_mode = app::gen::SymmetryMode::NONE;
 };
 
-SymmetryModeCommand::SymmetryModeCommand() : Command(CommandId::SymmetryMode(), CmdUIOnlyFlag)
+SymmetryModeCommand::SymmetryModeCommand() : Command(CommandId::SymmetryMode())
 {
 }
 
@@ -120,7 +120,8 @@ void SymmetryModeCommand::onExecute(Context* ctx)
     // TODO Same with context bar, in the future the context bar could
     //      be listening the DocPref changes to be automatically
     //      invalidated (like it already does with symmetryMode.enabled)
-    App::instance()->contextBar()->updateForActiveTool();
+    if (App::instance()->contextBar())
+      App::instance()->contextBar()->updateForActiveTool();
   }
 }
 

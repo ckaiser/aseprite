@@ -308,8 +308,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-FullscreenPreviewCommand::FullscreenPreviewCommand()
-  : Command(CommandId::FullscreenPreview(), CmdUIOnlyFlag)
+FullscreenPreviewCommand::FullscreenPreviewCommand() : Command(CommandId::FullscreenPreview())
 {
 }
 

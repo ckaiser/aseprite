@@ -24,7 +24,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-EnterLicenseCommand::EnterLicenseCommand() : Command(CommandId::EnterLicense(), CmdUIOnlyFlag)
+EnterLicenseCommand::EnterLicenseCommand() : Command(CommandId::EnterLicense())
 {
 }
 

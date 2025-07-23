@@ -36,7 +36,7 @@ private:
   MoveThing m_moveThing;
 };
 
-ScrollCommand::ScrollCommand() : Command(CommandId::Scroll(), CmdUIOnlyFlag)
+ScrollCommand::ScrollCommand() : Command(CommandId::Scroll())
 {
 }
 
@@ -47,7 +47,7 @@ void ScrollCommand::onLoadParams(const Params& params)
 
 bool ScrollCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::HasActiveDocument);
+  return context->isUIAvailable() && context->checkFlags(ContextFlags::HasActiveDocument);
 }
 
 void ScrollCommand::onExecute(Context* context)

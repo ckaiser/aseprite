@@ -28,7 +28,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-DuplicateViewCommand::DuplicateViewCommand() : Command(CommandId::DuplicateView(), CmdUIOnlyFlag)
+DuplicateViewCommand::DuplicateViewCommand() : Command(CommandId::DuplicateView())
 {
 }
 

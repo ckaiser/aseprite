@@ -33,14 +33,14 @@ protected:
   void onExecute(Context* context) override;
 };
 
-NewFrameTagCommand::NewFrameTagCommand() : Command(CommandId::NewFrameTag(), CmdRecordableFlag)
+NewFrameTagCommand::NewFrameTagCommand() : Command(CommandId::NewFrameTag())
 {
 }
 
 bool NewFrameTagCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->isUIAvailable() && context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                                                         ContextFlags::HasActiveSprite);
 }
 
 void NewFrameTagCommand::onExecute(Context* context)

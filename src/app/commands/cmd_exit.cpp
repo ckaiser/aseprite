@@ -32,7 +32,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-ExitCommand::ExitCommand() : Command(CommandId::Exit(), CmdUIOnlyFlag)
+ExitCommand::ExitCommand() : Command(CommandId::Exit())
 {
 }
 

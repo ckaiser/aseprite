@@ -25,7 +25,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-ScrollCenterCommand::ScrollCenterCommand() : Command(CommandId::ScrollCenter(), CmdUIOnlyFlag)
+ScrollCenterCommand::ScrollCenterCommand() : Command(CommandId::ScrollCenter())
 {
 }
 

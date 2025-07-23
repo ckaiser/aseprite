@@ -51,7 +51,7 @@ private:
 };
 
 SelectPaletteColorsCommand::SelectPaletteColorsCommand()
-  : Command(CommandId::SelectPaletteColors(), CmdRecordableFlag)
+  : Command(CommandId::SelectPaletteColors())
   , m_modifier(Modifier::UsedColors)
 {
 }

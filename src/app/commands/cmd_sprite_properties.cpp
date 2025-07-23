@@ -235,15 +235,14 @@ protected:
   void onExecute(Context* context) override;
 };
 
-SpritePropertiesCommand::SpritePropertiesCommand()
-  : Command(CommandId::SpriteProperties(), CmdUIOnlyFlag)
+SpritePropertiesCommand::SpritePropertiesCommand() : Command(CommandId::SpriteProperties())
 {
 }
 
 bool SpritePropertiesCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return context->isUIAvailable() && context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                                                         ContextFlags::HasActiveSprite);
 }
 
 void SpritePropertiesCommand::onExecute(Context* context)

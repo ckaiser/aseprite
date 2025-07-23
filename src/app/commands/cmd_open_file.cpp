@@ -35,7 +35,7 @@
 namespace app {
 
 OpenFileCommand::OpenFileCommand()
-  : Command(CommandId::OpenFile(), CmdRecordableFlag)
+  : Command(CommandId::OpenFile())
   , m_ui(true)
   , m_repeatCheckbox(false)
   , m_oneFrame(false)

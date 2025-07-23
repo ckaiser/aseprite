@@ -42,7 +42,7 @@ private:
 };
 
 UndoCommand::UndoCommand(Type type)
-  : Command((type == Undo ? CommandId::Undo() : CommandId::Redo()), CmdUIOnlyFlag)
+  : Command((type == Undo ? CommandId::Undo() : CommandId::Redo()))
   , m_type(type)
 {
 }

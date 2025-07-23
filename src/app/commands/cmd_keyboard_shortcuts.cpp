@@ -977,6 +977,7 @@ public:
   KeyboardShortcutsCommand();
 
 protected:
+  bool onEnabled(Context* context) override;
   void onLoadParams(const Params& params) override;
   void onExecute(Context* context) override;
 
@@ -986,9 +987,13 @@ private:
   std::string m_search;
 };
 
-KeyboardShortcutsCommand::KeyboardShortcutsCommand()
-  : Command(CommandId::KeyboardShortcuts(), CmdUIOnlyFlag)
+KeyboardShortcutsCommand::KeyboardShortcutsCommand() : Command(CommandId::KeyboardShortcuts())
 {
+}
+
+bool KeyboardShortcutsCommand::onEnabled(Context* context)
+{
+  return context->isUIAvailable();
 }
 
 void KeyboardShortcutsCommand::onLoadParams(const Params& params)

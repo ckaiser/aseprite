@@ -32,8 +32,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-DuplicateLayerCommand::DuplicateLayerCommand()
-  : Command(CommandId::DuplicateLayer(), CmdRecordableFlag)
+DuplicateLayerCommand::DuplicateLayerCommand() : Command(CommandId::DuplicateLayer())
 {
 }
 

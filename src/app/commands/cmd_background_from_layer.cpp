@@ -28,8 +28,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-BackgroundFromLayerCommand::BackgroundFromLayerCommand()
-  : Command(CommandId::BackgroundFromLayer(), CmdRecordableFlag)
+BackgroundFromLayerCommand::BackgroundFromLayerCommand() : Command(CommandId::BackgroundFromLayer())
 {
 }
 

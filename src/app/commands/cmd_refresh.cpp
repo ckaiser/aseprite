@@ -39,7 +39,7 @@ private:
   void postCancelMenuLoop();
 };
 
-RefreshCommand::RefreshCommand() : Command(CommandId::Refresh(), CmdUIOnlyFlag)
+RefreshCommand::RefreshCommand() : Command(CommandId::Refresh())
 {
 }
 

@@ -166,7 +166,7 @@ protected:
   }
 };
 
-RotateCommand::RotateCommand() : Command(CommandId::Rotate(), CmdRecordableFlag)
+RotateCommand::RotateCommand() : Command(CommandId::Rotate())
 {
   m_ui = true;
   m_flipMask = false;
@@ -190,6 +190,10 @@ void RotateCommand::onLoadParams(const Params& params)
 
 bool RotateCommand::onEnabled(Context* context)
 {
+  // Because we use the toolbox & editor to transform the selection, this won't work without a UI
+  if (m_flipMask && !context->isUIAvailable())
+    return false;
+
   return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
                              ContextFlags::HasActiveSprite);
 }

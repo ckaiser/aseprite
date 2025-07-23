@@ -26,7 +26,7 @@ protected:
 };
 
 SwapCheckerboardColorsCommand::SwapCheckerboardColorsCommand()
-  : Command(CommandId::SwapCheckerboardColors(), CmdUIOnlyFlag)
+  : Command(CommandId::SwapCheckerboardColors())
 {
 }
 

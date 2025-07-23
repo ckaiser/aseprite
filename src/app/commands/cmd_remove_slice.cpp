@@ -41,7 +41,7 @@ private:
   ObjectId m_sliceId;
 };
 
-RemoveSliceCommand::RemoveSliceCommand() : Command(CommandId::RemoveSlice(), CmdRecordableFlag)
+RemoveSliceCommand::RemoveSliceCommand() : Command(CommandId::RemoveSlice())
 {
 }
 
@@ -117,13 +117,15 @@ void RemoveSliceCommand::onExecute(Context* context)
     document->notifyGeneralUpdate();
   }
 
-  StatusBar::instance()->invalidate();
-  if (!sliceName.empty()) {
-    StatusBar::instance()->showTip(1000, Strings::remove_slice_x_removed(sliceName));
-  }
-  else {
-    StatusBar::instance()->showTip(1000,
-                                   Strings::remove_slice_n_slices_removed(slicesToDelete.size()));
+  if (context->isUIAvailable()) {
+    StatusBar::instance()->invalidate();
+    if (!sliceName.empty()) {
+      StatusBar::instance()->showTip(1000, Strings::remove_slice_x_removed(sliceName));
+    }
+    else {
+      StatusBar::instance()->showTip(1000,
+                                     Strings::remove_slice_n_slices_removed(slicesToDelete.size()));
+    }
   }
 }
 

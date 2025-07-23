@@ -2177,7 +2177,7 @@ private:
   std::string m_installExtensionFilename;
 };
 
-OptionsCommand::OptionsCommand() : Command(CommandId::Options(), CmdUIOnlyFlag)
+OptionsCommand::OptionsCommand() : Command(CommandId::Options())
 {
   Preferences& preferences = Preferences::instance();
 

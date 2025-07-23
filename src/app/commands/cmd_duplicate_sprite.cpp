@@ -43,7 +43,7 @@ protected:
 };
 
 DuplicateSpriteCommand::DuplicateSpriteCommand()
-  : CommandWithNewParams<DuplicateSpriteParams>(CommandId::DuplicateSprite(), CmdRecordableFlag)
+  : CommandWithNewParams<DuplicateSpriteParams>(CommandId::DuplicateSprite())
 {
 }
 

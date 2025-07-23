@@ -17,6 +17,7 @@
 #include "ui/ui.h"
 
 #include "advanced_mode.xml.h"
+#include "app/context.h"
 
 #include <cstdio>
 
@@ -29,11 +30,17 @@ public:
   AdvancedModeCommand();
 
 protected:
+  bool onEnabled(Context* context) override;
   void onExecute(Context* context) override;
 };
 
-AdvancedModeCommand::AdvancedModeCommand() : Command(CommandId::AdvancedMode(), CmdUIOnlyFlag)
+AdvancedModeCommand::AdvancedModeCommand() : Command(CommandId::AdvancedMode())
 {
+}
+
+bool AdvancedModeCommand::onEnabled(Context* context)
+{
+  return context->isUIAvailable();
 }
 
 void AdvancedModeCommand::onExecute(Context* context)

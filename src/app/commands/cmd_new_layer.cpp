@@ -99,7 +99,7 @@ private:
   Place m_place;
 };
 
-NewLayerCommand::NewLayerCommand() : CommandWithNewParams(CommandId::NewLayer(), CmdRecordableFlag)
+NewLayerCommand::NewLayerCommand() : CommandWithNewParams(CommandId::NewLayer())
 {
 }
 

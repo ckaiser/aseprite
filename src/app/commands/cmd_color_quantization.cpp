@@ -71,7 +71,7 @@ protected:
 };
 
 ColorQuantizationCommand::ColorQuantizationCommand()
-  : CommandWithNewParams<ColorQuantizationParams>(CommandId::ColorQuantization(), CmdRecordableFlag)
+  : CommandWithNewParams<ColorQuantizationParams>(CommandId::ColorQuantization())
 {
 }
 

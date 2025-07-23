@@ -27,7 +27,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-SwitchColorsCommand::SwitchColorsCommand() : Command(CommandId::SwitchColors(), CmdUIOnlyFlag)
+SwitchColorsCommand::SwitchColorsCommand() : Command(CommandId::SwitchColors())
 {
 }
 

@@ -20,7 +20,7 @@ using namespace gfx;
 
 class ShowOnionSkinCommand : public Command {
 public:
-  ShowOnionSkinCommand() : Command(CommandId::ShowOnionSkin(), CmdUIOnlyFlag) {}
+  ShowOnionSkinCommand() : Command(CommandId::ShowOnionSkin()) {}
 
 protected:
   bool onChecked(Context* context) override

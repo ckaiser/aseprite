@@ -507,7 +507,7 @@ private:
 };
 
 ChangePixelFormatCommand::ChangePixelFormatCommand()
-  : CommandWithNewParams(CommandId::ChangePixelFormat(), CmdUIOnlyFlag)
+  : CommandWithNewParams(CommandId::ChangePixelFormat())
 {
 }
 
