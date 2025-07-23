@@ -40,7 +40,8 @@ PlayAnimationCommand::PlayAnimationCommand() : Command(CommandId::PlayAnimation(
 
 bool PlayAnimationCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsReadable | ContextFlags::HasActiveSprite);
+  return ctx->isUIAvailable() &&
+         ctx->checkFlags(ContextFlags::ActiveDocumentIsReadable | ContextFlags::HasActiveSprite);
 }
 
 bool PlayAnimationCommand::onChecked(Context* ctx)
@@ -91,7 +92,8 @@ PlayPreviewAnimationCommand::PlayPreviewAnimationCommand()
 
 bool PlayPreviewAnimationCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
+  return ctx->isUIAvailable() &&
+         ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 bool PlayPreviewAnimationCommand::onChecked(Context* ctx)

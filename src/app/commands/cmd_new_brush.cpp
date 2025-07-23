@@ -58,7 +58,7 @@ NewBrushCommand::NewBrushCommand() : Command(CommandId::NewBrush(), CmdUIOnlyFla
 
 bool NewBrushCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable);
+  return context->isUIAvailable() && context->checkFlags(ContextFlags::ActiveDocumentIsWritable);
 }
 
 void NewBrushCommand::onExecute(Context* context)

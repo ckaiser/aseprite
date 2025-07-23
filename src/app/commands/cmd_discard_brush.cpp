@@ -32,6 +32,8 @@ DiscardBrushCommand::DiscardBrushCommand() : Command(CommandId::DiscardBrush(), 
 {
 }
 
+// TODO: Mark as not working without UI & test This will not work without UI
+
 bool DiscardBrushCommand::onEnabled(Context* context)
 {
   ContextBar* ctxBar = App::instance()->contextBar();

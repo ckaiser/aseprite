@@ -45,7 +45,7 @@ void LaunchCommand::onLoadParams(const Params& params)
 {
   m_path = params.get("path");
 
-  if (m_type == Url && !m_path.empty() && m_path[0] == '/') {
+  if (m_type == Url && !m_path.empty() && m_path[0] == '/' && !base::is_absolute_path(m_path)) {
     m_path = std::string(get_app_url()) + m_path.substr(1);
   }
 }

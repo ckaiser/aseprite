@@ -50,6 +50,11 @@ void RepeatLastExportCommand::onExecute(Context* context)
     params.set("ui", (docPref.spriteSheet.defined() ? "0" : "1"));
   }
 
+  // Avoid a crash if we want to open the UI but it's not available
+  // TODO: How to better communicate this to the script?
+  if (context->isUIAvailable() && params.get_as<bool>("ui"))
+    return;
+
   context->executeCommand(cmd, params);
 }
 

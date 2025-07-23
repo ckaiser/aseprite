@@ -39,8 +39,8 @@ NewFrameTagCommand::NewFrameTagCommand() : Command(CommandId::NewFrameTag(), Cmd
 
 bool NewFrameTagCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                             ContextFlags::HasActiveSprite);
+  return /*context->isUIAvailable() && */ context->checkFlags(
+    ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveSprite);
 }
 
 void NewFrameTagCommand::onExecute(Context* context)

@@ -20,8 +20,6 @@
 #include "app/tx.h"
 #include "app/ui/timeline/timeline.h"
 #include "doc/cel.h"
-#include "doc/cels_range.h"
-#include "doc/sprite.h"
 
 #include <string>
 

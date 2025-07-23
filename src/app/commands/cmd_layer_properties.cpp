@@ -507,7 +507,8 @@ LayerPropertiesCommand::LayerPropertiesCommand()
 
 bool LayerPropertiesCommand::onEnabled(Context* context)
 {
-  return context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer);
+  return context->isUIAvailable() &&
+         context->checkFlags(ContextFlags::ActiveDocumentIsWritable | ContextFlags::HasActiveLayer);
 }
 
 void LayerPropertiesCommand::onExecute(Context* context)

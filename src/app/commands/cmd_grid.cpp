@@ -98,7 +98,7 @@ GridSettingsCommand::GridSettingsCommand() : Command(CommandId::GridSettings(), 
 
 bool GridSettingsCommand::onEnabled(Context* context)
 {
-  return true;
+  return context->isUIAvailable();
 }
 
 void GridSettingsCommand::onExecute(Context* context)

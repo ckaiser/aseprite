@@ -22,6 +22,7 @@ public:
   OpenBrowserCommand();
 
 protected:
+  bool onEnabled(Context* context) override;
   void onLoadParams(const Params& params) override;
   void onExecute(Context* context) override;
   std::string onGetFriendlyName() const override;
@@ -33,6 +34,11 @@ private:
 
 OpenBrowserCommand::OpenBrowserCommand() : Command(CommandId::OpenBrowser(), CmdUIOnlyFlag)
 {
+}
+
+bool OpenBrowserCommand::onEnabled(Context* context)
+{
+  return context->isUIAvailable();
 }
 
 void OpenBrowserCommand::onLoadParams(const Params& params)

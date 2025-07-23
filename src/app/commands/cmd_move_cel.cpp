@@ -31,7 +31,7 @@ MoveCelCommand::MoveCelCommand() : Command(CommandId::MoveCel(), CmdUIOnlyFlag)
 
 bool MoveCelCommand::onEnabled(Context* context)
 {
-  return App::instance()->timeline()->isMovingCel();
+  return context->isUIAvailable() && App::instance()->timeline()->isMovingCel();
 }
 
 void MoveCelCommand::onExecute(Context* context)

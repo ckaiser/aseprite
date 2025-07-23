@@ -22,7 +22,6 @@
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
 #include "doc/image.h"
-#include "doc/mask.h"
 #include "doc/sprite.h"
 #include "ui/ui.h"
 
@@ -94,7 +93,7 @@ public:
   bool getTrimOutside() { return trim()->isSelected(); }
 
 protected:
-  // SelectBoxDelegate impleentation
+  // SelectBoxDelegate implementation
   void onChangeRectangle(const gfx::Rect& rect) override
   {
     m_rect = rect;

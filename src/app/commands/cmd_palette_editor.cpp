@@ -11,6 +11,7 @@
 
 #include "app/commands/command.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/i18n/strings.h"
 #include "app/ui/color_bar.h"
 #include "base/replace_string.h"
@@ -23,6 +24,7 @@ public:
   PaletteEditorCommand();
 
 protected:
+  bool onEnabled(Context* context) override;
   void onLoadParams(const Params& params) override;
   bool onChecked(Context* context) override;
   void onExecute(Context* context) override;
@@ -40,6 +42,11 @@ PaletteEditorCommand::PaletteEditorCommand()
   m_edit = true;
   m_popup = false;
   m_background = false;
+}
+
+bool PaletteEditorCommand::onEnabled(Context* context)
+{
+  return context->isUIAvailable();
 }
 
 void PaletteEditorCommand::onLoadParams(const Params& params)

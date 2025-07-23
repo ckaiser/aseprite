@@ -48,8 +48,8 @@ PasteTextCommand::PasteTextCommand() : Command(CommandId::PasteText(), CmdUIOnly
 
 bool PasteTextCommand::onEnabled(Context* ctx)
 {
-  return ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
-                         ContextFlags::ActiveLayerIsEditable);
+  return ctx->isUIAvailable() && ctx->checkFlags(ContextFlags::ActiveDocumentIsWritable |
+                                                 ContextFlags::ActiveLayerIsEditable);
 }
 
 class PasteTextWindow : public app::gen::PasteText {

@@ -23,7 +23,6 @@
 #include "app/ui/timeline/timeline.h"
 #include "app/ui/user_data_view.h"
 #include "app/ui_context.h"
-#include "base/mem_utils.h"
 #include "base/scoped_value.h"
 #include "doc/cel.h"
 #include "doc/cels_range.h"

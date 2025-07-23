@@ -76,7 +76,7 @@ void ClearCelCommand::onExecute(Context* context)
     tx.commit();
   }
 
-  if (nonEditableLayers)
+  if (context->isUIAvailable() && nonEditableLayers)
     StatusBar::instance()->showTip(1000, Strings::statusbar_tips_locked_layers());
 
   update_screen_for_document(document);
