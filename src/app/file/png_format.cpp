@@ -60,6 +60,7 @@ FileFormat* CreatePngFormat()
 
 static void report_png_error(png_structp png, png_const_charp error)
 {
+  // TODO:i18n
   ((FileOp*)png_get_error_ptr(png))->setError("libpng: %s\n", error);
 }
 
@@ -161,6 +162,7 @@ bool PngFormat::onLoad(FileOp* fop)
                                            report_png_error,
                                            report_png_error);
   if (png == nullptr) {
+    // TODO:i18n
     fop->setError("png_create_read_struct\n");
     return false;
   }
@@ -178,6 +180,7 @@ bool PngFormat::onLoad(FileOp* fop)
   png_infop info = png_create_info_struct(png);
   DestroyReadPng destroyer(png, info);
   if (info == nullptr) {
+    // TODO:i18n
     fop->setError("png_create_info_struct\n");
     return false;
   }
@@ -186,6 +189,7 @@ bool PngFormat::onLoad(FileOp* fop)
    * the normal method of doing things with libpng).
    */
   if (setjmp(png_jmpbuf(png))) {
+    // TODO:i18n
     fop->setError("Error reading PNG file\n");
     return false;
   }
@@ -243,6 +247,7 @@ bool PngFormat::onLoad(FileOp* fop)
     case PNG_COLOR_TYPE_PALETTE:    pixelFormat = IMAGE_INDEXED; break;
 
     default:                        fop->setError("Color type not supported\n)"); return false;
+    // TODO:i18n
   }
 
   int imageWidth = png_get_image_width(png, info);

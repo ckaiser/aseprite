@@ -293,6 +293,7 @@ int CliProcessor::process(Context* ctx)
           std::vector<std::string> splitRange;
           base::split_string(value.value(), splitRange, ",");
           if (splitRange.size() < 2)
+            // TODO:i18n
             throw std::runtime_error("--frame-range needs two parameters separated by comma (,)\n"
                                      "Usage: --frame-range from,to\n"
                                      "E.g. --frame-range 0,99");
@@ -356,6 +357,7 @@ int CliProcessor::process(Context* ctx)
           std::vector<std::string> parts;
           base::split_string(value.value(), parts, ",");
           if (parts.size() < 4)
+            // TODO:i18n
             throw std::runtime_error("--crop needs four parameters separated by comma (,)\n"
                                      "Usage: --crop x,y,width,height\n"
                                      "E.g. --crop 0,0,32,32");
@@ -420,6 +422,7 @@ int CliProcessor::process(Context* ctx)
             }
           }
           else
+            // TODO:i18n
             console.printf("A document is needed before --save-as argument\n");
         }
         // --palette <filename>
@@ -431,6 +434,7 @@ int CliProcessor::process(Context* ctx)
             m_delegate->loadPalette(ctx, filename);
           }
           else {
+            // TODO:i18n
             console.printf("You need to load a document to change its palette with --palette\n");
           }
         }
@@ -456,6 +460,7 @@ int CliProcessor::process(Context* ctx)
           else if (value.value() == "error-diffusion")
             ditheringAlgorithm = render::DitheringAlgorithm::ErrorDiffusion;
           else
+            // TODO:i18n
             throw std::runtime_error(
               "--dithering-algorithm needs a valid algorithm name\n"
               "Usage: --dithering-algorithm <algorithm>\n"
@@ -492,6 +497,7 @@ int CliProcessor::process(Context* ctx)
             }
           }
           else {
+            // TODO:i18n
             throw std::runtime_error("--color-mode needs a valid color mode for conversion\n"
                                      "Usage: --color-mode <mode>\n"
                                      "Where <mode> can be rgb, grayscale, or indexed");
@@ -507,6 +513,7 @@ int CliProcessor::process(Context* ctx)
           std::vector<std::string> dimensions;
           base::split_string(value.value(), dimensions, ",");
           if (dimensions.size() < 2)
+            // TODO:i18n
             throw std::runtime_error("--shrink-to needs two parameters separated by comma (,)\n"
                                      "Usage: --shrink-to width,height\n"
                                      "E.g. --shrink-to 128,64");

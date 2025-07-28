@@ -92,11 +92,13 @@ bool IcoFormat::onLoad(FileOp* fop)
   header.entries = fgetw(f);  // Number of icons
 
   if (header.type != 1) {
+    // TODO:i18n
     fop->setError("Invalid ICO file type.\n");
     return false;
   }
 
   if (header.entries < 1) {
+    // TODO:i18n
     fop->setError("This ICO files does not contain images.\n");
     return false;
   }

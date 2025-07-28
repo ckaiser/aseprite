@@ -218,6 +218,7 @@ bool SvgFormat::onSave(FileOp* fop)
   }
   fprintf(f, "</svg>");
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }

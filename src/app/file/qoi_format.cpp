@@ -107,6 +107,7 @@ bool QoiFormat::onLoad(FileOp* fop)
   }
 
   if (ferror(handle.get())) {
+    // TODO:i18n
     fop->setError("Error reading file.\n");
     return false;
   }
@@ -177,6 +178,7 @@ bool QoiFormat::onSave(FileOp* fop)
   QOI_FREE(encoded);
 
   if (ferror(handle.get())) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }

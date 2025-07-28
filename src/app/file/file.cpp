@@ -359,6 +359,7 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context,
 
   // Does file exist?
   if (!base::is_file(filename)) {
+    // TODO:i18n
     fop->setError("File not found: \"%s\"\n", filename.c_str());
     goto done;
   }
@@ -366,6 +367,7 @@ FileOp* FileOp::createLoadDocumentOperation(Context* context,
   // Get the format through the extension of the filename
   fop->m_format = FileFormatsManager::instance()->getFileFormat(dio::detect_format(filename));
   if (!fop->m_format || !fop->m_format->support(FILE_SUPPORT_LOAD)) {
+    // TODO:i18n
     fop->setError("%s can't load \"%s\" file (\"%s\")\n",
                   get_app_name(),
                   filename.c_str(),
@@ -527,6 +529,7 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context,
 
   // Check for read-only attribute
   if (base::has_readonly_attr(filename)) {
+    // TODO:i18n
     fop->setError("Error saving \"%s\" file, it's read-only", filename.c_str());
     return fop.release();
   }
@@ -535,6 +538,7 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context,
   fop->m_format = FileFormatsManager::instance()->getFileFormat(
     dio::detect_format_by_file_extension(filename));
   if (!fop->m_format || !fop->m_format->support(FILE_SUPPORT_SAVE)) {
+    // TODO:i18n
     fop->setError("%s can't save \"%s\" file (\"%s\")\n",
                   get_app_name(),
                   filename.c_str(),
@@ -612,6 +616,7 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context,
   if (!format->support(FILE_SUPPORT_BIG_PALETTES)) {
     for (const Palette* pal : sprite->getPalettes()) {
       if (pal->size() > 256) {
+        // TODO:i18n
         warnings += "<<- Palettes with more than 256 colors";
         break;
       }
@@ -626,6 +631,7 @@ FileOp* FileOp::createSaveDocumentOperation(const Context* context,
       for (const Palette* pal : sprite->getPalettes()) {
         for (int c = 0; c < pal->size(); ++c) {
           if (rgba_geta(pal->getEntry(c)) < 255) {
+            // TODO:i18n
             warnings += "<<- Palette with alpha channel";
             done = true;
             break;
@@ -826,6 +832,7 @@ void FileOp::operate(IFileOpProgress* progress)
         // Call the "load" procedure to read the first bitmap.
         bool loadres = m_format->load(this);
         if (!loadres) {
+          // TODO:i18n
           setError("Error loading frame %d from file \"%s\"\n", frame + 1, m_filename.c_str());
         }
 
@@ -901,6 +908,7 @@ void FileOp::operate(IFileOpProgress* progress)
     else {
       // Call the "load" procedure.
       if (!m_format->load(this)) {
+        // TODO:i18n
         setError("Error loading sprite from file \"%s\"\n", m_filename.c_str());
       }
     }
@@ -917,6 +925,7 @@ void FileOp::operate(IFileOpProgress* progress)
         load_aseprite_data_file(m_dataFilename, m_document, m_config.defaultSliceColor);
       }
       catch (const std::exception& ex) {
+        // TODO:i18n
         setError("Error loading data file: %s\n", ex.what());
       }
     }
@@ -928,6 +937,7 @@ void FileOp::operate(IFileOpProgress* progress)
   #if defined(ENABLE_TRIAL_MODE)
     DRM_INVALID
     {
+      // TODO:i18n
       setError(fmt::format(
                  "Save operation is not supported in trial version, activate this Aseprite first.\n"
                  "Go to {} and get a license key to upgrade.",
@@ -989,6 +999,7 @@ void FileOp::operate(IFileOpProgress* progress)
 
           // Call the "save" procedure... did it fail?
           if (!m_format->save(this)) {
+            // TODO:i18n
             setError("Error saving frame %d in the file \"%s\"\n",
                      outputFrame + 1,
                      m_filename.c_str());
@@ -1015,6 +1026,7 @@ void FileOp::operate(IFileOpProgress* progress)
 
       // Call the "save" procedure.
       if (!m_format->save(this)) {
+        // TODO:i18n
         setError("Error saving the sprite in the file \"%s\"\n", m_filename.c_str());
       }
     }
@@ -1025,10 +1037,12 @@ void FileOp::operate(IFileOpProgress* progress)
         save_aseprite_data_file(m_dataFilename, m_document);
       }
       catch (const std::exception& ex) {
+        // TODO:i18n
         setError("Error loading data file: %s\n", ex.what());
       }
     }
 #else
+    // TODO:i18n
     setError(fmt::format("Save operation is not supported in trial version.\n"
                          "Go to {} and get the full-version.",
                          get_app_download_url())
@@ -1305,12 +1319,14 @@ ImageRef FileOp::sequenceImageToLoad(const PixelFormat pixelFormat, const int w,
     sprite = m_document->sprite();
 
     if (sprite->pixelFormat() != pixelFormat) {
+      // TODO:i18n
       setError("Error: image does not match color mode\n");
       return nullptr;
     }
   }
 
   if (m_seq.last_cel) {
+    // TODO:i18n
     setError("Error: called two times FileOp::sequenceImageToLoad()\n");
     return nullptr;
   }
@@ -1486,6 +1502,7 @@ void FileOp::makeDirectories()
   }
   catch (const std::exception& ex) {
     // Ignore errors and make the delegate fail
+    // TODO:i18n
     setError("Error creating directory \"%s\"\n%s", dir.c_str(), ex.what());
   }
 }

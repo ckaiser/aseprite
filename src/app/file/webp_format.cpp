@@ -91,12 +91,14 @@ bool WebPFormat::onLoad(FileOp* fop)
   }
 
   if (len < 4) {
+    // TODO:i18n
     fop->setError("The specified file is not a WebP file\n");
     return false;
   }
 
   std::vector<uint8_t> buf(len);
   if (fread(&buf[0], 1, buf.size(), fp) != buf.size()) {
+    // TODO:i18n
     fop->setError("Error moving the whole WebP file to memory\n");
     return false;
   }
@@ -112,12 +114,14 @@ bool WebPFormat::onLoad(FileOp* fop)
 
   WebPAnimDecoder* dec = WebPAnimDecoderNew(&webp_data, &dec_options);
   if (dec == nullptr) {
+    // TODO:i18n
     fop->setError("Error parsing WebP image\n");
     return false;
   }
 
   WebPAnimInfo anim_info;
   if (!WebPAnimDecoderGetInfo(dec, &anim_info)) {
+    // TODO:i18n
     fop->setError("Error getting global info about the WebP animation\n");
     return false;
   }
@@ -162,6 +166,7 @@ bool WebPFormat::onLoad(FileOp* fop)
     uint8_t* frame_rgba;
     int frame_timestamp = 0;
     if (!WebPAnimDecoderGetNext(dec, &frame_rgba, &frame_timestamp)) {
+      // TODO:i18n
       fop->setError("Error loading WebP frame\n");
       return false;
     }
@@ -251,6 +256,7 @@ bool WebPFormat::onSave(FileOp* fop)
   const int h = sprite->height();
 
   if (w > WEBP_MAX_DIMENSION || h > WEBP_MAX_DIMENSION) {
+    // TODO:i18n
     fop->setError("WebP format cannot store %dx%d images. The maximum allowed size is %dx%d\n",
                   w,
                   h,
@@ -267,6 +273,7 @@ bool WebPFormat::onSave(FileOp* fop)
     case WebPOptions::Simple:
     case WebPOptions::Lossless:
       if (!WebPConfigLosslessPreset(&config, opts->compression())) {
+        // TODO:i18n
         fop->setError("Error in WebP configuration\n");
         return false;
       }
@@ -275,6 +282,7 @@ bool WebPFormat::onSave(FileOp* fop)
 
     case WebPOptions::Lossy:
       if (!WebPConfigPreset(&config, opts->imagePreset(), static_cast<float>(opts->quality()))) {
+        // TODO:i18n
         fop->setError("Error in WebP configuration preset\n");
         return false;
       }
@@ -323,6 +331,7 @@ bool WebPFormat::onSave(FileOp* fop)
 
     if (!WebPAnimEncoderAdd(enc, &pic, timestamp_ms, &config)) {
       if (!fop->isStop()) {
+        // TODO:i18n
         fop->setError("Error saving frame %d info\n", frame);
         return false;
       }
@@ -341,6 +350,7 @@ bool WebPFormat::onSave(FileOp* fop)
   WebPAnimEncoderDelete(enc);
 
   if (fwrite(webp_data.bytes, 1, webp_data.size, fp) != webp_data.size) {
+    // TODO:i18n
     fop->setError("Error saving content into file\n");
     return false;
   }

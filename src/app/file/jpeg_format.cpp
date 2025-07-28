@@ -103,6 +103,7 @@ static void output_message(j_common_ptr cinfo)
   LOG(ERROR, "JPEG: \"%s\"\n", buffer);
 
   // Leave the message for the application.
+  // TODO:i18n
   ((struct error_mgr*)cinfo->err)->fop->setError("%s\n", buffer);
 }
 
@@ -349,11 +350,13 @@ gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop, jpeg_decompress_struc
       if (0 == numMarkers) {
         numMarkers = marker->data[13];
         if (0 == numMarkers) {
+          // TODO:i18n
           fop->setError("ICC Profile Error: numMarkers must be greater than zero.\n");
           return nullptr;
         }
       }
       else if (numMarkers != marker->data[13]) {
+        // TODO:i18n
         fop->setError("ICC Profile Error: numMarkers must be consistent.\n");
         return nullptr;
       }
@@ -362,10 +365,12 @@ gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop, jpeg_decompress_struc
       // a valid index.
       uint8_t markerIndex = marker->data[12];
       if (markerIndex == 0 || markerIndex > numMarkers) {
+        // TODO:i18n
         fop->setError("ICC Profile Error: markerIndex is invalid.\n");
         return nullptr;
       }
       if (markerSequence[markerIndex]) {
+        // TODO:i18n
         fop->setError("ICC Profile Error: Duplicate value of markerIndex.\n");
         return nullptr;
       }
@@ -386,6 +391,7 @@ gfx::ColorSpaceRef JpegFormat::loadColorSpace(FileOp* fop, jpeg_decompress_struc
   for (uint32_t i = 1; i <= numMarkers; i++) {
     jpeg_marker_struct* marker = markerSequence[i];
     if (!marker) {
+      // TODO:i18n
       fop->setError("ICC Profile Error: Missing marker %d of %d.\n", i, numMarkers);
       return nullptr;
     }
@@ -458,6 +464,7 @@ bool JpegFormat::onSave(FileOp* fop)
   buffer_height = 1;
   buffer = (JSAMPARRAY)base_malloc(sizeof(JSAMPROW) * buffer_height);
   if (!buffer) {
+    // TODO:i18n
     fop->setError("Not enough memory for the buffer.\n");
     jpeg_destroy_compress(&cinfo);
     return false;
@@ -466,6 +473,7 @@ bool JpegFormat::onSave(FileOp* fop)
   for (c = 0; c < (int)buffer_height; c++) {
     buffer[c] = (JSAMPROW)base_malloc(sizeof(JSAMPLE) * cinfo.image_width * cinfo.num_components);
     if (!buffer[c]) {
+      // TODO:i18n
       fop->setError("Not enough memory for buffer scanlines.\n");
       for (c--; c >= 0; c--)
         base_free(buffer[c]);
@@ -545,6 +553,7 @@ void JpegFormat::saveColorSpace(FileOp* fop,
 
   // ICC profile too big to fit in JPEG markers (64kb*255 ~= 16mb)
   if (numMarkers > 255) {
+    // TODO:i18n
     fop->setError("ICC profile is too big to enter in the JPEG file.\n");
     return;
   }

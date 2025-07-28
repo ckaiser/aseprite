@@ -147,6 +147,7 @@ public:
     }
     else if (layerRecord.isCloseGroup()) {
       if (!m_layerGroup)
+        // TODO:i18n
         throw std::runtime_error("unexpected end of a group layer");
 
       m_layerGroup->setName(layerRecord.name);
@@ -374,6 +375,7 @@ private:
       return value >> 24;
     }
     else
+      // TODO:i18n
       throw std::runtime_error("invalid image depth");
   }
 
@@ -408,6 +410,7 @@ bool PsdFormat::onLoad(FileOp* fop)
   psd::Decoder decoder(&fileInterface, &pDelegate);
 
   if (!decoder.readFileHeader()) {
+    // TODO:i18n
     fop->setError("The file doesn't have a valid PSD header\n");
     return false;
   }
@@ -416,6 +419,7 @@ bool PsdFormat::onLoad(FileOp* fop)
 
   if (header.colorMode != psd::ColorMode::RGB && header.colorMode != psd::ColorMode::Indexed &&
       header.colorMode != psd::ColorMode::Grayscale) {
+    // TODO:i18n
     fop->setError("This preliminary work only supports "
                   "RGB, Grayscale & Indexed images\n");
     return false;

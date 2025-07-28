@@ -1003,6 +1003,7 @@ bool BmpFormat::onLoad(FileOp* fop)
   // Check compatible Compression
   if (infoheader.biCompression == 4 || infoheader.biCompression == 5 ||
       infoheader.biCompression > 6) {
+    // TODO:i18n
     fop->setError("Unsupported BMP compression.\n");
     return false;
   }
@@ -1010,6 +1011,7 @@ bool BmpFormat::onLoad(FileOp* fop)
   // Check image size is valid
   {
     if (int(infoheader.biWidth) < 1 || ABS(int(infoheader.biHeight)) == 0) {
+      // TODO:i18n
       fop->setError("Invalid BMP size.\n");
       return false;
     }
@@ -1021,6 +1023,7 @@ bool BmpFormat::onLoad(FileOp* fop)
       size /= (8 / infoheader.biBitCount);
 
     if (size > kMaxBmpSize) {
+      // TODO:i18n
       fop->setError(fmt::format("BMP size unsupported ({:.2f} MB > {:.2f} MB).\n",
                                 size / 1024.0 / 1024.0,
                                 kMaxBmpSize / 1024.0 / 1024.0)
@@ -1073,6 +1076,7 @@ bool BmpFormat::onLoad(FileOp* fop)
     case BI_ALPHABITFIELDS:
       if (read_bitfields_image(f, image.get(), &infoheader, rmask, gmask, bmask, amask, withAlpha) <
           0) {
+        // TODO:i18n
         fop->setError("Unsupported bitfields in the BMP file.\n");
         return false;
       }
@@ -1082,6 +1086,7 @@ bool BmpFormat::onLoad(FileOp* fop)
   }
 
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error reading file.\n");
     return false;
   }
@@ -1142,6 +1147,7 @@ bool BmpFormat::onSave(FileOp* fop)
     default:
       // TODO save ColorMode::BITMAP as 1bpp bmp?
       // Invalid image format
+      // TODO:i18n
       fop->setError("Unsupported color mode.\n");
       return false;
   }
@@ -1278,6 +1284,7 @@ bool BmpFormat::onSave(FileOp* fop)
   }
 
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }

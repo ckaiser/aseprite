@@ -225,6 +225,7 @@ bool CssFormat::onSave(FileOp* fop)
   }
   fprintf(f, ";\n}\n");
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }
@@ -238,6 +239,7 @@ bool CssFormat::onSave(FileOp* fop)
             "class=\"pixel-art\"></div></body></html>",
             fop->filename().c_str());
     if (ferror(h)) {
+      // TODO:i18n
       fop->setError("Error writing html file.\n");
       return false;
     }

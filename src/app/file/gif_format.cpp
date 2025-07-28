@@ -282,6 +282,7 @@ private:
   {
     GifRecordType type;
     if (DGifGetRecordType(m_gifFile, &type) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Invalid GIF record in file.\n");
 
     return type;
@@ -299,6 +300,7 @@ private:
   void readImageDescRecord()
   {
     if (DGifGetImageDesc(m_gifFile) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Invalid GIF image descriptor.\n");
 
     // These are the bounds of the image to read.
@@ -314,6 +316,7 @@ private:
       // to load the GIF file anyway (which is what is done by other
       // apps).
     if (!m_spriteBounds.contains(frameBounds))
+      // TODO:i18n
       throw Exception("Image %d is out of sprite bounds.\n", (int)m_frameNum);
 #endif
 
@@ -405,6 +408,7 @@ private:
         for (int y = interlaced_offset[i]; y < frameBounds.h; y += interlaced_jumps[i]) {
           addr = frameImage->getPixelAddress(0, y);
           if (DGifGetLine(m_gifFile, addr, frameBounds.w) == GIF_ERROR)
+            // TODO:i18n
             throw Exception("Invalid interlaced image data.");
         }
     }
@@ -412,6 +416,7 @@ private:
       for (int y = 0; y < frameBounds.h; ++y) {
         addr = frameImage->getPixelAddress(0, y);
         if (DGifGetLine(m_gifFile, addr, frameBounds.w) == GIF_ERROR)
+          // TODO:i18n
           throw Exception("Invalid image data (%d).\n"
 #if GIFLIB_MAJOR >= 5
                           ,
@@ -464,6 +469,7 @@ private:
     }
 
     if (!colormap)
+      // TODO:i18n
       throw Exception("There is no color map.");
 
     return colormap;
@@ -705,6 +711,7 @@ private:
     int extCode;
     GifByteType* extension;
     if (DGifGetExtension(m_gifFile, &extCode, &extension) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Invalid GIF extension record.\n");
 
     if (extCode == GRAPHICS_EXT_FUNC_CODE) {
@@ -722,6 +729,7 @@ private:
 
     while (extension) {
       if (DGifGetExtensionNext(m_gifFile, &extension) == GIF_ERROR)
+        // TODO:i18n
         throw Exception("Invalid GIF extension record.\n");
     }
   }
@@ -883,6 +891,7 @@ bool GifFormat::onLoad(FileOp* fop)
                       &DGifCloseFile);
 
   if (!gif_file) {
+    // TODO:i18n
     fop->setError("Error loading GIF header.\n");
     return false;
   }
@@ -1275,6 +1284,7 @@ private:
                           m_bitsPerPixel,
                           m_bgIndex,
                           m_globalColormap) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF header.\n");
   }
 
@@ -1282,20 +1292,24 @@ private:
   {
   #if GIFLIB_MAJOR >= 5
     if (EGifPutExtensionLeader(m_gifFile, APPLICATION_EXT_FUNC_CODE) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record (header section).");
 
     unsigned char extension_bytes[11];
     memcpy(extension_bytes, "NETSCAPE2.0", 11);
     if (EGifPutExtensionBlock(m_gifFile, 11, extension_bytes) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record (first block).");
 
     extension_bytes[0] = 1;
     extension_bytes[1] = (m_loop & 0xff);
     extension_bytes[2] = (m_loop >> 8) & 0xff;
     if (EGifPutExtensionBlock(m_gifFile, 3, extension_bytes) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record (second block).");
 
     if (EGifPutExtensionTrailer(m_gifFile) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record (trailer section).");
 
   #else
@@ -1304,15 +1318,18 @@ private:
     memcpy(extension_bytes, "NETSCAPE2.0", 11);
     if (EGifPutExtensionFirst(m_gifFile, APPLICATION_EXT_FUNC_CODE, 11, extension_bytes) ==
         GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record.\n");
 
     extension_bytes[0] = 1;
     extension_bytes[1] = (m_loop & 0xff);
     extension_bytes[2] = (m_loop >> 8) & 0xff;
     if (EGifPutExtensionNext(m_gifFile, APPLICATION_EXT_FUNC_CODE, 3, extension_bytes) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record.\n");
 
     if (EGifPutExtensionLast(m_gifFile, APPLICATION_EXT_FUNC_CODE, 0, NULL) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record.\n");
   #endif
   }
@@ -1342,6 +1359,7 @@ private:
     extension_bytes[3] = (transparentIndex >= 0 ? transparentIndex : 0);
 
     if (EGifPutExtension(m_gifFile, GRAPHICS_EXT_FUNC_CODE, 4, extension_bytes) == GIF_ERROR)
+      // TODO:i18n
       throw Exception("Error writing GIF graphics extension record for frame %d.\n", gifFrame);
   }
 
@@ -1471,6 +1489,7 @@ private:
                          frameBounds.h,
                          m_interlaced ? 1 : 0,
                          (colormap != m_globalColormap ? colormap : nullptr)) == GIF_ERROR) {
+      // TODO:i18n
       throw Exception("Error writing GIF frame %d.\n", gifFrame);
     }
 
@@ -1488,6 +1507,7 @@ private:
             scanline[i] = remap[*addr];
 
           if (EGifPutLine(m_gifFile, &scanline[0], frameBounds.w) == GIF_ERROR)
+            // TODO:i18n
             throw Exception("Error writing GIF image scanlines for frame %d.\n", gifFrame);
         }
     }
@@ -1500,6 +1520,7 @@ private:
           scanline[i] = remap[*addr];
 
         if (EGifPutLine(m_gifFile, &scanline[0], frameBounds.w) == GIF_ERROR)
+          // TODO:i18n
           throw Exception("Error writing GIF image scanlines for frame %d.\n", gifFrame);
       }
     }
@@ -1619,6 +1640,7 @@ bool GifFormat::onSave(FileOp* fop)
                       &EGifCloseFile);
 
   if (!gif_file)
+    // TODO:i18n
     throw Exception("Error creating GIF file.\n");
 
   GifEncoder encoder(fop, gif_file);

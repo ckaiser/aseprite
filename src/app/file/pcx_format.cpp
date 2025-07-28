@@ -67,6 +67,7 @@ bool PcxFormat::onLoad(FileOp* fop)
   fgetc(f); /* skip encoding flag */
 
   if (fgetc(f) != 8) { /* we like 8 bit color planes */
+    // TODO:i18n
     fop->setError("This PCX doesn't have 8 bit color planes.\n");
     return false;
   }
@@ -172,6 +173,7 @@ bool PcxFormat::onLoad(FileOp* fop)
   }
 
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error reading file.\n");
     return false;
   }
@@ -297,6 +299,7 @@ bool PcxFormat::onSave(FileOp* fop)
   }
 
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }

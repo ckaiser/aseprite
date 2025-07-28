@@ -110,12 +110,14 @@ bool TgaFormat::onLoad(FileOp* fop)
   tga::Decoder decoder(&finterface);
   tga::Header header;
   if (!decoder.readHeader(header)) {
+    // TODO:i18n
     fop->setError("Invalid TGA header\n");
     return false;
   }
 
   ImageSpec spec(ColorMode::RGB, 1, 1);
   if (!get_image_spec(header, spec)) {
+    // TODO:i18n
     fop->setError("Unsupported color depth in TGA file: %d bpp, image type=%d.\n",
                   header.bitsPerPixel,
                   header.imageType);
@@ -156,6 +158,7 @@ bool TgaFormat::onLoad(FileOp* fop)
   // Read image
   TgaDelegate delegate(fop);
   if (!decoder.readImage(header, tgaImage, &delegate)) {
+    // TODO:i18n
     fop->setError("Error loading image data from TGA file.\n");
     return false;
   }
@@ -182,6 +185,7 @@ bool TgaFormat::onLoad(FileOp* fop)
   fop->setLoadedFormatOptions(opts);
 
   if (ferror(handle.get())) {
+    // TODO:i18n
     fop->setError("Error reading file.\n");
     return false;
   }
@@ -292,6 +296,7 @@ bool TgaFormat::onSave(FileOp* fop)
   encoder.writeFooter();
 
   if (ferror(handle.get())) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }

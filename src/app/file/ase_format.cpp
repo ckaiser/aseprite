@@ -351,11 +351,16 @@ bool AseFormat::onPostLoad(FileOp* fop)
     if (fop->context() && fop->context()->isUIAvailable() &&
         ui::Alert::show(fmt::format(
           // This message is not translated because is used only in the old v1.1 only
+          // TODO:i18n
           "Warning"
+          // TODO:i18n
           "<<The selected file \"{0}\" has layer groups."
+          // TODO:i18n
           "<<Do you want to open it with \"{1} {2}\" anyway?"
           "<<"
+          // TODO:i18n
           "<<Note: Layers inside groups will be converted to top level layers."
+          // TODO:i18n
           "||&Yes||&No",
           base::get_file_name(fop->filename()),
           get_app_name(),
@@ -491,6 +496,7 @@ bool AseFormat::onSave(FileOp* fop)
   ase_file_write_header_filesize(f, &header);
 
   if (ferror(f)) {
+    // TODO:i18n
     fop->setError("Error writing file.\n");
     return false;
   }
@@ -972,6 +978,7 @@ static void write_compressed_image_templ(FILE* f, ScanlinesGen* gen, base::buffe
   zstream.opaque = (voidpf)0;
   err = deflateInit(&zstream, Z_DEFAULT_COMPRESSION);
   if (err != Z_OK)
+    // TODO:i18n
     throw base::Exception("ZLib error %d in deflateInit().", err);
 
   std::vector<uint8_t> scanline(gen->getScanlineSize());
@@ -995,11 +1002,13 @@ static void write_compressed_image_templ(FILE* f, ScanlinesGen* gen, base::buffe
       // Compress
       err = deflate(&zstream, flush);
       if (err != Z_OK && err != Z_STREAM_END && err != Z_BUF_ERROR)
+        // TODO:i18n
         throw base::Exception("ZLib error %d in deflate().", err);
 
       int output_bytes = compressed.size() - zstream.avail_out;
       if (output_bytes > 0) {
         if ((fwrite(&compressed[0], 1, output_bytes, f) != (size_t)output_bytes) || ferror(f))
+          // TODO:i18n
           throw base::Exception("Error writing compressed image pixels.\n");
 
         // Save the whole compressed buffer to re-use in following
@@ -1018,6 +1027,7 @@ static void write_compressed_image_templ(FILE* f, ScanlinesGen* gen, base::buffe
 
   err = deflateEnd(&zstream);
   if (err != Z_OK)
+    // TODO:i18n
     throw base::Exception("ZLib error %d in deflateEnd().", err);
 }
 
@@ -1560,6 +1570,7 @@ static void ase_file_write_tileset_chunk(FILE* f,
 
       fputl(0, f);
       fputl(0, f);
+      // TODO:i18n
       fop->setError("Error writing tileset external reference.\n");
     }
   }
@@ -1725,6 +1736,7 @@ static void ase_file_write_properties_maps(FILE* f,
       // possibility to store custom properties to some object that
       // didn't support it previously.
       ASSERT(false);
+      // TODO:i18n
       fop->setError("Error writing properties for extension '%s'.\n", extensionKey.c_str());
 
       // We have to write something for this extensionId, because we

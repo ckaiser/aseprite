@@ -265,8 +265,10 @@ void Console::showException(const std::exception& e)
 {
   std::string text;
   if (typeid(e) == typeid(std::bad_alloc))
+    // TODO:i18n
     text = "There is not enough memory to complete the action.";
   else
+    // TODO:i18n
     text = fmt::format("A problem has occurred.\n\nDetails:\n{}\n", e.what());
 
   if (!ui::is_ui_thread()) {

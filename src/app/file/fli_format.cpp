@@ -65,6 +65,7 @@ bool FliFormat::onLoad(FileOp* fop)
 
   flic::Header header;
   if (!decoder.readHeader(header)) {
+    // TODO:i18n
     fop->setError("The file doesn't have a FLIC header\n");
     return false;
   }
@@ -74,6 +75,7 @@ bool FliFormat::onLoad(FileOp* fop)
   const int h = header.height;
   ASSERT(w > 0 && h > 0); // The decoder cannot return invalid widht/height values
   if (w > 10000 || h > 10000) {
+    // TODO:i18n
     fop->setError("Image size too big: %dx%d not suported\n", w, h);
     return false;
   }
@@ -103,6 +105,7 @@ bool FliFormat::onLoad(FileOp* fop)
   for (frame_t frame_in = 0; frame_in < sprite->totalFrames(); ++frame_in) {
     // Read the frame
     if (!decoder.readFrame(fliFrame)) {
+      // TODO:i18n
       fop->setError("Error reading frame %d\n", frame_in);
       continue;
     }
