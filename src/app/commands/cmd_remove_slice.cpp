@@ -15,14 +15,12 @@
 #include "app/commands/command.h"
 #include "app/context_access.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gui.h"
 #include "app/tx.h"
 #include "app/ui/status_bar.h"
 #include "base/convert_to.h"
 #include "doc/selected_objects.h"
 #include "doc/slice.h"
 #include "doc/sprite.h"
-#include "ui/alert.h"
 #include "ui/widget.h"
 
 namespace app {

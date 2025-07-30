@@ -37,7 +37,6 @@
 #include "app/ui/sampling_selector.h"
 #include "app/ui/separator_in_view.h"
 #include "app/ui/skin/skin_theme.h"
-#include "app/util/render_text.h"
 #include "base/convert_to.h"
 #include "base/fs.h"
 #include "base/string.h"

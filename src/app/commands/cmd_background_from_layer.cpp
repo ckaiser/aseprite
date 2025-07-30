@@ -15,7 +15,6 @@
 #include "app/modules/gui.h"
 #include "app/tx.h"
 #include "doc/layer.h"
-#include "doc/sprite.h"
 
 namespace app {
 

@@ -25,7 +25,6 @@
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
-#include "doc/sprite.h"
 
 namespace app {
 

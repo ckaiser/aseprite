@@ -21,7 +21,6 @@
 #include "app/tools/tool.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/main_window.h"
-#include "base/convert_to.h"
 #include "doc/algorithm/flip_image.h"
 #include "doc/brush.h"
 #include "doc/image_ref.h"

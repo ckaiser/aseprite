@@ -10,16 +10,11 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
-#include "app/console.h"
 #include "app/context_access.h"
 #include "app/doc_api.h"
-#include "app/doc_undo.h"
 #include "app/modules/gui.h"
 #include "app/tx.h"
-#include "app/ui/editor/editor.h"
 #include "doc/layer.h"
-#include "doc/sprite.h"
-#include "ui/ui.h"
 
 namespace app {
 

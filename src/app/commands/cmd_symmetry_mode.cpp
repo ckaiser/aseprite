@@ -15,10 +15,8 @@
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gui.h"
 #include "app/pref/preferences.h"
 #include "app/ui/context_bar.h"
-#include "app/ui_context.h"
 
 namespace app {
 

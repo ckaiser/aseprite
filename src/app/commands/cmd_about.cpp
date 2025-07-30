@@ -11,7 +11,6 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
-#include "app/modules/gui.h"
 #include "app/ui/main_window.h"
 #include "fmt/format.h"
 #include "ver/info.h"

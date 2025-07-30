@@ -19,7 +19,6 @@
 #include "app/ui/status_bar.h"
 #include "doc/cel.h"
 #include "doc/layer.h"
-#include "doc/sprite.h"
 
 namespace app {
 

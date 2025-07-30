@@ -23,7 +23,6 @@
 #include "base/thread.h"
 #include "doc/sprite.h"
 #include "ui/manager.h"
-#include "ui/system.h"
 
 namespace app {
 

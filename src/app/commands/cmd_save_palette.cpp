@@ -10,7 +10,6 @@
 #endif
 
 #include "app/app.h"
-#include "app/commands/cmd_set_palette.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/context.h"
@@ -20,7 +19,6 @@
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
 #include "base/fs.h"
-#include "doc/palette.h"
 #include "new_params.h"
 #include "ui/alert.h"
 

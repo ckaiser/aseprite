@@ -14,7 +14,6 @@
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
-#include "ui/base.h"
 
 namespace app {
 

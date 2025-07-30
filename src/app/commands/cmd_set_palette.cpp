@@ -12,7 +12,6 @@
 #include "app/context_access.h"
 #include "app/doc_api.h"
 #include "app/file_selector.h"
-#include "app/ini_file.h"
 #include "app/modules/palettes.h"
 #include "app/tx.h"
 #include "doc/palette.h"

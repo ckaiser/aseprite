@@ -30,7 +30,6 @@
 #include "app/util/pixel_ratio.h"
 #include "app/util/tileset_utils.h"
 #include "base/mem_utils.h"
-#include "doc/image.h"
 #include "doc/palette.h"
 #include "doc/sprite.h"
 #include "doc/tilesets.h"

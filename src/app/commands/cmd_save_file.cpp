@@ -36,8 +36,6 @@
 #include "app/ui/status_bar.h"
 #include "base/convert_to.h"
 #include "base/fs.h"
-#include "base/scoped_value.h"
-#include "base/thread.h"
 #include "doc/mask.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"

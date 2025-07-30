@@ -22,7 +22,6 @@
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
 #include "doc/image.h"
-#include "doc/mask.h"
 #include "doc/sprite.h"
 #include "ui/ui.h"
 

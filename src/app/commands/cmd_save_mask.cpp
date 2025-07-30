@@ -15,9 +15,6 @@
 #include "app/i18n/strings.h"
 #include "app/util/msk_file.h"
 #include "base/fs.h"
-#include "doc/file/act_file.h"
-#include "doc/mask.h"
-#include "doc/sprite.h"
 #include "new_params.h"
 #include "ui/alert.h"
 
@@ -67,8 +64,8 @@ void SaveMaskCommand::onExecute(Context* context)
     filename = selFilename.front();
   }
 
-  const bool result = save_msk_file(document->mask(), filename.c_str()) != 0;
-  if (result && ui)
+  const bool result = (save_msk_file(document->mask(), filename.c_str()) == 0);
+  if (!result && ui)
     ui::Alert::show(Strings::alerts_error_saving_file(filename));
 }
 

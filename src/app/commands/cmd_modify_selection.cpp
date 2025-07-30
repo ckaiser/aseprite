@@ -18,15 +18,11 @@
 #include "app/modules/gui.h"
 #include "app/pref/preferences.h"
 #include "app/tx.h"
-#include "base/convert_to.h"
 #include "doc/algorithm/modify_selection.h"
 #include "doc/brush_type.h"
 #include "doc/mask.h"
-#include "filters/neighboring_pixels.h"
 
 #include "modify_selection.xml.h"
-
-#include <limits>
 
 namespace app {
 

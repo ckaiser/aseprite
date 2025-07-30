@@ -12,11 +12,9 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/move_thing.h"
-#include "app/commands/params.h"
 #include "app/context_access.h"
 #include "app/i18n/strings.h"
 #include "app/ui/editor/editor.h"
-#include "base/convert_to.h"
 #include "ui/view.h"
 
 namespace app {

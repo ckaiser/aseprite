@@ -15,13 +15,9 @@
 #include "app/context.h"
 #include "app/context_access.h"
 #include "app/doc.h"
-#include "app/find_widget.h"
-#include "app/load_widget.h"
 #include "app/pref/preferences.h"
 #include "app/tx.h"
 #include "app/ui/status_bar.h"
-#include "app/ui_context.h"
-#include "doc/document.h"
 #include "doc/mask.h"
 #include "ui/window.h"
 

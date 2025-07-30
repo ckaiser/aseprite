@@ -19,7 +19,6 @@
 #include "app/tx.h"
 #include "app/ui/editor/editor.h"
 #include "doc/mask.h"
-#include "ui/system.h"
 
 namespace app {
 

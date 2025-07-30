@@ -15,7 +15,6 @@
 #include "app/context_access.h"
 #include "app/tx.h"
 #include "doc/palette.h"
-#include "doc/sprite.h"
 
 #include "palette_size.xml.h"
 

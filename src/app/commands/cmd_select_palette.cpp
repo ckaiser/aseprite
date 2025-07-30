@@ -17,7 +17,6 @@
 #include "app/modules/palettes.h"
 #include "app/site.h"
 #include "doc/cel.h"
-#include "doc/frame_range.h"
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"

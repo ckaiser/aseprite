@@ -8,13 +8,9 @@
   #include "config.h"
 #endif
 
-#include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
-#include "app/doc.h"
 #include "app/ui_context.h"
-
-#include <cstdio>
 
 namespace app {
 

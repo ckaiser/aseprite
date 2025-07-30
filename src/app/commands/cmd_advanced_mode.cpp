@@ -19,8 +19,6 @@
 #include "advanced_mode.xml.h"
 #include "app/context.h"
 
-#include <cstdio>
-
 namespace app {
 
 using namespace ui;

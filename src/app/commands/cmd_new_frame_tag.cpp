@@ -9,7 +9,6 @@
   #include "config.h"
 #endif
 
-#include "app/app.h"
 #include "app/cmd/add_tag.h"
 #include "app/commands/command.h"
 #include "app/context.h"
@@ -17,8 +16,6 @@
 #include "app/tx.h"
 #include "app/ui/tag_window.h"
 #include "doc/tag.h"
-
-#include <stdexcept>
 
 namespace app {
 

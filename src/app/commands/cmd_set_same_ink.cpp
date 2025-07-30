@@ -11,7 +11,6 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
-#include "app/commands/params.h"
 #include "app/pref/preferences.h"
 #include "app/tools/tool.h"
 #include "app/tools/tool_box.h"

@@ -12,7 +12,6 @@
 #include "app/commands/command.h"
 #include "app/context_access.h"
 #include "app/modules/gui.h"
-#include "doc/image.h"
 #include "doc/layer.h"
 
 namespace app {

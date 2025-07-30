@@ -84,12 +84,12 @@ private:
 
 class GotoPreviousLayerCommand : public GotoLayerCommand {
 public:
-  GotoPreviousLayerCommand() : GotoLayerCommand(-1, "GotoPreviousLayer") {}
+  GotoPreviousLayerCommand() : GotoLayerCommand(-1, CommandId::GotoPreviousLayer()) {}
 };
 
 class GotoNextLayerCommand : public GotoLayerCommand {
 public:
-  GotoNextLayerCommand() : GotoLayerCommand(+1, "GotoNextLayer") {}
+  GotoNextLayerCommand() : GotoLayerCommand(+1, CommandId::GotoNextLayer()) {}
 };
 
 Command* CommandFactory::createGotoPreviousLayerCommand()

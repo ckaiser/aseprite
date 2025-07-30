@@ -15,7 +15,6 @@
 #include "app/cmd/set_tag_range.h"
 #include "app/cmd/set_tag_repeat.h"
 #include "app/cmd/set_user_data.h"
-#include "app/color.h"
 #include "app/commands/command.h"
 #include "app/commands/params.h"
 #include "app/context_access.h"

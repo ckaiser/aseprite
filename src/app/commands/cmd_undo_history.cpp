@@ -30,8 +30,6 @@
 #include "base/mem_utils.h"
 #include "fmt/format.h"
 #include "text/font_metrics.h"
-#include "ui/init_theme_event.h"
-#include "ui/listitem.h"
 #include "ui/message.h"
 #include "ui/paint_event.h"
 #include "ui/scale.h"

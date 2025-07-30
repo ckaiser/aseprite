@@ -23,8 +23,6 @@
 #include "doc/sprite.h"
 #include "fmt/format.h"
 
-#include <cstdio>
-
 namespace app {
 
 using namespace doc;

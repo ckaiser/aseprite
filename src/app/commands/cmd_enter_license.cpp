@@ -5,7 +5,6 @@
 // the End-User License Agreement for Aseprite.
 
 #include "app/commands/command.h"
-#include "app/context.h"
 
 #ifdef ENABLE_DRM
   #include "app/ui/enter_license.h"

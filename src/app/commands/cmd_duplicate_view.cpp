@@ -13,8 +13,6 @@
 #include "app/commands/command.h"
 #include "app/ui/workspace.h"
 
-#include <cstdio>
-
 namespace app {
 
 // using namespace ui;

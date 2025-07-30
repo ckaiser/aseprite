@@ -34,7 +34,6 @@
 #include "app/ui_context.h"
 #include "base/convert_to.h"
 #include "base/scoped_value.h"
-#include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/sprite.h"

@@ -10,12 +10,10 @@
 #endif
 
 #include "app/app.h"
-#include "app/app_menus.h"
 #include "app/commands/command.h"
 #include "app/ui/main_menu_bar.h"
 #include "app/ui/main_window.h"
 #include "app/ui/status_bar.h"
-#include "fmt/format.h"
 #include "ui/scale.h"
 #include "ui/system.h"
 #include "ui/theme.h"

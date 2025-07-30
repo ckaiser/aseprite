@@ -16,11 +16,7 @@
 #include "app/modules/gui.h"
 #include "app/tx.h"
 #include "app/ui/color_bar.h"
-#include "app/util/autocrop.h"
-#include "doc/image.h"
-#include "doc/layer.h"
 #include "doc/mask.h"
-#include "doc/sprite.h"
 
 namespace app {
 

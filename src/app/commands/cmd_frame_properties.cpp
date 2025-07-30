@@ -58,18 +58,13 @@ void FramePropertiesCommand::onLoadParams(const Params& params)
   if (frame == "all") {
     m_target = ALL_FRAMES;
   }
-  else if (frame == "current") {
+  else if (frame == "current" || !params.has_param("frame")) {
     m_target = CURRENT_RANGE;
   }
-
-  const auto frameNumber = base::convert_to<frame_t>(frame);
-  if (frameNumber < 1) {
-    // Will open with the default target (CURRENT_RANGE) if the frame number cannot be parsed.
-    m_frame = CURRENT_RANGE;
+  else {
+    m_target = SPECIFIC_FRAME;
+    m_frame = frame_t(base::convert_to<int>(frame));
   }
-
-  m_target = SPECIFIC_FRAME;
-  m_frame = frameNumber;
 }
 
 bool FramePropertiesCommand::onEnabled(Context* context)

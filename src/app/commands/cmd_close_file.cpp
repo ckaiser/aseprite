@@ -12,15 +12,9 @@
 #include "app/app.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
-#include "app/context_access.h"
 #include "app/ui/doc_view.h"
-#include "app/ui/status_bar.h"
 #include "app/ui/workspace.h"
 #include "app/ui_context.h"
-#include "doc/sprite.h"
-#include "ui/ui.h"
-
-#include <memory>
 
 namespace app {
 

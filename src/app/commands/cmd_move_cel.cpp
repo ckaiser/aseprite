@@ -12,7 +12,6 @@
 #include "app/commands/command.h"
 #include "app/context_access.h"
 #include "app/ui/timeline/timeline.h"
-#include "ui/base.h"
 
 namespace app {
 
