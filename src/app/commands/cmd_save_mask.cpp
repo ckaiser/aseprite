@@ -10,12 +10,12 @@
 #endif
 
 #include "app/commands/command.h"
+#include "app/commands/new_params.h"
 #include "app/context_access.h"
 #include "app/file_selector.h"
 #include "app/i18n/strings.h"
 #include "app/util/msk_file.h"
 #include "base/fs.h"
-#include "new_params.h"
 #include "ui/alert.h"
 
 namespace app {
