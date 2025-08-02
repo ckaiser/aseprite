@@ -11,6 +11,7 @@
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/new_params.h"
 #include "app/pref/preferences.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
@@ -23,7 +24,11 @@ namespace app {
 
 using namespace ui;
 
-class AdvancedModeCommand : public Command {
+struct AvancedModeParams : public NewParams {
+  Param<bool> silent{ this, false, "silent" };
+};
+
+class AdvancedModeCommand : public CommandWithNewParams<AvancedModeParams> {
 public:
   AdvancedModeCommand();
 
@@ -32,7 +37,7 @@ protected:
   void onExecute(Context* context) override;
 };
 
-AdvancedModeCommand::AdvancedModeCommand() : Command(CommandId::AdvancedMode())
+AdvancedModeCommand::AdvancedModeCommand() : CommandWithNewParams(CommandId::AdvancedMode())
 {
 }
 
@@ -55,6 +60,9 @@ void AdvancedModeCommand::onExecute(Context* context)
   }
 
   mainWindow->setMode(newMode);
+
+  if (params().silent())
+    return;
 
   auto& pref = Preferences::instance();
 
