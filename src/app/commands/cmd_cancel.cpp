@@ -16,15 +16,15 @@
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/ui/input_chain.h"
+#include "app/ui/main_window.h"
+#include "ui/display.h"
+#include "ui/manager.h"
 
 namespace app {
 
 class CancelCommand : public Command {
 public:
-  enum Type {
-    NoOp,
-    All,
-  };
+  enum Type { NoOp, Windows, All };
 
   CancelCommand();
 
@@ -48,6 +48,8 @@ void CancelCommand::onLoadParams(const Params& params)
     m_type = NoOp;
   else if (type == "all")
     m_type = All;
+  else if (type == "windows")
+    m_type = Windows;
   // TODO: add specific types for selection/ranges during scripting.
   else
     m_type = All;
@@ -59,6 +61,18 @@ void CancelCommand::onExecute(Context* context)
     case NoOp:
       // Do nothing.
       break;
+
+    case Windows: {
+      if (!context->isUIAvailable())
+        break;
+
+      auto* manager = ui::Manager::getDefault();
+      for (auto child : manager->children()) {
+        ui::Window* window = static_cast<ui::Window*>(child);
+        if (window->isForeground() && !window->isDesktop())
+          window->closeWindow(nullptr);
+      }
+    } break;
 
     case All:
       // TODO should the ContextBar be a InputChainElement to intercept onCancel()?
