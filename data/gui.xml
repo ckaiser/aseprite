@@ -119,6 +119,7 @@
         <param name="frame" value="current" />
       </key>
       <key command="ReverseFrames" shortcut="Alt+I" />
+      <key command="Runner" shortcut="Ctrl+Shift+P" />
       <key command="GotoFirstFrame" shortcut="Home" />
       <key command="GotoPreviousFrame" shortcut="Left" context="Normal" />
       <key command="GotoNextFrame" shortcut="Right" context="Normal" />

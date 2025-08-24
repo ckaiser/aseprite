@@ -1158,5 +1158,10 @@
         <style id="outline_cell" extends="buttonset_item_icon" width="17" height="19" />
         <style id="ani_button" extends="buttonset_item_icon" width="17" />
         <style id="multi_window_item" extends="buttonset_item_icon" width="17" height="17" />
+        <style id="runner_command_item" border="3">
+          <background color="menuitem_hot_face" state="selected" />
+          <text color="text" x="3" align="left" />
+          <text color="listitem_selected_text" x="3" align="left" state="selected" />
+        </style>
     </styles>
 </theme>

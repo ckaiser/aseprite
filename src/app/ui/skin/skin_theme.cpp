@@ -1453,7 +1453,8 @@ void SkinTheme::drawEntryText(ui::Graphics* g, ui::Entry* widget)
   int scroll = delegate.index();
 
   // Full text to paint: widget text + suffix
-  const std::string textString = widget->text() + widget->getSuffix();
+  const std::string textString = widget->text().empty() ? widget->placeholder() :
+                                                          widget->text() + widget->getSuffix();
 
   if (!textString.empty()) {
     base::utf8_decode dec(textString);

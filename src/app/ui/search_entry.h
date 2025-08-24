@@ -28,6 +28,7 @@ protected:
 
 private:
   gfx::Rect getCloseIconBounds() const;
+  std::string m_placeholder;
 };
 
 } // namespace app
