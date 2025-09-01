@@ -58,33 +58,24 @@ void composite_image_without_scale(Image* dst,
   if (!area.clip(dst->width(), dst->height(), src->width(), src->height()))
     return;
 
+  ASSERT(!srcBounds.isEmpty());
+
   gfx::Rect srcBounds = area.srcBounds();
   gfx::Rect dstBounds = area.dstBounds();
   int bottom = dstBounds.y2() - 1;
 
   ASSERT(!srcBounds.isEmpty());
-
-  // Lock all necessary bits
   const LockImageBits<SrcTraits> srcBits(src, srcBounds);
   LockImageBits<DstTraits> dstBits(dst, dstBounds);
-  auto src_it = srcBits.begin();
-#ifdef _DEBUG
-  auto src_end = srcBits.end();
-#endif
-  typename LockImageBits<DstTraits>::iterator dst_it, dst_end;
 
-  // For each line to draw of the source image...
   dstBounds.h = 1;
+#pragma omp parallel for num_threads(4)
   for (int y = 0; y < srcBounds.h; ++y) {
-    dst_it = dstBits.begin_area(dstBounds);
-    dst_end = dstBits.end_area(dstBounds);
-
     for (int x = 0; x < srcBounds.w; ++x) {
-      ASSERT(src_it >= srcBits.begin() && src_it < src_end);
-      ASSERT(dst_it >= dstBits.begin() && dst_it < dst_end);
-      *dst_it = blender(*dst_it, *src_it, opacity);
-      ++src_it;
-      ++dst_it;
+      auto result = blender(get_pixel_fast<DstTraits>(dst, x, y),
+                            get_pixel_fast<SrcTraits>(src, x, y),
+                            opacity);
+      put_pixel_fast<DstTraits>(dst, x, y, result);
     }
 
     if (++dstBounds.y > bottom)

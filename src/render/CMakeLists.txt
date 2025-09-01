@@ -12,6 +12,9 @@ add_library(render-lib
   render.cpp
   zoom.cpp)
 
+find_package(OpenMP REQUIRED)
+target_link_libraries(render-lib OpenMP::OpenMP_CXX)
+
 target_link_libraries(render-lib
   doc-lib
   laf-gfx
