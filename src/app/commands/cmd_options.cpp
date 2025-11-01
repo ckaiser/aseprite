@@ -23,6 +23,7 @@
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/launcher.h"
+#include "app/match_words.h"
 #include "app/modules/gui.h"
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
@@ -379,12 +380,15 @@ public:
 #endif
     {
       gpuAcceleration()->setVisible(false);
+      gpuAcceleration()->setEnabled(false);
     }
 
     // If the platform does support native menus, we show the option,
     // in other case, the option doesn't make sense for this platform.
-    if (!m_system->menus())
+    if (!m_system->menus()) {
       showMenuBar()->setVisible(false);
+      showMenuBar()->setEnabled(false);
+    }
 
     // Editor sampling
     samplingPlaceholder()->addChild(
@@ -413,6 +417,7 @@ public:
 
 #ifndef __APPLE__ // Zoom sliding two fingers option only on macOS
     slideZoom()->setVisible(false);
+    slideZoom()->setEnabled(false);
 #endif
 
     // Checkered background size
@@ -435,14 +440,17 @@ public:
     locateFile()->Click.connect([this] { onLocateConfigFile(); });
     if (!App::instance()->memoryDumpFilename().empty())
       locateCrashFolder()->Click.connect([this] { onLocateCrashFolder(); });
-    else
+    else {
       locateCrashFolder()->setVisible(false);
+      locateCrashFolder()->setEnabled(false);
+    }
 
     // Share crashdb
 #if ENABLE_SENTRY
     shareCrashdb()->setSelected(Sentry::consentGiven());
 #else
     shareCrashdb()->setVisible(false);
+    shareCrashdb()->setEnabled(false);
 #endif
 
     // Undo preferences
@@ -489,11 +497,13 @@ public:
       winDisplayThumbnail()->setText(
         Strings::options_thumbnailer_dll_not_found(win::kAsepriteThumbnailerDllName));
       winDisplayLittleIcon()->setVisible(false);
+      winDisplayLittleIcon()->setEnabled(false);
     }
     else {
       win::ThumbnailsOption opts = windowsFileExplorerThumbnailsOptionsFromRegistry();
       winDisplayThumbnail()->setSelected(opts.enabled);
       winDisplayLittleIcon()->setVisible(opts.enabled);
+      winDisplayLittleIcon()->setEnabled(opts.enabled);
       winDisplayLittleIcon()->setSelected(opts.overlay);
       winDisplayThumbnail()->Click.connect([this] {
         winDisplayLittleIcon()->setVisible(winDisplayThumbnail()->isSelected());
@@ -546,6 +556,8 @@ public:
     brushesReset()->Click.connect(validateYesButton);
     resetSelectedButton()->Click.connect([this] { onResetDefault(); });
     resetToggle()->Click.connect([this, validateYesButton] {
+      resetSearch();
+
       bool toggle = resetToggle()->isSelected();
       defaultReset()->setSelected(toggle);
       installedReset()->setSelected(toggle);
@@ -569,6 +581,8 @@ public:
     // Reload themes when extensions are enabled/disabled
     m_extThemesChanges = App::instance()->extensions().ThemesChange.connect(
       [this] { reloadThemes(); });
+
+    search()->Change.connect(&OptionsWindow::onSearch, this);
 
     loadFromPreferences();
   }
@@ -605,10 +619,12 @@ public:
     if (cursorColor()->getColor().getType() == app::Color::MaskType) {
       cursorColorType()->setSelectedItemIndex(0);
       cursorColor()->setVisible(false);
+      cursorColor()->setEnabled(false);
     }
     else {
       cursorColorType()->setSelectedItemIndex(1);
       cursorColor()->setVisible(true);
+      cursorColor()->setEnabled(true);
     }
 
     // Brush preview
@@ -1139,6 +1155,7 @@ private:
     m_themeVars = list;
     themeModeLabel()->setBuddy(m_themeVars);
     themeVariants()->setVisible(list ? true : false);
+    themeVariants()->setEnabled(list ? true : false);
     themeVariants()->initTheme();
   }
 
@@ -1212,6 +1229,7 @@ private:
 
   void onApply()
   {
+    resetSearch();
     saveConfig();
     m_restoreThisTheme = m_pref.theme.selected();
     m_restoreScreenScaling = m_pref.general.screenScale();
@@ -1222,6 +1240,8 @@ private:
   {
     if (ui::Alert::show(Strings::alerts_reset_default_confirm()) != 1)
       return;
+
+    resetSearch();
 
     if (recentReset()->isSelected()) {
       auto prevLimit = m_pref.general.recentItems();
@@ -1418,7 +1438,10 @@ private:
     const bool state = (lang == "ar" || lang == "ja" || lang == "ko" || lang == "th" ||
                         lang == "yue_Hant" || lang == "zh_Hans" || lang == "zh_Hant");
     fontWarningFiller()->setVisible(state);
+    fontWarningFiller()->setEnabled(state);
+
     fontWarning()->setVisible(state);
+    fontWarning()->setEnabled(state);
     layout();
   }
 
@@ -1553,11 +1576,15 @@ private:
       checkeredBgCustomW()->setTextf("%d", m_curPref->bg.size().w);
       checkeredBgCustomH()->setTextf("%d", m_curPref->bg.size().h);
       checkeredBgCustomW()->setVisible(true);
+      checkeredBgCustomW()->setEnabled(true);
       checkeredBgCustomH()->setVisible(true);
+      checkeredBgCustomH()->setEnabled(true);
     }
     else {
       checkeredBgCustomW()->setVisible(false);
+      checkeredBgCustomW()->setEnabled(false);
       checkeredBgCustomH()->setVisible(false);
+      checkeredBgCustomH()->setEnabled(false);
     }
     sectionBg()->layout();
   }
@@ -1595,7 +1622,9 @@ private:
     if (m_curPref == &m_globPref) {
       checkeredBgSize()->setSelectedItemIndex(int(pref.bg.type.defaultValue()));
       checkeredBgCustomW()->setVisible(false);
+      checkeredBgCustomW()->setEnabled(false);
       checkeredBgCustomH()->setVisible(false);
+      checkeredBgCustomH()->setEnabled(false);
       checkeredBgZoom()->setSelected(pref.bg.zoom.defaultValue());
       checkeredBgColor1()->setColor(pref.bg.color1.defaultValue());
       checkeredBgColor2()->setColor(pref.bg.color2.defaultValue());
@@ -2072,21 +2101,27 @@ private:
 
   void onCelFormatChange()
   {
-    auto format = gen::CelContentFormat(celFormat()->getSelectedItemIndex());
-    celFormatWarning()->setVisible(format == gen::CelContentFormat::RAW_IMAGE);
+    bool warn = gen::CelContentFormat(celFormat()->getSelectedItemIndex()) ==
+                gen::CelContentFormat::RAW_IMAGE;
+    celFormatWarning()->setVisible(warn);
+    celFormatWarning()->setEnabled(warn);
     layout();
   }
 
   void onCursorColorType()
   {
+    resetSearch();
+
     switch (cursorColorType()->getSelectedItemIndex()) {
       case 0:
         cursorColor()->setColor(app::Color::fromMask());
         cursorColor()->setVisible(false);
+        cursorColor()->setEnabled(false);
         break;
       case 1:
         cursorColor()->setColor(app::Color::fromRgb(0, 0, 0, 255));
         cursorColor()->setVisible(true);
+        cursorColor()->setEnabled(true);
         break;
     }
     layout();
@@ -2099,6 +2134,175 @@ private:
     selectOnClickWithKey()->setSelected(m_pref.timeline.selectOnClickWithKey.defaultValue());
     selectOnDrag()->setSelected(m_pref.timeline.selectOnDrag.defaultValue());
     dragAndDropFromEdges()->setSelected(m_pref.timeline.dragAndDropFromEdges.defaultValue());
+  }
+
+  void allWidgetsIn(Widget* root, WidgetsList& list)
+  {
+    const auto& children = root->children();
+    for (auto i = children.rbegin(); i != children.rend(); ++i) {
+      list.push_back(*i);
+      allWidgetsIn(*i, list);
+    }
+  }
+
+  void savePreSearchState()
+  {
+    // Do all the actions that would happen when switching sections to ensure the state is correct.
+    loadLanguages();
+    onChangeBgScope();
+    onChangeGridScope();
+    loadThemes();
+    loadExtensions();
+
+    WidgetsList allWidgets;
+    allWidgetsIn(this, allWidgets);
+    m_sectionEnabledState.reserve(allWidgets.size());
+
+    for (auto* widget : allWidgets)
+      m_sectionEnabledState.emplace(widget, widget->isEnabled());
+  }
+
+  void loadPreSearchState()
+  {
+    if (m_sectionEnabledState.empty())
+      return;
+
+    WidgetsList allWidgets;
+    allWidgetsIn(this, allWidgets);
+
+    for (auto* widget : allWidgets)
+      widget->setEnabled(m_sectionEnabledState[widget]);
+
+    for (auto* item : sectionListbox()->children())
+      item->setEnabled(true);
+
+    m_sectionEnabledState.clear();
+  }
+
+  void resetSearch()
+  {
+    if (search()->text().empty())
+      return;
+    search()->setText("");
+    onSearch();
+  }
+
+  void onSearch()
+  {
+    const std::string& lowerText = base::string_to_lower(search()->text());
+
+    if (lowerText.empty()) {
+      loadPreSearchState();
+      return;
+    }
+
+    if (m_sectionEnabledState.empty())
+      savePreSearchState();
+
+    // Always disable this buttonset since it's only icons and can't be highlighted except by
+    // its buddy.
+    // TODO: Add a way to search through tooltips.
+    uiWindows()->setEnabled(false);
+
+    // Disable the extension buttons to avoid strange behavior when using the list
+    extensionButtons()->setEnabled(false);
+
+    const MatchWords match(lowerText);
+    int newIndex = -1;
+    for (int i = 0; i < sectionListbox()->getItemsCount(); i++) {
+      auto* item = dynamic_cast<ListItem*>(sectionListbox()->at(i));
+      if (!item || item->type() == kSeparatorWidget)
+        continue;
+
+      auto* section = findChild(item->getValue().c_str());
+      if (!section)
+        continue;
+
+      WidgetsList sectionWidgets;
+      allWidgetsIn(section, sectionWidgets);
+
+      std::vector<Widget*> labelsWithBuddies;
+      bool activeSection = false;
+      for (auto* widget : sectionWidgets) {
+        // Ignore combo box items
+        if (widget->parent()->type() == kComboBoxWidget)
+          continue;
+
+        // Do not search things that were previously disabled.
+        if (!m_sectionEnabledState[widget])
+          continue;
+
+        std::string text = widget->text();
+
+        if (widget->type() == kComboBoxWidget) {
+          auto* comboBox = static_cast<ComboBox*>(widget);
+
+          // Hardcoded exception for the "new documents"/"active document" preferences
+          if (comboBox == gridScope() || comboBox == bgScope())
+            continue;
+
+          for (int i = 0; i < comboBox->getItemCount(); i++)
+            text += " " + comboBox->getItemText(i);
+        }
+
+        if (text.empty())
+          continue;
+
+        bool highlight = match(text);
+        widget->setEnabled(highlight);
+
+        if (widget->type() == kLabelWidget || widget->type() == kLinkLabelWidget) {
+          if (auto* buddy = (static_cast<Label*>(widget))->buddy())
+            labelsWithBuddies.push_back(widget);
+        }
+
+        if (highlight)
+          activeSection = true;
+      }
+
+      if (activeSection) {
+        for (auto* widget : labelsWithBuddies) {
+          auto* label = (static_cast<Label*>(widget));
+
+          if (label->isEnabled()) {
+            label->buddy()->setEnabled(true);
+
+            // Special case to handle buttonsets & rows
+            if (label->buddy()->type() == kGridWidget || label->buddy()->type() == kBoxWidget) {
+              for (auto* child : label->buddy()->children())
+                child->setEnabled(true);
+            }
+          }
+          else {
+            bool isBuddyEnabled = label->buddy()->isEnabled();
+            if (label->buddy()->type() == kGridWidget || label->buddy()->type() == kBoxWidget) {
+              isBuddyEnabled = false;
+              for (auto* child : label->buddy()->children()) {
+                if (child->isEnabled()) {
+                  // Any enabled direct child counts
+                  isBuddyEnabled = true;
+                  break;
+                }
+              }
+            }
+
+            label->setEnabled(isBuddyEnabled);
+          }
+        }
+      }
+      else {
+        // For matching the section exactly even when we have no matches inside eg. "Experimental"
+        activeSection = match(item->text());
+      }
+
+      item->setEnabled(activeSection);
+
+      if (activeSection && newIndex == -1)
+        newIndex = i;
+    }
+
+    if (newIndex >= 0 && !sectionListbox()->getSelectedChild()->isEnabled())
+      sectionListbox()->selectChild(sectionListbox()->at(newIndex));
   }
 
   gfx::Rect gridBounds() const
@@ -2182,6 +2386,7 @@ private:
   {
     const bool pointerApi = tabletApiWindowsPointer()->isSelected();
     windowsPointerOptions()->setVisible(pointerApi);
+    windowsPointerOptions()->setEnabled(pointerApi);
     sectionTablet()->layout();
   }
 
@@ -2192,6 +2397,7 @@ private:
                           windowsFileExplorerThumbnailsOptionsFromUI());
 
     winRestartExplorerProc()->setVisible(changed);
+    winRestartExplorerProc()->setEnabled(changed);
     sectionFileExplorer()->layout();
   }
 
@@ -2241,6 +2447,7 @@ private:
   SamplingSelector* m_samplingSelector = nullptr;
   text::FontRef m_font;
   text::FontRef m_miniFont;
+  std::unordered_map<Widget*, bool> m_sectionEnabledState;
 #if LAF_WINDOWS
   bool m_restartExplorerProc = false;
 #endif // LAF_WINDOWS

@@ -264,7 +264,15 @@ void ColorButton::onPaint(PaintEvent& ev)
     }
   }
 
-  draw_color_button(g, rc, color, (doc::ColorMode)m_pixelFormat, hasMouse() || hasFocus(), false);
+  if (!isEnabled())
+    color = Color::fromGray(color.getGray(), color.getAlpha());
+
+  draw_color_button(g,
+                    rc,
+                    color,
+                    (doc::ColorMode)m_pixelFormat,
+                    isEnabled() && (hasMouse() || hasFocus()),
+                    false);
 
   // Draw text
   std::string str = m_color.toHumanReadableString(m_pixelFormat,
@@ -276,6 +284,9 @@ void ColorButton::onPaint(PaintEvent& ev)
   if (color.isValid())
     textcolor = color_utils::blackandwhite_neg(
       gfx::rgba(color.getRed(), color.getGreen(), color.getBlue()));
+
+  if (!isEnabled())
+    textcolor = gfx::rgba(gfx::getr(textcolor), gfx::getg(textcolor), gfx::getb(textcolor), 125);
 
   gfx::Rect textrc;
   getTextIconInfo(NULL, &textrc);
