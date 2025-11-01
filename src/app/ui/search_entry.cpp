@@ -103,6 +103,8 @@ void SearchEntry::onCloseIconPressed()
 {
   setText("");
   onChange();
+  // Prevents a broken caret when clearing a scrolled entry
+  setCaretPos(0);
 }
 
 Rect SearchEntry::getCloseIconBounds() const

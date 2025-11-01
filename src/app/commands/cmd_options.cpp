@@ -23,6 +23,7 @@
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/launcher.h"
+#include "app/match_words.h"
 #include "app/modules/gui.h"
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
@@ -534,6 +535,8 @@ public:
     // Reload themes when extensions are enabled/disabled
     m_extThemesChanges = App::instance()->extensions().ThemesChange.connect(
       [this] { reloadThemes(); });
+
+    search()->Change.connect(&OptionsWindow::onSearch, this);
 
     loadFromPreferences();
   }
@@ -2060,6 +2063,128 @@ private:
     dragAndDropFromEdges()->setSelected(m_pref.timeline.dragAndDropFromEdges.defaultValue());
   }
 
+  void allWidgetsIn(Widget* root, WidgetsList& list)
+  {
+    for (Widget* w : root->children()) {
+      list.push_back(w);
+      allWidgetsIn(w, list);
+    }
+  }
+
+  void savePreSearchState()
+  {
+    // Do all the actions that would happen when switching sections to ensure the state is correct.
+    loadLanguages();
+    onChangeBgScope();
+    onChangeGridScope();
+    loadThemes();
+    loadExtensions();
+
+    WidgetsList allWidgets;
+    allWidgetsIn(this, allWidgets);
+    for (auto* widget : allWidgets)
+      m_sectionEnabledState.emplace(widget, widget->isEnabled());
+  }
+
+  void loadPreSearchState()
+  {
+    WidgetsList allWidgets;
+    allWidgetsIn(this, allWidgets);
+    for (auto* widget : allWidgets)
+      widget->setEnabled(m_sectionEnabledState[widget]);
+
+    for (auto* item : sectionListbox()->children())
+      item->setEnabled(true);
+
+    m_sectionEnabledState.clear();
+  }
+
+  void onSearch()
+  {
+    const std::string& lowerText = base::string_to_lower(search()->text());
+    const MatchWords match(lowerText);
+
+    if (lowerText.empty())
+      loadPreSearchState();
+    else if (m_sectionEnabledState.empty())
+      savePreSearchState();
+
+    int newIndex = -1;
+    for (int i = 0; i < sectionListbox()->getItemsCount(); i++) {
+      auto* item = dynamic_cast<ListItem*>(sectionListbox()->at(i));
+      if (!item || item->type() == kSeparatorWidget)
+        continue;
+
+      auto* section = findChild(item->getValue().c_str());
+      if (!section)
+        continue;
+
+      WidgetsList sectionWidgets;
+      allWidgetsIn(section, sectionWidgets);
+      std::reverse(sectionWidgets.begin(), sectionWidgets.end());
+
+      if (lowerText.empty()) {
+        for (auto* widget : sectionWidgets) {
+          widget->setEnabled(true);
+        }
+        item->setEnabled(true);
+        continue;
+      }
+
+      bool activeSection = false;
+      for (auto* widget : sectionWidgets) {
+        // Ignore separators and widgets that'll usually be affected by their buddies
+        if (widget->isDecorative() || widget->type() == kSeparatorWidget ||
+            widget->type() == kEntryWidget || widget->type() == kButtonWidget)
+          continue;
+
+        // Do not search things that were previously disabled.
+        if (!m_sectionEnabledState[widget])
+          continue;
+
+        std::string text = widget->text();
+
+        if (widget->type() == kComboBoxWidget) {
+          auto* comboBox = static_cast<ComboBox*>(widget);
+          for (int i = 0; i < comboBox->getItemCount(); i++)
+            text += " " + comboBox->getItemText(i);
+        }
+
+        if (text.empty())
+          continue;
+
+        bool highlight = match(text);
+
+        widget->setEnabled(highlight);
+
+        // HACK: We're (mis)using the dirty flag to mark widgets so we can avoid having disabled
+        // labels with buddies.
+        widget->enableFlags(DIRTY);
+
+        if (widget->type() == kLabelWidget) {
+          auto* buddy = (static_cast<Label*>(widget))->buddy();
+
+          if (buddy) {
+            if (buddy->isEnabled() && buddy->hasFlags(DIRTY))
+              widget->setEnabled(true);
+            else
+              buddy->setEnabled(highlight);
+          }
+        }
+
+        if (highlight)
+          activeSection = true;
+      }
+      item->setEnabled(activeSection);
+
+      if (activeSection && newIndex == -1)
+        newIndex = i;
+    }
+
+    if (newIndex >= 0 && !sectionListbox()->getSelectedChild()->isEnabled())
+      sectionListbox()->selectChild(sectionListbox()->at(newIndex));
+  }
+
   gfx::Rect gridBounds() const
   {
     return gfx::Rect(gridX()->textInt(), gridY()->textInt(), gridW()->textInt(), gridH()->textInt());
@@ -2165,6 +2290,7 @@ private:
   SamplingSelector* m_samplingSelector = nullptr;
   text::FontRef m_font;
   text::FontRef m_miniFont;
+  std::map<Widget*, bool> m_sectionEnabledState;
 };
 
 class OptionsCommand : public Command {
