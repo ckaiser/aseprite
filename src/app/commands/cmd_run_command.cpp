@@ -19,7 +19,6 @@
 #include "app/ui/app_menuitem.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
-#include "app/ui/main_window.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/workspace_tabs.h"
@@ -338,7 +337,7 @@ private:
     std::multimap<double, const RunnerDB::Item*> results;
 
     for (RunnerDB::Item& item : m_db->items) {
-      if (match(item.searchableText) || match.fuzzyWords(item.labelWords)) {
+      if (match.word(item.searchableText) || match.fuzzyWords(item.labelWords)) {
         // Crude "score" to affect ordering in the multimap of results.
         // Lower is better.
         double score = 0;
