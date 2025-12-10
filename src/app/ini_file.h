@@ -28,6 +28,7 @@ void pop_config_state();
 void flush_config_file();
 void set_config_file(const char* filename);
 
+void set_main_config_filename(const char* filename);
 std::string main_config_filename();
 
 const char* get_config_string(const char* section, const char* name, const char* value);
