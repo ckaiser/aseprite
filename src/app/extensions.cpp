@@ -44,7 +44,6 @@
 
 #include <cctype>
 #include <fstream>
-#include <queue>
 #include <sstream>
 #include <string>
 
@@ -57,9 +56,9 @@ const char* Extension::kAsepriteDefaultThemeId = "default";
 
 namespace {
 
-const char* kPackageJson = "package.json";
-const char* kInfoJson = "__info.json";
-const char* kPrefLua = "__pref.lua";
+constexpr const char* kPackageJson = "package.json";
+constexpr const char* kInfoJson = "__info.json";
+constexpr const char* kPrefLua = "__pref.lua";
 
 class ReadArchive {
 public:
@@ -72,8 +71,7 @@ public:
     if (!m_file)
       throw base::Exception("Error loading file %s", filename.c_str());
 
-    int err;
-    if ((err = archive_read_open_FILE(m_arch, m_file.get())))
+    if (int err = archive_read_open_FILE(m_arch, m_file.get()))
       throw base::Exception("Error uncompressing extension\n%s (%d)",
                             archive_error_string(m_arch),
                             err);
@@ -90,7 +88,7 @@ public:
     }
   }
 
-  archive_entry* readEntry()
+  archive_entry* readEntry() const
   {
     archive_entry* entry;
     int err = archive_read_next_header(m_arch, &entry);
@@ -117,15 +115,13 @@ public:
         return err;
 
       err = archive_write_data_block(out, buf, size, offset);
-      if (err != ARCHIVE_OK) {
+      if (err != ARCHIVE_OK)
         throw base::Exception("Error writing data blocks\n%s (%d)", archive_error_string(out), err);
-        return err;
-      }
     }
     return ARCHIVE_OK;
   }
 
-  int copyDataTo(std::ostream& dst)
+  int copyDataTo(std::ostream& dst) const
   {
     const void* buf;
     size_t size;
@@ -164,7 +160,7 @@ public:
     }
   }
 
-  void writeEntry(ReadArchive& in, archive_entry* entry)
+  void writeEntry(ReadArchive& in, archive_entry* entry) const
   {
     int err = archive_write_header(m_arch, entry);
     if (err != ARCHIVE_OK)
@@ -212,10 +208,6 @@ void write_json_file(const std::string& path, const json11::Json& json)
 //////////////////////////////////////////////////////////////////////
 // Extension
 
-Extension::DitheringMatrixInfo::DitheringMatrixInfo()
-{
-}
-
 Extension::DitheringMatrixInfo::DitheringMatrixInfo(const std::string& path,
                                                     const std::string& name)
   : m_path(path)
@@ -250,10 +242,6 @@ Extension::Extension(const std::string& path,
 #ifdef ENABLE_SCRIPTING
   m_plugin.pluginRef = LUA_REFNIL;
 #endif
-}
-
-Extension::~Extension()
-{
 }
 
 void Extension::executeInitActions()
@@ -418,11 +406,9 @@ void Extension::uninstall(const DeletePluginPref delPref)
   m_isInstalled = false;
 }
 
-void Extension::uninstallFiles(const std::string& path, const DeletePluginPref delPref)
+void Extension::uninstallFiles(const std::string& path, const DeletePluginPref delPref) const
 {
-#if 1 // Read the list of files to be uninstalled from __info.json file
-
-  std::string infoFn = base::join_path(path, kInfoJson);
+  const std::string infoFn = base::join_path(path, kInfoJson);
   if (!base::is_file(infoFn))
     throw base::Exception("Cannot remove extension, '%s' file doesn't exist", infoFn.c_str());
 
@@ -432,7 +418,7 @@ void Extension::uninstallFiles(const std::string& path, const DeletePluginPref d
   base::paths installedDirs;
 
   for (const auto& value : json["installedFiles"].array_items()) {
-    std::string fn = base::join_path(path, value.string_value());
+    const std::string& fn = base::join_path(path, value.string_value());
     if (base::is_file(fn)) {
       TRACE("EXT: Deleting file '%s'\n", fn.c_str());
       base::delete_file(fn);
@@ -446,9 +432,9 @@ void Extension::uninstallFiles(const std::string& path, const DeletePluginPref d
   // updating the extension, the preferences should be kept).
   bool hasPrefFile = false;
   {
-    std::string fn = base::join_path(path, kPrefLua);
+    const std::string& fn = base::join_path(path, kPrefLua);
     if (base::is_file(fn)) {
-      if (delPref == DeletePluginPref::kYes)
+      if (delPref == DeletePluginPref::Yes)
         base::delete_file(fn);
       else
         hasPrefFile = true;
@@ -493,30 +479,11 @@ void Extension::uninstallFiles(const std::string& path, const DeletePluginPref d
           ex.what());
     }
   }
-
-#else // The following code delete the whole "path",
-      // we prefer the __info.json approach.
-
-  for (auto& item : base::list_files(path)) {
-    std::string fn = base::join_path(path, item);
-    if (base::is_file(fn)) {
-      TRACE("EXT: Deleting file '%s'\n", fn.c_str());
-      base::delete_file(fn);
-    }
-    else if (base::is_directory(fn)) {
-      uninstallFiles(fn, deleteUserPref);
-    }
-  }
-
-  TRACE("EXT: Deleting directory '%s'\n", path.c_str());
-  base::remove_directory(path);
-
-#endif
 }
 
 bool Extension::isCurrentTheme() const
 {
-  auto it = m_themes.find(Preferences::instance().theme.selected());
+  const auto it = m_themes.find(Preferences::instance().theme.selected());
   return (it != m_themes.end());
 }
 
@@ -617,9 +584,6 @@ static void serialize_table(lua_State* L, int idx, std::string& result)
                 result.push_back('t');
                 break;
               case '\r':
-                result.push_back('\\');
-                result.push_back('n');
-                break;
               case '\n':
                 result.push_back('\\');
                 result.push_back('n');
@@ -653,22 +617,19 @@ void Extension::initScripts()
 
   // Set the _PLUGIN global so require() can find .lua files from the
   // plugin path.
-  script::SetPluginForRequire setPlugin(L, m_plugin.pluginRef);
+  const script::SetPluginForRequire setPlugin(L, m_plugin.pluginRef);
 
   // Read plugin.preferences value
   {
-    std::string fn = base::join_path(m_path, kPrefLua);
+    const std::string& fn = base::join_path(m_path, kPrefLua);
     if (base::is_file(fn)) {
       lua_rawgeti(L, LUA_REGISTRYINDEX, m_plugin.pluginRef);
       if (luaL_loadfile(L, fn.c_str()) == LUA_OK) {
         if (lua_pcall(L, 0, 1, 0) == LUA_OK) {
           lua_setfield(L, -2, "preferences");
         }
-        else {
-          const char* s = lua_tostring(L, -1);
-          if (s) {
-            Console().printf("%s\n", s);
-          }
+        else if (const char* s = lua_tostring(L, -1)) {
+          Console().printf("%s\n", s);
         }
         lua_pop(L, 1);
       }
@@ -754,12 +715,11 @@ void Extension::exitScripts()
 
     switch (item.type) {
       case PluginItem::Command: {
-        auto cmds = Commands::instance();
-        auto cmd = cmds->byId(item.id.c_str());
+        auto* cmds = Commands::instance();
+        auto* cmd = cmds->byId(item.id.c_str());
         ASSERT(cmd);
         if (cmd) {
-          // TODO use a signal
-          AppMenus::instance()->removeMenuItemFromGroup(cmd);
+          MenuItemRemoveCommand(cmd);
 
           cmds->remove(cmd);
 
@@ -774,17 +734,13 @@ void Extension::exitScripts()
         ASSERT(item.widget);
         ASSERT(item.widget->parent());
         if (item.widget && item.widget->parent()) {
-          // TODO use a signal
-          AppMenus::instance()->removeMenuItemFromGroup(item.widget);
+          MenuItemRemoveWidget(item.widget);
           ASSERT(!item.widget->parent());
           item.widget = nullptr;
         }
         break;
 
-      case PluginItem::MenuGroup:
-        // TODO use a signal
-        AppMenus::instance()->removeMenuGroup(item.id);
-        break;
+      case PluginItem::MenuGroup: MenuGroupRemove(item.id); break;
     }
   }
 
@@ -793,7 +749,7 @@ void Extension::exitScripts()
 
 void Extension::addScript(const std::string& fn)
 {
-  m_plugin.scripts.push_back(ScriptItem(fn));
+  m_plugin.scripts.emplace_back(fn);
   updateCategory(Category::Scripts);
 }
 
@@ -824,42 +780,25 @@ Extensions::Extensions()
   // (installed folder and user folder)
   while (rf.next()) {
     const auto& extensionsDir = rf.filename();
-
-    if (!base::is_directory(extensionsDir))
-      continue;
-
-    for (const auto& fn : base::list_files(extensionsDir, base::ItemType::Directories)) {
-      const auto dir = base::join_path(extensionsDir, fn);
-      const bool isBuiltinExtension = (m_userExtensionsPath != base::get_file_path(dir));
-
-      auto fullFn = base::join_path(dir, kPackageJson);
-      fullFn = base::normalize_path(fullFn);
-
-      LOG("EXT: Loading extension '%s'...\n", fullFn.c_str());
-      if (!base::is_file(fullFn)) {
-        LOG("EXT: File '%s' not found\n", fullFn.c_str());
-        continue;
-      }
-
-      try {
-        loadExtension(dir, fullFn, isBuiltinExtension);
-      }
-      catch (const std::exception& ex) {
-        LOG("EXT: Error loading JSON file: %s\n", ex.what());
-      }
-    }
+    loadDirectory(extensionsDir);
   }
+}
+
+Extensions::Extensions(const std::string& extensionsDir)
+{
+  loadDirectory(extensionsDir);
+  m_userExtensionsPath = extensionsDir;
 }
 
 Extensions::~Extensions()
 {
-  for (auto ext : m_extensions)
+  for (const auto* ext : m_extensions)
     delete ext;
 }
 
 void Extensions::executeInitActions()
 {
-  for (auto& ext : m_extensions)
+  for (const auto& ext : m_extensions)
     ext->executeInitActions();
 
   ScriptsChange(nullptr);
@@ -867,15 +806,15 @@ void Extensions::executeInitActions()
 
 void Extensions::executeExitActions()
 {
-  for (auto& ext : m_extensions)
+  for (const auto& ext : m_extensions)
     ext->executeExitActions();
 
   ScriptsChange(nullptr);
 }
 
-std::string Extensions::languagePath(const std::string& langId)
+std::string Extensions::languagePath(const std::string& langId) const
 {
-  for (auto ext : m_extensions) {
+  for (const auto& ext : m_extensions) {
     if (!ext->isEnabled()) // Ignore disabled extensions
       continue;
 
@@ -886,9 +825,9 @@ std::string Extensions::languagePath(const std::string& langId)
   return std::string();
 }
 
-std::string Extensions::themePath(const std::string& themeId)
+std::string Extensions::themePath(const std::string& themeId) const
 {
-  for (auto ext : m_extensions) {
+  for (const auto* ext : m_extensions) {
     if (!ext->isEnabled()) // Ignore disabled extensions
       continue;
 
@@ -899,9 +838,9 @@ std::string Extensions::themePath(const std::string& themeId)
   return std::string();
 }
 
-std::string Extensions::palettePath(const std::string& palId)
+std::string Extensions::palettePath(const std::string& palId) const
 {
-  for (auto ext : m_extensions) {
+  for (const auto* ext : m_extensions) {
     if (!ext->isEnabled()) // Ignore disabled extensions
       continue;
 
@@ -915,19 +854,19 @@ std::string Extensions::palettePath(const std::string& palId)
 ExtensionItems Extensions::palettes() const
 {
   ExtensionItems palettes;
-  for (auto ext : m_extensions) {
+  for (const auto* ext : m_extensions) {
     if (!ext->isEnabled()) // Ignore disabled themes
       continue;
 
-    for (auto item : ext->palettes())
-      palettes[item.first] = item.second;
+    for (const auto& [id, path] : ext->palettes())
+      palettes[id] = path;
   }
   return palettes;
 }
 
-const render::DitheringMatrix* Extensions::ditheringMatrix(const std::string& matrixId)
+const render::DitheringMatrix* Extensions::ditheringMatrix(const std::string& matrixId) const
 {
-  for (auto ext : m_extensions) {
+  for (const auto* ext : m_extensions) {
     if (!ext->isEnabled()) // Ignore disabled themes
       continue;
 
@@ -941,7 +880,7 @@ const render::DitheringMatrix* Extensions::ditheringMatrix(const std::string& ma
 std::vector<Extension::DitheringMatrixInfo*> Extensions::ditheringMatrices()
 {
   std::vector<Extension::DitheringMatrixInfo*> result;
-  for (auto ext : m_extensions) {
+  for (auto* ext : m_extensions) {
     if (!ext->isEnabled()) // Ignore disabled themes
       continue;
 
@@ -970,7 +909,7 @@ void Extensions::uninstallExtension(Extension* extension, const DeletePluginPref
   delete extension;
 }
 
-ExtensionInfo Extensions::getCompressedExtensionInfo(const std::string& zipFn)
+ExtensionInfo Extensions::getCompressedExtensionInfo(const std::string& zipFn) const
 {
   ExtensionInfo info;
   info.dstPath = base::join_path(m_userExtensionsPath, base::get_file_title(zipFn));
@@ -1050,7 +989,7 @@ Extension* Extensions::installCompressedExtension(const std::string& zipFn,
       LOG("EXT: Original filename in zip <%s>...\n", fn.c_str());
 
       // Do not install __info.json file if it's inside the .zip as
-      // some users are distirbuting extensions with the __info.json
+      // some users are distributing extensions with the __info.json
       // file inside.
       if (base::string_to_lower(base::get_file_name(fn)) == kInfoJson) {
         LOG("EXT: Ignoring <%s>...\n", fn.c_str());
@@ -1100,10 +1039,36 @@ Extension* Extensions::installCompressedExtension(const std::string& zipFn,
     throw base::Exception("Error adding the new extension");
 
   // Generate signals
-  NewExtension(extension);
   generateExtensionSignals(extension);
 
   return extension;
+}
+
+void Extensions::loadDirectory(const std::string& extensionsDir)
+{
+  if (!base::is_directory(extensionsDir))
+    return;
+
+  for (const auto& fn : base::list_files(extensionsDir, base::ItemType::Directories)) {
+    const auto dir = base::join_path(extensionsDir, fn);
+    const bool isBuiltinExtension = (m_userExtensionsPath != base::get_file_path(dir));
+
+    auto fullFn = base::join_path(dir, kPackageJson);
+    fullFn = base::normalize_path(fullFn);
+
+    LOG("EXT: Loading extension '%s'...\n", fullFn.c_str());
+    if (!base::is_file(fullFn)) {
+      LOG("EXT: File '%s' not found\n", fullFn.c_str());
+      continue;
+    }
+
+    try {
+      loadExtension(dir, fullFn, isBuiltinExtension);
+    }
+    catch (const std::exception& ex) {
+      LOG("EXT: Error loading JSON file: %s\n", ex.what());
+    }
+  }
 }
 
 Extension* Extensions::loadExtension(const std::string& path,
@@ -1259,6 +1224,14 @@ Extension* Extensions::loadExtension(const std::string& path,
       LOG("EXT: New script path=%s\n", scriptPath.c_str());
 
       extension->addScript(scriptPath);
+    }
+
+    if (AppMenus::instance()) {
+      extension->MenuItemRemoveWidget.connect(&AppMenus::removeMenuItemFromGroup,
+                                              AppMenus::instance());
+      extension->MenuItemRemoveCommand.connect(&AppMenus::removeMenuItemFromGroup,
+                                               AppMenus::instance());
+      extension->MenuGroupRemove.connect(&AppMenus::removeMenuGroup, AppMenus::instance());
     }
 #endif // ENABLE_SCRIPTING
   }

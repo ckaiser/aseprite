@@ -137,6 +137,11 @@ void set_config_file(const char* filename)
   g_configs.back()->load(filename);
 }
 
+void set_main_config_filename(const char* filename)
+{
+  g_configFilename = filename;
+}
+
 std::string main_config_filename()
 {
   return g_configFilename;
