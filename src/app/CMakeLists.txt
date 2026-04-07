@@ -787,7 +787,7 @@ target_link_libraries(app-lib
   ${PNG_LIBRARIES}
   ${ZLIB_LIBRARIES}
   libjpeg-turbo
-  json11
+  nlohmann_json::nlohmann_json
   archive_static
   fmt
   tinyexpr

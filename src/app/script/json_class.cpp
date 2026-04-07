@@ -11,57 +11,89 @@
 #include "app/script/luacpp.h"
 #include "app/script/values.h"
 
-#include <cstring>
-
-#include "json11.hpp"
+#include "nlohmann/json.hpp"
+#include <memory>
 
 namespace app { namespace script {
 
 namespace {
 
 struct Json {};
-using JsonObj = json11::Json;
-using JsonArrayIterator = JsonObj::array::const_iterator;
-using JsonObjectIterator = JsonObj::object::const_iterator;
 
-void push_json_value(lua_State* L, const JsonObj& value)
+struct JsonObj {
+  std::shared_ptr<nlohmann::json> root;
+  nlohmann::json::json_pointer ptr;
+
+  JsonObj(std::shared_ptr<nlohmann::json> root, nlohmann::json::json_pointer ptr)
+    : root(std::move(root))
+    , ptr(std::move(ptr))
+  {
+  }
+
+  nlohmann::json& get() { return root->at(ptr); }
+  const nlohmann::json& get() const { return root->at(ptr); }
+};
+
+struct JsonIterator {
+  JsonObj parent;
+  nlohmann::json::iterator it;
+
+  JsonIterator(const JsonObj& parent, nlohmann::json::iterator it) : parent(parent), it(it) {}
+};
+using JsonObjectIterator = JsonIterator;
+using JsonArrayIterator = JsonIterator;
+
+void push_json_value(lua_State* L, const JsonObj& obj)
 {
+  const auto& value = obj.get();
   switch (value.type()) {
-    case json11::Json::NUL:    lua_pushnil(L); break;
-    case json11::Json::NUMBER: lua_pushnumber(L, value.number_value()); break;
-    case json11::Json::BOOL:   lua_pushboolean(L, value.bool_value()); break;
-    case json11::Json::STRING: lua_pushstring(L, value.string_value().c_str()); break;
-    case json11::Json::ARRAY:
-    case json11::Json::OBJECT: push_obj(L, value); break;
+    case nlohmann::json::value_t::null: lua_pushnil(L); break;
+    case nlohmann::json::value_t::number_integer:
+      lua_pushinteger(L, value.get<lua_Integer>());
+      break;
+    case nlohmann::json::value_t::number_unsigned:
+    case nlohmann::json::value_t::number_float:    lua_pushnumber(L, value.get<lua_Number>()); break;
+    case nlohmann::json::value_t::boolean:         lua_pushboolean(L, value.get<bool>()); break;
+    case nlohmann::json::value_t::string:
+      lua_pushstring(L, value.get<std::string>().c_str());
+      break;
+    case nlohmann::json::value_t::array:
+    case nlohmann::json::value_t::object: push_obj(L, obj); break;
+    default:                              ASSERT(false);
   }
 }
 
-JsonObj get_json_value(lua_State* L, int index)
+nlohmann::json get_json_value(lua_State* L, int index)
 {
   switch (lua_type(L, index)) {
     case LUA_TNONE:
-    case LUA_TNIL:     return JsonObj();
+    case LUA_TNIL:     return nlohmann::json();
 
-    case LUA_TBOOLEAN: return JsonObj(lua_toboolean(L, index) ? true : false);
+    case LUA_TBOOLEAN: return nlohmann::json(lua_toboolean(L, index) ? true : false);
 
-    case LUA_TNUMBER:  return JsonObj(lua_tonumber(L, index));
+    case LUA_TNUMBER:  {
+      if (lua_isinteger(L, index)) {
+        return nlohmann::json(lua_tointeger(L, index));
+      }
+      return nlohmann::json(lua_tonumber(L, index));
+    }
 
-    case LUA_TSTRING:  return JsonObj(lua_tostring(L, index));
+    case LUA_TSTRING: return nlohmann::json(lua_tostring(L, index));
 
     case LUA_TTABLE:
       if (is_array_table(L, index)) {
-        JsonObj::array items;
+        nlohmann::json items = nlohmann::json::array();
         if (index < 0)
           --index;
         lua_pushnil(L);
         while (lua_next(L, index) != 0) {
           items.push_back(get_json_value(L, -1));
-          lua_pop(L, 1); // pop the value lua_next(), leave the key in the stack
+          lua_pop(L, 1);
         }
-        return JsonObj(items);
+        return items;
       }
       else {
-        JsonObj::object items;
+        nlohmann::json items = nlohmann::json::object();
         lua_pushnil(L);
         if (index < 0)
           --index;
@@ -69,9 +101,9 @@ JsonObj get_json_value(lua_State* L, int index)
           if (const char* k = lua_tostring(L, -2)) {
             items[k] = get_json_value(L, -1);
           }
-          lua_pop(L, 1); // pop the value lua_next(), leave the key in the stack
+          lua_pop(L, 1);
         }
-        return JsonObj(items);
+        return items;
       }
       break;
 
@@ -79,7 +111,7 @@ JsonObj get_json_value(lua_State* L, int index)
       // TODO convert rectangles, point, size, uuids?
       break;
   }
-  return JsonObj();
+  return nlohmann::json();
 }
 
 int JsonObj_gc(lua_State* L)
@@ -92,20 +124,20 @@ int JsonObj_eq(lua_State* L)
 {
   auto a = get_obj<JsonObj>(L, 1);
   auto b = get_obj<JsonObj>(L, 2);
-  return (*a == *b);
+  return (a->get() == b->get());
 }
 
 int JsonObj_len(lua_State* L)
 {
   auto obj = get_obj<JsonObj>(L, 1);
-  switch (obj->type()) {
-    case json11::Json::STRING: lua_pushinteger(L, obj->string_value().size()); break;
-    case json11::Json::ARRAY:  lua_pushinteger(L, obj->array_items().size()); break;
-    case json11::Json::OBJECT: lua_pushinteger(L, obj->object_items().size()); break;
-    case json11::Json::NUL:    lua_pushnil(L); break;
-    default:
-    case json11::Json::NUMBER:
-    case json11::Json::BOOL:   lua_pushinteger(L, 1); break;
+  auto& value = obj->get();
+
+  switch (value.type()) {
+    case nlohmann::json::value_t::string:
+    case nlohmann::json::value_t::array:
+    case nlohmann::json::value_t::object: lua_pushinteger(L, value.size()); break;
+    case nlohmann::json::value_t::null:   lua_pushnil(L); break;
+    default:                              lua_pushinteger(L, 1); break;
   }
   return 1;
 }
@@ -113,16 +145,19 @@ int JsonObj_len(lua_State* L)
 int JsonObj_index(lua_State* L)
 {
   auto obj = get_obj<JsonObj>(L, 1);
-  if (obj->type() == json11::Json::OBJECT) {
-    if (auto key = lua_tostring(L, 2)) {
-      push_json_value(L, (*obj)[key]);
+  auto& value = obj->get();
+  if (value.type() == nlohmann::json::value_t::object) {
+    if (const auto* key = lua_tostring(L, 2); value.contains(key)) {
+      push_json_value(L, JsonObj(obj->root, obj->ptr / key));
       return 1;
     }
   }
-  else if (obj->type() == json11::Json::ARRAY) {
+  else if (value.type() == nlohmann::json::value_t::array) {
     auto i = lua_tointeger(L, 2) - 1; // Adjust to 0-based index
-    push_json_value(L, (*obj)[i]);
-    return 1;
+    if (i >= 0 && i < value.size()) {
+      push_json_value(L, JsonObj(obj->root, obj->ptr / i));
+      return 1;
+    }
   }
   return 0;
 }
@@ -130,55 +165,63 @@ int JsonObj_index(lua_State* L)
 int JsonObj_newindex(lua_State* L)
 {
   auto obj = get_obj<JsonObj>(L, 1);
-  if (obj->type() == json11::Json::OBJECT) {
+  auto& value = obj->get();
+  if (value.type() == nlohmann::json::value_t::object) {
     if (auto key = lua_tostring(L, 2)) {
-      obj->set_object_item(key, get_json_value(L, 3));
+      value[key] = get_json_value(L, 3);
     }
   }
-  else if (obj->type() == json11::Json::ARRAY) {
+  else if (value.type() == nlohmann::json::value_t::array) {
     auto i = lua_tointeger(L, 2);
     // Adjust to 0-based index
     if (i > 0)
-      obj->set_array_item(i - 1, get_json_value(L, 3));
+      value[i - 1] = get_json_value(L, 3);
+  }
+  else {
+    ASSERT(false);
   }
   return 0;
 }
 
 int JsonObj_pairs_next(lua_State* L)
 {
-  auto obj = get_obj<JsonObj>(L, 1);
-  auto& it = *get_obj<JsonObjectIterator>(L, lua_upvalueindex(1));
-  if (it == obj->object_items().end())
+  auto& it_obj = *get_obj<JsonObjectIterator>(L, lua_upvalueindex(1));
+  auto& j = it_obj.parent.get();
+  if (it_obj.it == j.end())
     return 0;
-  lua_pushstring(L, (*it).first.c_str());
-  push_json_value(L, (*it).second);
-  ++it;
+  lua_pushstring(L, it_obj.it.key().c_str());
+  const JsonObj child(it_obj.parent.root, it_obj.parent.ptr / it_obj.it.key());
+  push_json_value(L, child);
+  ++it_obj.it;
   return 2;
 }
 
 int JsonObj_ipairs_next(lua_State* L)
 {
-  auto obj = get_obj<JsonObj>(L, 1);
-  auto& it = *get_obj<JsonArrayIterator>(L, lua_upvalueindex(1));
-  if (it == obj->array_items().end())
+  auto& it_obj = *get_obj<JsonIterator>(L, lua_upvalueindex(1));
+  auto& j = it_obj.parent.get();
+  if (it_obj.it == j.end())
     return 0;
-  lua_pushinteger(L, (it - obj->array_items().begin() + 1));
-  push_json_value(L, (*it));
-  ++it;
-  return 0;
+  int index = std::distance(j.begin(), it_obj.it);
+  lua_pushinteger(L, index + 1);
+  const JsonObj child(it_obj.parent.root, it_obj.parent.ptr / index);
+  push_json_value(L, child);
+  ++it_obj.it;
+  return 2;
 }
 
 int JsonObj_pairs(lua_State* L)
 {
   auto obj = get_obj<JsonObj>(L, 1);
-  if (obj->type() == json11::Json::OBJECT) {
-    push_obj(L, obj->object_items().begin());
+  auto& value = obj->get();
+  if (value.type() == nlohmann::json::value_t::object) {
+    push_obj(L, JsonObjectIterator(*obj, value.begin()));
     lua_pushcclosure(L, JsonObj_pairs_next, 1);
     lua_pushvalue(L, 1); // Copy the same obj as the second return value
     return 2;
   }
-  else if (obj->type() == json11::Json::ARRAY) {
-    push_obj(L, obj->array_items().begin());
+  else if (value.type() == nlohmann::json::value_t::array) {
+    push_obj(L, JsonArrayIterator(*obj, value.begin()));
     lua_pushcclosure(L, JsonObj_ipairs_next, 1);
     lua_pushvalue(L, 1); // Copy the same obj as the second return value
     return 2;
@@ -189,40 +232,42 @@ int JsonObj_pairs(lua_State* L)
 int JsonObj_tostring(lua_State* L)
 {
   auto obj = get_obj<JsonObj>(L, 1);
-  lua_pushstring(L, obj->dump().c_str());
+  lua_pushstring(L, obj->get().dump().c_str());
   return 1;
 }
 
 int JsonObjectIterator_gc(lua_State* L)
 {
-  get_obj<JsonObjectIterator>(L, 1)->~JsonObjectIterator();
+  get_obj<JsonIterator>(L, 1)->~JsonIterator();
   return 0;
 }
 
 int JsonArrayIterator_gc(lua_State* L)
 {
-  get_obj<JsonArrayIterator>(L, 1)->~JsonArrayIterator();
+  get_obj<JsonIterator>(L, 1)->~JsonIterator();
   return 0;
 }
 
 int Json_decode(lua_State* L)
 {
   if (const char* s = lua_tostring(L, 1)) {
-    std::string err;
-    auto json = json11::Json::parse(s, std::strlen(s), err);
-    if (!err.empty())
-      return luaL_error(L, err.c_str());
-    push_obj(L, json);
-    return 1;
+    try {
+      auto json = std::make_shared<nlohmann::json>(nlohmann::json::parse(s));
+      push_obj(L, JsonObj(json, nlohmann::json::json_pointer()));
+      return 1;
+    }
+    catch (std::exception& e) {
+      return luaL_error(L, e.what());
+    }
   }
   return 0;
 }
 
 int Json_encode(lua_State* L)
 {
-  // Encode a JsonObj, we deep copy it (create a deep copy)
+  // Encode a JsonObj
   if (auto obj = may_get_obj<JsonObj>(L, 1)) {
-    lua_pushstring(L, obj->dump().c_str());
+    lua_pushstring(L, obj->get().dump().c_str());
     return 1;
   }
   // Encode a Lua table
@@ -264,8 +309,7 @@ const luaL_Reg Json_methods[] = {
 
 DEF_MTNAME(Json);
 DEF_MTNAME(JsonObj);
-DEF_MTNAME(JsonObjectIterator);
-DEF_MTNAME(JsonArrayIterator);
+DEF_MTNAME(JsonIterator);
 
 void register_json_object(lua_State* L)
 {

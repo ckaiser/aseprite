@@ -3,6 +3,8 @@
 -- This file is released under the terms of the MIT license.
 -- Read LICENSE.txt for more information.
 
+dofile("./test_utils.lua")
+
 -- Basic decode + iterators
 do
   local o = json.decode('{"a":true,"b":5,"c":[1,3,9]}')
@@ -47,17 +49,18 @@ do
 
   o.obj.b = 6
   o.arr[1] = "name"
-  assert(tostring(o.obj) == '{"a": 3, "b": 6}')
-  assert(tostring(o.arr) == '["name", "hi", {"bye": true}]')
+
+  expect_eq(tostring(o.obj), '{"a":3,"b":6}')
+  expect_eq(tostring(o.arr),'["name","hi",{"bye":true}]')
   -- Check that "u" is a copy and wasn't modify (only "o" was modified)
-  assert(tostring(u.obj) == '{"a": 3, "b": 5}')
-  assert(tostring(u.arr) == '[0, "hi", {"bye": true}]')
+  expect_eq(tostring(u.obj), '{"a":3,"b":5}')
+  expect_eq(tostring(u.arr), '[0,"hi",{"bye":true}]')
 end
 
 -- Encode Lua tables
 do
   local arrStr = json.encode({ 4, "hi", true })
-  assert(arrStr == '[4, "hi", true]')
+  expect_eq(arrStr, '[4,"hi",true]')
   local arr = json.decode(arrStr)
   assert(arr[1] == 4)
   assert(arr[2] == "hi")
@@ -99,5 +102,5 @@ do
   assert(o.b.c == 1)
   assert(o.b.d == 2)
 
-  assert(tostring(o) == '{"a": [10, 20, 30, 40], "b": {"c": 1, "d": 2}}')
+  assert(tostring(o) == '{"a":[10,20,30,40],"b":{"c":1,"d":2}}')
 end
