@@ -2056,7 +2056,7 @@ const Property Dialog_properties[] = {
   { "sizeHint", Dialog_get_sizeHint, nullptr            },
   { nullptr,    nullptr,             nullptr            }
 };
-
+DEF_ITERATOR_PAIRS(Dialog);
 } // anonymous namespace
 
 DEF_MTNAME(Dialog);
