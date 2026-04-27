@@ -238,6 +238,11 @@ if(ENABLE_SCRIPTING)
     target_include_directories(ixwebsocket PUBLIC)
   endif()
 
+  set(CPPDAP_BUILD_TESTS OFF CACHE INTERNAL "")
+  set(CPPDAP_BUILD_EXAMPLES OFF CACHE INTERNAL "")
+  set(CPPDAP_INSTALL_VSCODE_EXAMPLES OFF CACHE INTERNAL "")
+  set(CPPDAP_THIRD_PARTY_DIR ${CMAKE_SOURCE_DIR}/third_party CACHE INTERNAL "")
+  add_subdirectory(cppdap)
 endif()
 
 # qoi
