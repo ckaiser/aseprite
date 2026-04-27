@@ -13,25 +13,63 @@
 #endif
 
 #include "app/commands/debugger.h"
+#include "app/context.h"
+#include "app/script/debugger.h"
 
-#include "app/app.h"
+#include "debugger.xml.h"
 
 namespace app {
 
 using namespace ui;
 
+namespace {
+script::Debugger* g_debugger = nullptr;
+}
+
+class DebuggerWindow final : public gen::Debugger {
+public:
+  DebuggerWindow()
+  {
+    enableDebugger()->Click.connect([this] {
+      enableDebugger()->setEnabled(false);
+      disableDebugger()->setEnabled(true);
+      uint16_t port = 58000;
+      const auto entryPort = portEntry()->textInt();
+      if (entryPort > 0 && entryPort < UINT16_MAX)
+        port = portEntry()->textInt();
+
+      ASSERT(g_debugger == nullptr);
+      g_debugger = new script::Debugger(port);
+    });
+    disableDebugger()->Click.connect([this] {
+      enableDebugger()->setEnabled(true);
+      disableDebugger()->setEnabled(false);
+      delete g_debugger;
+      g_debugger = nullptr;
+    });
+  }
+};
+
+namespace {
+DebuggerWindow* g_window = nullptr;
+}
+
 DebuggerCommand::DebuggerCommand() : Command(CommandId::Debugger())
 {
 }
 
-bool DebuggerCommand::onEnabled(Context*)
+bool DebuggerCommand::onEnabled(Context* context)
 {
-  return false;
+  return context->isUIAvailable();
 }
 
 void DebuggerCommand::onExecute(Context*)
 {
-  // TODO: Implement a DAP host and the UI to turn it on/off.
+  if (!g_window)
+    g_window = new DebuggerWindow();
+
+  g_window->openWindow();
+  g_window->remapWindow();
 }
 
 Command* CommandFactory::createDebuggerCommand()

@@ -27,6 +27,7 @@
 #include "base/file_handle.h"
 #include "base/fs.h"
 #include "base/fstream_path.h"
+#include "debugger.h"
 #include "doc/algorithm/flip_type.h"
 #include "doc/anidir.h"
 #include "doc/color_mode.h"
@@ -141,6 +142,14 @@ int wrap(lua_State* L)
 {
   Engine* ptr = *static_cast<Engine**>(lua_getextraspace(L));
   return (ptr->*function)();
+}
+
+using memberHook = void (Engine::*)(lua_Debug*);
+template<memberHook function>
+void wrapHook(lua_State* L, lua_Debug* ar)
+{
+  Engine* ptr = *static_cast<Engine**>(lua_getextraspace(L));
+  (ptr->*function)(ar);
 }
 
 // Functions like the Lua allocator except filling the Engine memory tracker and
@@ -603,6 +612,23 @@ int Engine::lua_os_clock()
 {
   lua_pushnumber(L, m_clock.elapsed());
   return 1;
+}
+
+void Engine::lua_hook(lua_Debug* ar)
+{
+  m_debugger->onHook(L, ar);
+}
+
+void Engine::setDebugger(Debugger* debugger)
+{
+  m_debugger = debugger;
+  if (m_debugger)
+    lua_sethook(L,
+                &wrapHook<&Engine::lua_hook>,
+                LUA_MASKCALL | LUA_MASKRET | LUA_MASKLINE | LUA_MASKCOUNT,
+                1);
+  else
+    lua_sethook(L, nullptr, 0, 0);
 }
 
 AppEvents* Engine::appEvents()

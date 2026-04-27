@@ -184,6 +184,8 @@ if(ENABLE_SCRIPTING)
       script/websocket_class.cpp)
   endif()
 
+  target_link_libraries(app-lib cppdap)
+
   target_sources(app-lib PRIVATE
     commands/cmd_open_script_folder.cpp
     commands/cmd_run_script.cpp
@@ -200,6 +202,7 @@ if(ENABLE_SCRIPTING)
     script/cels_class.cpp
     script/color_class.cpp
     script/color_space_class.cpp
+    script/debugger.cpp
     script/dialog_class.cpp
     script/editor_class.cpp
     script/engine.cpp
