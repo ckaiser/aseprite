@@ -48,8 +48,14 @@
 #endif
 
 #include "archive.h"
+#define WIN32_LEAN_AND_MEAN
 #include "archive_entry.h"
 #include "json11.hpp"
+
+#ifdef LAF_WINDOWS
+  // archive_entry.h includes windows.h and this breaks LOG
+  #undef ERROR
+#endif
 
 #include <cctype>
 #include <fstream>
@@ -1285,6 +1291,7 @@ Extension* Extensions::installCompressedExtension(const std::string& zipFn,
     WriteArchive out;
 
     archive_entry* entry;
+    std::string currentSubpath;
     while ((entry = in.readEntry()) != nullptr) {
       const char* entryFnPtr = archive_entry_pathname(entry);
       if (!entryFnPtr)
@@ -1313,6 +1320,12 @@ Extension* Extensions::installCompressedExtension(const std::string& zipFn,
           continue;
       }
 
+      std::string subpath = base::get_file_path(fn);
+      if (subpath != currentSubpath) {
+        currentSubpath = subpath;
+        if (!subpath.empty())
+          installedFiles.push_back(subpath);
+      }
       installedFiles.push_back(fn);
 
       const std::string fullFn = base::join_path(info.dstPath, fn);
