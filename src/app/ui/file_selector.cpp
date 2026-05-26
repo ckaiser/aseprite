@@ -428,12 +428,17 @@ bool FileSelector::show(const std::string& title,
     else
       exts = preferred_open_extensions[k];
   }
-  else {
-    ASSERT(m_type == FileSelectorType::Save);
+  else if (m_type == FileSelectorType::Save) {
     if (!initialExtension.empty())
       exts = base::paths{ initialExtension };
     else
       exts = allExtensions;
+  }
+  else {
+    ASSERT(m_type == FileSelectorType::OpenFolder);
+    fileNameLabel()->setText(Strings::file_selector_folder_name());
+    fileTypeLabel()->setVisible(false);
+    fileType()->setVisible(false);
   }
   m_fileList->setMultipleSelection(m_type == FileSelectorType::OpenMultiple);
   m_fileList->setExtensions(exts);
@@ -582,6 +587,10 @@ again:
         enter_folder = fs->getFileItemFromPath(buf);
       }
     }
+
+    // Not the ideal way to do it but I'd rather leave the old logic alone
+    if (m_type == FileSelectorType::OpenFolder)
+      enter_folder = nullptr;
 
     // did we find a folder to enter?
     if (enter_folder && enter_folder->isFolder() && enter_folder->isBrowsable()) {
@@ -955,13 +964,20 @@ void FileSelector::onFileTypeChange()
 
 void FileSelector::onFileListFileSelected()
 {
-  IFileItem* fileitem = m_fileList->selectedFileItem();
+  const IFileItem* fileitem = m_fileList->selectedFileItem();
+  if (!fileitem)
+    return;
 
-  if (fileitem && !fileitem->isFolder()) {
-    std::string filename = base::get_file_name(fileitem->fileName());
-
+  if (m_type == FileSelectorType::OpenFolder) {
+    if (fileitem->isFolder())
+      m_fileName->setValue(base::get_file_name(fileitem->fileName()));
+    else
+      m_fileName->setValue(std::string());
+  }
+  else if (!fileitem->isFolder()) {
+    const std::string filename = base::get_file_name(fileitem->fileName());
     if (m_type != FileSelectorType::OpenMultiple || m_fileList->selectedFileItems().size() == 1)
-      m_fileName->setValue(filename.c_str());
+      m_fileName->setValue(filename);
     else
       m_fileName->setValue(std::string());
   }

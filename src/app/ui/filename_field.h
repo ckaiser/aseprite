@@ -27,7 +27,7 @@ class FilenameField : public ui::HBox {
 public:
   enum Type { EntryAndButton, ButtonOnly };
 
-  FilenameField(const Type type, const std::string& pathAndFilename);
+  FilenameField(Type type, const std::string& pathAndFilename);
 
   std::string filepath() const { return m_path; }
   std::string filename() const { return m_file; }
@@ -44,6 +44,7 @@ public:
     m_button.setEnabled(!readOnly);
   }
   bool isReadOnly() const { return m_entry->isReadOnly(); }
+  void setPlaceholder(const std::string& placeholder) { m_entry->setPlaceholder(placeholder); }
   void onUpdateText();
 
   obs::signal<std::string()> SelectOutputFile;
