@@ -554,6 +554,10 @@ bool Window::onProcessMessage(Message* msg)
 
             moveWindow(rect, false);
             invalidate();
+
+            // Send a "fake" resize event since this resize didn't come from the window manager
+            ResizeEvent ev(this, rect);
+            Resize(ev);
           }
         }
       }

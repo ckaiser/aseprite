@@ -11,28 +11,27 @@
 
 #include "app/app.h"
 #include "app/color.h"
-#include "app/color_utils.h"
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/file_selector.h"
+#include "app/i18n/strings.h"
 #include "app/script/canvas_widget.h"
 #include "app/script/engine.h"
 #include "app/script/graphics_context.h"
 #include "app/script/keys.h"
 #include "app/script/luacpp.h"
 #include "app/script/tabs_widget.h"
-#include "app/ui/button_set.h"
 #include "app/ui/color_button.h"
 #include "app/ui/color_shades.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/expr_entry.h"
 #include "app/ui/filename_field.h"
 #include "app/ui/main_window.h"
+#include "app/ui/path_field.h"
+#include "app/ui/skin/skin_theme.h"
 #include "app/ui/window_with_hand.h"
 #include "base/fs.h"
 #include "base/paths.h"
-#include "base/remove_from_container.h"
-#include "os/screen.h"
 #include "os/system.h"
 #include "ui/app_state.h"
 #include "ui/box.h"
@@ -46,6 +45,7 @@
 #include "ui/manager.h"
 #include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/resize_event.h"
 #include "ui/scale.h"
 #include "ui/scroll_window.h"
 #include "ui/separator.h"
@@ -405,8 +405,9 @@ int Dialog_new(lua_State* L)
 
     type = lua_getfield(L, 1, "onresize");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, -2, dlg->window.Resize, [](lua_State*, ResizeEvent&) {
-        // Do nothing
+      Dialog_connect_signal(L, -2, dlg->window.Resize, [](lua_State* L, ResizeEvent& event) {
+        push_obj(L, event.bounds());
+        lua_setfield(L, -2, "size");
       });
     }
     lua_pop(L, 1);
@@ -873,8 +874,9 @@ int Dialog_entry(lua_State* L)
   if (lua_istable(L, 2)) {
     int type = lua_getfield(L, 2, "onchange");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->Change, [](lua_State* L) {
-        // Do nothing
+      Dialog_connect_signal(L, 1, widget->Change, [widget](lua_State* L) {
+        lua_pushstring(L, widget->text().c_str());
+        lua_setfield(L, -2, "value");
       });
     }
     lua_pop(L, 1);
@@ -908,10 +910,21 @@ int Dialog_number(lua_State* L)
     }
     lua_pop(L, 1);
 
+    type = lua_getfield(L, 2, "placeholder");
+    if (type == LUA_TSTRING) {
+      if (auto p = lua_tostring(L, -1))
+        widget->setPlaceholder(p);
+    }
+    lua_pop(L, 1);
+
     type = lua_getfield(L, 2, "onchange");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->Change, [](lua_State* L) {
-        // Do nothing
+      Dialog_connect_signal(L, 1, widget->Change, [widget](lua_State* L) {
+        if (widget->decimals() == 0)
+          lua_pushinteger(L, widget->textInt());
+        else
+          lua_pushnumber(L, widget->textDouble());
+        lua_setfield(L, -2, "value");
       });
     }
     lua_pop(L, 1);
@@ -951,16 +964,18 @@ int Dialog_slider(lua_State* L)
   if (lua_istable(L, 2)) {
     int type = lua_getfield(L, 2, "onchange");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->Change, [](lua_State* L) {
-        // Do nothing
+      Dialog_connect_signal(L, 1, widget->Change, [widget](lua_State* L) {
+        lua_pushnumber(L, widget->getValue());
+        lua_setfield(L, -2, "value");
       });
     }
     lua_pop(L, 1);
 
     type = lua_getfield(L, 2, "onrelease");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->SliderReleased, [](lua_State* L) {
-        // Do nothing
+      Dialog_connect_signal(L, 1, widget->SliderReleased, [widget](lua_State* L) {
+        lua_pushnumber(L, widget->getValue());
+        lua_setfield(L, -2, "value");
       });
     }
     lua_pop(L, 1);
@@ -997,8 +1012,12 @@ int Dialog_combobox(lua_State* L)
 
     type = lua_getfield(L, 2, "onchange");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->Change, [](lua_State* L) {
-        // Do nothing
+      Dialog_connect_signal(L, 1, widget->Change, [widget](lua_State* L) {
+        const auto* selectedItem = widget->getSelectedItem();
+        lua_pushstring(L, selectedItem ? selectedItem->text().c_str() : "");
+        lua_setfield(L, -2, "value");
+        lua_pushinteger(L, widget->getSelectedItemIndex() + 1);
+        lua_setfield(L, -2, "index");
       });
     }
     lua_pop(L, 1);
@@ -1089,7 +1108,7 @@ int Dialog_shades(lua_State* L)
 
 int Dialog_file(lua_State* L)
 {
-  std::string title = "Open File";
+  std::string title = Strings::open_file_title();
   std::string path;
   std::string fn;
   base::paths exts;
@@ -1105,7 +1124,7 @@ int Dialog_file(lua_State* L)
     int type = lua_getfield(L, 2, "save");
     if (type == LUA_TBOOLEAN && lua_toboolean(L, -1)) {
       dlgType = FileSelectorType::Save;
-      title = "Save File";
+      title = Strings::save_file_title();
     }
     lua_pop(L, 1);
 
@@ -1143,9 +1162,17 @@ int Dialog_file(lua_State* L)
   if (lua_istable(L, 2)) {
     int type = lua_getfield(L, 2, "onchange");
     if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->Change, [](lua_State* L) {
-        // Do nothing
+      Dialog_connect_signal(L, 1, widget->Change, [widget](lua_State* L) {
+        lua_pushstring(L, base::normalize_path(widget->fullFilename()).c_str());
+        lua_setfield(L, -2, "value");
       });
+    }
+    lua_pop(L, 1);
+
+    type = lua_getfield(L, 2, "placeholder");
+    if (type == LUA_TSTRING) {
+      if (const auto* p = lua_tostring(L, -1))
+        widget->setPlaceholder(p);
     }
     lua_pop(L, 1);
   }
@@ -1171,13 +1198,63 @@ int Dialog_file(lua_State* L)
   widget->setDocFilename(fn);
   widget->setFilename(fn);
 
-  widget->SelectOutputFile.connect([=]() -> std::string {
+  widget->SelectOutputFile.connect([widget, title, exts, dlgType] {
     base::paths newfilename;
     if (app::show_file_selector(title, widget->fullFilename(), exts, dlgType, newfilename))
       return newfilename.front();
     else
       return widget->fullFilename();
   });
+  return Dialog_add_widget(L, widget);
+}
+
+int Dialog_folder(lua_State* L)
+{
+  std::string title = Strings::open_file_title();
+  std::string path;
+
+  if (lua_istable(L, 2)) {
+    int type = lua_getfield(L, 2, "title");
+    if (type == LUA_TSTRING)
+      title = lua_tostring(L, -1);
+    lua_pop(L, 1);
+
+    type = lua_getfield(L, 2, "path");
+    if (type == LUA_TSTRING) {
+      path = lua_tostring(L, -1);
+    }
+    lua_pop(L, 1);
+  }
+
+  auto* widget = new PathField(title, path);
+
+  if (lua_istable(L, 2)) {
+    int type = lua_getfield(L, 2, "onchange");
+    if (type == LUA_TFUNCTION) {
+      Dialog_connect_signal(L, 1, widget->Change, [](lua_State* L, const std::string& selected) {
+        lua_pushstring(L, selected.c_str());
+        lua_setfield(L, -2, "value");
+      });
+    }
+    lua_pop(L, 1);
+
+    type = lua_getfield(L, 2, "onselect");
+    if (type == LUA_TFUNCTION) {
+      Dialog_connect_signal(L, 1, widget->Selected, [](lua_State* L, const std::string& selected) {
+        lua_pushstring(L, selected.c_str());
+        lua_setfield(L, -2, "value");
+      });
+    }
+    lua_pop(L, 1);
+
+    type = lua_getfield(L, 2, "placeholder");
+    if (type == LUA_TSTRING) {
+      if (const auto* p = lua_tostring(L, -1))
+        widget->getEntryWidget()->setPlaceholder(p);
+    }
+    lua_pop(L, 1);
+  }
+
   return Dialog_add_widget(L, widget);
 }
 
@@ -1674,6 +1751,14 @@ int Dialog_modify(lua_State* L)
     }
     lua_pop(L, 1);
 
+    type = lua_getfield(L, 2, "path");
+    if (auto p = lua_tostring(L, -1)) {
+      if (auto pathSelector = dynamic_cast<PathField*>(widget)) {
+        pathSelector->setPath(p);
+      }
+    }
+    lua_pop(L, 1);
+
     type = lua_getfield(L, 2, "mouseCursor");
     if (type == LUA_TNIL) {
       lua_pop(L, 1);
@@ -1862,11 +1947,14 @@ int Dialog_get_data(lua_State* L)
           }
         }
         else if (auto filenameField = dynamic_cast<const FilenameField*>(widget)) {
-          lua_pushstring(L, filenameField->fullFilename().c_str());
+          lua_pushstring(L, base::normalize_path(filenameField->fullFilename()).c_str());
         }
         else if (auto tabs = dynamic_cast<const app::script::Tabs*>(widget)) {
           std::string tabStr = tabs->tabId(tabs->selectedTab());
           lua_pushstring(L, tabStr.c_str());
+        }
+        else if (auto* pathSelector = dynamic_cast<const PathField*>(widget)) {
+          lua_pushstring(L, base::normalize_path(pathSelector->path()).c_str());
         }
         else {
           lua_pushnil(L);
@@ -1964,6 +2052,10 @@ int Dialog_set_data(lua_State* L)
             tabs->selectTab(tabIndex);
           }
         }
+        else if (auto pathSelector = dynamic_cast<PathField*>(widget)) {
+          if (auto p = lua_tostring(L, -1))
+            pathSelector->setPath(p);
+        }
         break;
     }
 
@@ -2041,6 +2133,7 @@ const luaL_Reg Dialog_methods[] = {
   { "color",     Dialog_color     },
   { "shades",    Dialog_shades    },
   { "file",      Dialog_file      },
+  { "folder",    Dialog_folder    },
   { "canvas",    Dialog_canvas    },
   { "tab",       Dialog_tab       },
   { "endtabs",   Dialog_endtabs   },
