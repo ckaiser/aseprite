@@ -674,6 +674,7 @@ target_sources(app-lib PRIVATE
   ui/palette_popup.cpp
   ui/palette_view.cpp
   ui/palettes_listbox.cpp
+  ui/path_field.cpp
   ui/popup_window_pin.cpp
   ui/pref_widget.cpp
   ui/preview_editor.cpp

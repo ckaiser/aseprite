@@ -428,12 +428,20 @@ bool FileSelector::show(const std::string& title,
     else
       exts = preferred_open_extensions[k];
   }
-  else {
-    ASSERT(m_type == FileSelectorType::Save);
+  else if (m_type == FileSelectorType::Save) {
     if (!initialExtension.empty())
       exts = base::paths{ initialExtension };
     else
       exts = allExtensions;
+  }
+  else {
+    ASSERT(m_type == FileSelectorType::OpenFolder);
+    fileNameLabel()->setText(Strings::file_selector_folder_name());
+    fileTypeLabel()->setVisible(false);
+    fileType()->setVisible(false);
+    // Hacky way to have the file dialog only show folders without changing the fileList code
+    m_defExtension = "</DIR_EXTENSION/>";
+    exts = { m_defExtension };
   }
   m_fileList->setMultipleSelection(m_type == FileSelectorType::OpenMultiple);
   m_fileList->setExtensions(exts);
@@ -448,41 +456,42 @@ bool FileSelector::show(const std::string& title,
   updateLocation();
   updateNavigationButtons();
 
-  // fill file-type combo-box
-  fileType()->deleteAllItems();
-
   // Get the default extension from the given initial file name
   if (m_defExtension.empty())
     m_defExtension = initialExtension;
 
-  // File type for all formats
-  fileType()->addItem(
-    new CustomFileExtensionItem(Strings::file_selector_all_formats(), allExtensions));
+  if (m_type != FileSelectorType::OpenFolder) {
+    // fill file-type combo-box
+    fileType()->deleteAllItems();
 
-  // One file type for each supported image format
-  for (const auto& e : allExtensions) {
-    // If the default extension is empty, use the first filter
-    if (m_defExtension.empty())
-      m_defExtension = e;
+    // File type for all formats
+    fileType()->addItem(
+      new CustomFileExtensionItem(Strings::file_selector_all_formats(), allExtensions));
 
-    fileType()->addItem(new CustomFileExtensionItem(e + " files", base::paths{ e }));
+    // One file type for each supported image format
+    for (const auto& e : allExtensions) {
+      // If the default extension is empty, use the first filter
+      if (m_defExtension.empty())
+        m_defExtension = e;
+
+      fileType()->addItem(new CustomFileExtensionItem(e + " files", base::paths{ e }));
+    }
+    // All files
+    fileType()->addItem(new CustomFileExtensionItem(Strings::file_selector_all_files(),
+                                                    base::paths())); // Empty extensions means "*.*"
+    for (Widget* wItem : *fileType()) {
+      auto item = dynamic_cast<CustomFileExtensionItem*>(wItem);
+      ASSERT(item);
+      if (item && item->extensions() == exts) {
+        fileType()->setSelectedItem(item);
+        break;
+      }
+    }
   }
-  // All files
-  fileType()->addItem(new CustomFileExtensionItem(Strings::file_selector_all_files(),
-                                                  base::paths())); // Empty extensions means "*.*"
 
   // file name entry field
   m_fileName->setValue(base::get_file_name(initialPath).c_str());
   m_fileName->getEntryWidget()->selectText(0, -1);
-
-  for (Widget* wItem : *fileType()) {
-    auto item = dynamic_cast<CustomFileExtensionItem*>(wItem);
-    ASSERT(item);
-    if (item && item->extensions() == exts) {
-      fileType()->setSelectedItem(item);
-      break;
-    }
-  }
 
   // setup the title of the window
   setText(title.c_str());
@@ -582,6 +591,10 @@ again:
         enter_folder = fs->getFileItemFromPath(buf);
       }
     }
+
+    // Not the ideal way to do it but I'd rather leave the old logic alone
+    if (m_type == FileSelectorType::OpenFolder)
+      enter_folder = nullptr;
 
     // did we find a folder to enter?
     if (enter_folder && enter_folder->isFolder() && enter_folder->isBrowsable()) {
@@ -955,13 +968,25 @@ void FileSelector::onFileTypeChange()
 
 void FileSelector::onFileListFileSelected()
 {
-  IFileItem* fileitem = m_fileList->selectedFileItem();
+  const IFileItem* fileitem = m_fileList->selectedFileItem();
 
-  if (fileitem && !fileitem->isFolder()) {
-    std::string filename = base::get_file_name(fileitem->fileName());
-
+  if (m_type == FileSelectorType::OpenFolder) {
+    if (!fileitem) {
+      m_fileName->setValue(m_fileList->currentFolder() ?
+                             base::get_file_name(m_fileList->currentFolder()->fileName()) :
+                             "");
+    }
+    else {
+      if (fileitem->isFolder())
+        m_fileName->setValue(base::get_file_name(fileitem->fileName()));
+      else
+        m_fileName->setValue(std::string());
+    }
+  }
+  else if (fileitem && !fileitem->isFolder()) {
+    const std::string filename = base::get_file_name(fileitem->fileName());
     if (m_type != FileSelectorType::OpenMultiple || m_fileList->selectedFileItems().size() == 1)
-      m_fileName->setValue(filename.c_str());
+      m_fileName->setValue(filename);
     else
       m_fileName->setValue(std::string());
   }

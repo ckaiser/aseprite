@@ -29,7 +29,7 @@ namespace app {
 bool show_file_selector(const std::string& title,
                         const std::string& initialPath,
                         const base::paths& extensions,
-                        FileSelectorType type,
+                        const FileSelectorType type,
                         base::paths& output)
 {
   const os::SystemRef system = os::System::instance();
@@ -74,6 +74,7 @@ bool show_file_selector(const std::string& title,
       switch (type) {
         case FileSelectorType::Open:         nativeType = dlgs::FileDialog::Type::OpenFile; break;
         case FileSelectorType::OpenMultiple: nativeType = dlgs::FileDialog::Type::OpenFiles; break;
+        case FileSelectorType::OpenFolder:   nativeType = dlgs::FileDialog::Type::OpenFolder; break;
         case FileSelectorType::Save:         nativeType = dlgs::FileDialog::Type::SaveFile; break;
       }
       dlg->setType(nativeType);
