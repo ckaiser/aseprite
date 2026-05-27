@@ -18,7 +18,7 @@
       </hbox>
 
       <hbox>
-        <textbox id="description" wordwrap="true" border="0" text_align="center middle" width="180" style="textbox_label" />
+        <textbox id="description" wordwrap="true" border="0" text_align="center middle" width="180" style="textbox_label" lineSpacing="2" />
       </hbox>
 
       <hbox id="url_container">

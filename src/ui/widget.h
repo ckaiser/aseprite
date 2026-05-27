@@ -147,6 +147,9 @@ public:
   // Sets the background color of the widget
   void setBgColor(gfx::Color color);
 
+  int lineSpacing() const { return m_lineSpacing; }
+  void setLineSpacing(int spacing) { m_lineSpacing = spacing; }
+
   Theme* theme() const { return m_theme; }
   Style* style() const { return m_style; }
   void setTheme(Theme* theme);
@@ -472,6 +475,7 @@ private:
   Widget* m_parent;           // Who is the parent?
   int m_parentIndex; // Location/index of this widget in the parent's Widget::m_children vector
   gfx::Size* m_sizeHint;
+  int m_lineSpacing = 0; // Space between lines of text
 
   // Keyboard shortcut to access this widget like Alt+mnemonic.  If
   // kMnemonicModifiersMask bit is zero, it means that the mnemonic

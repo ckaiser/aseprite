@@ -396,6 +396,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
     bool wordwrap = bool_attr(elem, "wordwrap", false);
     const char* text_align = elem->Attribute("text_align");
     int align = text_align ? convert_align_value_to_flags(text_align) : 0;
+    int lineSpacing = int_attr(elem, "lineSpacing", 0) * guiscale();
 
     if (!widget)
       widget = new TextBox(text, 0);
@@ -407,6 +408,8 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
 
     if (align)
       widget->setAlign(widget->align() | align);
+
+    widget->setLineSpacing(lineSpacing);
   }
   else if (elem_name == "view") {
     if (!widget)
