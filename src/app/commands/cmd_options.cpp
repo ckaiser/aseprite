@@ -2291,8 +2291,10 @@ private:
 
         const auto& property = std::static_pointer_cast<SearchTextProperty>(
           widget->getProperty(SearchTextProperty::Name));
-        const auto& text = property->text();
+        if (!property)
+          continue;
 
+        const auto& text = property->text();
         if (text.empty())
           continue;
 
