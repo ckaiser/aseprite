@@ -48,6 +48,12 @@ bool show_file_selector(const std::string& title,
     // Connect laf-os <-> laf-dlgs information about the X11 server
     // connection.
     spec.x11display = os::X11::instance()->display();
+
+    const auto& backendPref = Preferences::instance().general.x11FileDialog();
+    if (backendPref == "zenity")
+      spec.backend = dlgs::FileDialog::Spec::Backend::Zenity;
+    else if (backendPref == "kdialog")
+      spec.backend = dlgs::FileDialog::Spec::Backend::KDialog;
 #endif
 
     dlgs::FileDialogRef dlg = dlgs::FileDialog::make(spec);
