@@ -145,6 +145,7 @@ public:
   void notifyAfterAddTile(LayerTilemap* layer, frame_t frame, tile_index ti);
   void notifyBeforeSlicesDuplication();
   void notifySliceDuplicated(Slice* slice);
+  void notifyBeforeCommitTransaction();
 
   //////////////////////////////////////////////////////////////////////
   // File related properties

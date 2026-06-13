@@ -124,6 +124,9 @@ public:
   // Warning: This must be triggered from the UI thread (because
   // scripts will listen this event).
   virtual void onAfterAddTile(DocEvent& ev) {}
+
+  // When we are about to commit a transaction
+  virtual void onBeforeCommitTransaction(DocEvent& ev) {}
 };
 
 } // namespace app

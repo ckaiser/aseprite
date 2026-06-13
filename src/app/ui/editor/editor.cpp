@@ -2648,6 +2648,12 @@ void Editor::onSliceDuplicated(DocEvent& ev)
   selectSlice(ev.slice());
 }
 
+void Editor::onBeforeCommitTransaction(DocEvent& ev)
+{
+  if (ev.document() == m_document && isMovingPixels())
+    dropMovingPixels();
+}
+
 void Editor::setCursor(const gfx::Point& mouseDisplayPos)
 {
   bool used = false;
