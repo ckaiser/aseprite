@@ -4,13 +4,8 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/i18n/strings.h"
 #include "app/tools/ink_type.h"
+#include "app/i18n/strings.h"
 
 namespace app { namespace tools {
 

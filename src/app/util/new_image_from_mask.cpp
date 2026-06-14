@@ -4,19 +4,27 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/new_image_from_mask.h"
+#include <memory>
 
 #include "app/doc.h"
 #include "app/site.h"
+#include "app/util/new_image_from_mask.h"
+#include "base/debug.h"
+#include "doc/blend_mode.h"
+#include "doc/cel.h"
+#include "doc/grid.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
+#include "doc/image_iterator.h"
+#include "doc/image_traits.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
+#include "doc/sprite.h"
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "render/render.h"
 
 namespace app {

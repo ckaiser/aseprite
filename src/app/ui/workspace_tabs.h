@@ -9,6 +9,8 @@
 #pragma once
 
 #include "app/ui/tabs.h"
+#include "ui/base.h"
+#include "ui/widget_type.h"
 
 namespace app {
 class WorkspacePanel;

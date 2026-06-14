@@ -4,58 +4,79 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <cstdio>
+#include <limits>
+#include <memory>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
-#include "app/context_access.h"
-#include "app/doc_access.h"
-#include "app/doc_event.h"
-#include "app/doc_range.h"
+#include "app/doc.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gfx.h"
 #include "app/modules/gui.h"
-#include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tools/active_tool.h"
 #include "app/tools/tool.h"
-#include "app/ui/button_set.h"
-#include "app/ui/color_button.h"
+#include "app/transformation.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
-#include "app/ui/timeline/timeline.h"
 #include "app/ui/toolbar.h"
 #include "app/ui/zoom_entry.h"
 #include "app/ui_context.h"
 #include "app/util/tile_flags_utils.h"
+#include "base/debug.h"
 #include "base/fs.h"
-#include "base/string.h"
-#include "doc/image.h"
-#include "doc/layer.h"
-#include "doc/sprite.h"
+#include "doc/tileset.h"
 #include "fmt/format.h"
+#include "gfx/border.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/keys.h"
 #include "os/surface.h"
-#include "text/font.h"
-#include "ui/ui.h"
+#include "ui/button.h"
+#include "ui/entry.h"
+#include "ui/fit_bounds.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
+#include "ui/label.h"
+#include "ui/link_label.h"
+#include "ui/menu.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint_event.h"
+#include "ui/popup_window.h"
+#include "ui/resize_event.h"
+#include "ui/scale.h"
+#include "ui/system.h"
+#include "ui/timer.h"
+#include "ui/tooltips.h"
+#include "ui/widget.h"
 #include "ver/info.h"
 
-#include <algorithm>
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
-#include <limits>
-#include <vector>
+namespace doc {
+enum class ColorMode;
+} // namespace doc
+namespace ui {
+class Style;
+} // namespace ui
 
 namespace app {
+class Command;
 
 using namespace app::skin;
 using namespace gfx;

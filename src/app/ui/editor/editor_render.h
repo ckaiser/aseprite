@@ -9,6 +9,8 @@
 #define APP_UI_EDITOR_RENDER_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/render/renderer.h"
 #include "doc/blend_mode.h"
 #include "doc/color.h"
@@ -21,6 +23,11 @@
 #include "render/onionskin_options.h"
 #include "render/projection.h"
 
+namespace render {
+class Projection;
+enum class ExtraType;
+} // namespace render
+
 namespace doc {
 class Cel;
 class Image;
@@ -28,6 +35,7 @@ class Layer;
 class Palette;
 class Sprite;
 class Tileset;
+enum class BlendMode;
 } // namespace doc
 
 namespace os {

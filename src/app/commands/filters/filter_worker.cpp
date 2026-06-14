@@ -4,28 +4,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <exception>
+#include <functional>
+#include <memory>
+#include <mutex>
+#include <string>
+#include <thread>
+#include <utility>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/console.h"
 #include "app/i18n/strings.h"
-#include "app/ini_file.h"
-#include "app/modules/gui.h"
-#include "app/ui/editor/editor.h"
-#include "app/ui/status_bar.h"
-#include "base/thread.h"
-#include "doc/sprite.h"
-#include "ui/ui.h"
-
-#include <cstdlib>
-#include <cstring>
-#include <functional>
-#include <mutex>
-#include <thread>
+#include "base/log.h"
+#include "obs/signal.h"
+#include "ui/alert.h"
+#include "ui/manager.h"
+#include "ui/timer.h"
 
 namespace app {
 

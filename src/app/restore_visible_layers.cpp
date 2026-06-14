@@ -4,13 +4,7 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/restore_visible_layers.h"
-
 #include "doc/layer.h"
 #include "doc/selected_layers.h"
 #include "doc/sprite.h"

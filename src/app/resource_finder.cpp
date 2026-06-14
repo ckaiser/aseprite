@@ -4,17 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <cstdlib>
 
 #include "app/resource_finder.h"
-
-#include "app/app.h"
 #include "base/fs.h"
-#include "base/string.h"
-#include "ver/info.h"
+#include "base/log.h"
 
 #ifdef _WIN32
   #include <shlobj.h>

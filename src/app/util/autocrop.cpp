@@ -4,22 +4,19 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/autocrop.h"
+#include <memory>
+#include <utility>
 
 #include "app/snap_to_grid.h"
+#include "app/util/autocrop.h"
 #include "doc/algorithm/shrink_bounds.h"
+#include "doc/frame.h"
 #include "doc/image.h"
-#include "doc/mask.h"
+#include "doc/primitives.h"
 #include "doc/sprite.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
 #include "render/render.h"
-
-#include <algorithm>
-#include <memory>
 
 namespace app {
 

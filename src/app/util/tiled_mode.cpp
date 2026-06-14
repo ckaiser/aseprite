@@ -7,9 +7,17 @@
 
 #include "app/util/tiled_mode.h"
 
+#include "app/transformation.h"
 #include "doc/algorithm/rotate.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/mask.h"
-#include "gfx/region.h"
+#include "doc/sprite.h"
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "render/projection.h"
 
 using namespace filters;
 using namespace doc;

@@ -6,39 +6,34 @@
 // the End-User License Agreement for Aseprite.
 
 #define EXP_TRACE(...) // TRACEARGS(__VA_ARGS__)
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/util/expand_cel_canvas.h"
-
 #include "app/app.h"
 #include "app/cmd/add_cel.h"
-#include "app/cmd/copy_rect.h"
 #include "app/cmd/copy_region.h"
 #include "app/cmd/patch_cel.h"
 #include "app/cmd/set_cel_image.h"
 #include "app/cmd/set_cel_position.h"
 #include "app/cmd_sequence.h"
-#include "app/context.h"
-#include "app/doc.h"
 #include "app/site.h"
+#include "app/tilemap_mode.h"
 #include "app/util/cel_ops.h"
 #include "base/debug.h"
 #include "doc/algorithm/shrink_bounds.h"
+#include "doc/blend_mode.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
 #include "doc/image.h"
+#include "doc/image_buffer.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
 #include "doc/tileset.h"
-#include "doc/tileset_hash_table.h"
-#include "doc/tilesets.h"
-#include "gfx/point_io.h"
-#include "gfx/rect_io.h"
-#include "gfx/size_io.h"
+#include "filters/tiled_mode.h"
+#include "gfx/clip.h"
+#include "obs/signal.h"
 #include "render/render.h"
 
 namespace {

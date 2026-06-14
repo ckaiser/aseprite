@@ -9,11 +9,12 @@
 #define APP_UI_EDITOR_TRANSFORM_HANDLES_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/transformation.h"
 #include "app/ui/editor/handle_type.h"
 #include "gfx/point.h"
-
-#include <vector>
+#include "gfx/rect.h"
 
 namespace ui {
 class Graphics;

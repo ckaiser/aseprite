@@ -5,20 +5,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/color_spaces.h"
 #include "app/util/conversion_to_surface.h"
 #include "doc/blend_mode.h"
 #include "doc/cel.h"
-#include "doc/layer.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
+#include "doc/pixel_format.h"
 #include "doc/sprite.h"
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "os/color_space.h"
 #include "os/surface.h"
 #include "os/system.h"
+#include "render/projection.h"
 #include "render/render.h"
+#include "render/zoom.h"
+
+namespace doc {
+class Palette;
+} // namespace doc
+namespace ui {
+class Display;
+} // namespace ui
 
 namespace app { namespace thumb {
 

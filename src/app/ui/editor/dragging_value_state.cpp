@@ -3,23 +3,19 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/dragging_value_state.h"
+#include <vector>
 
 #include "app/tools/tool.h"
+#include "app/ui/editor/dragging_value_state.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/toolbar.h"
 #include "app/ui_context.h"
+#include "base/base.h"
+#include "obs/signal.h"
+#include "os/window.h"
 #include "ui/display.h"
 #include "ui/message.h"
-#include "ui/scale.h"
 #include "ui/system.h"
-
-#include <cmath>
 
 namespace app {
 

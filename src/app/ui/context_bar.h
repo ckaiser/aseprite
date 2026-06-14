@@ -9,6 +9,9 @@
 #define APP_UI_CONTEXT_BAR_H_INCLUDED
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "app/pref/preferences.h"
 #include "app/shade.h"
 #include "app/tools/active_tool_observer.h"
@@ -24,9 +27,8 @@
 #include "obs/observable.h"
 #include "obs/signal.h"
 #include "render/gradient.h"
+#include "ui/base.h"
 #include "ui/box.h"
-
-#include <vector>
 
 namespace doc {
 class Remap;
@@ -49,6 +51,9 @@ namespace app {
 namespace tools {
 class Ink;
 class Tool;
+enum class InkType;
+enum class ToolLoopModifiers;
+struct DynamicsOptions;
 } // namespace tools
 
 class BrushSlot;
@@ -58,6 +63,7 @@ class FontInfo;
 class GradientTypeSelector;
 class SamplingSelector;
 class Transformation;
+class Site;
 
 class ContextBar : public DocObserverWidget<ui::HBox>,
                    public obs::observable<ContextBarObserver>,

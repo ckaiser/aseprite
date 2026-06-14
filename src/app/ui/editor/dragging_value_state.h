@@ -8,14 +8,22 @@
 #define APP_UI_EDITOR_DRAGGING_VALUE_STATE_H_INCLUDED
 #pragma once
 
+#include "app/color.h"
 #include "app/ui/editor/state_with_wheel_behavior.h"
 #include "app/ui/key.h"
+#include "doc/frame.h"
+#include "doc/layer_list.h"
 #include "gfx/point.h"
 #include "obs/connection.h"
 #include "render/zoom.h"
 
 namespace app {
 class CommandExecutionEvent;
+class Editor;
+namespace tools {
+class Tool;
+enum class InkType;
+} // namespace tools
 
 class DraggingValueState : public StateWithWheelBehavior {
 public:

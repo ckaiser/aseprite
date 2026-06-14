@@ -4,14 +4,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/extra_cel.h"
-
+#include "app/tilemap_mode.h"
+#include "base/debug.h"
+#include "doc/blend_mode.h"
+#include "doc/image.h"
+#include "doc/pixel_format.h"
 #include "doc/sprite.h"
+#include "render/extra_type.h"
 
 namespace app {
 

@@ -4,30 +4,48 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/moving_slice_state.h"
+#include <algorithm>
+#include <cstddef>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "app/cmd/clear_slices.h"
 #include "app/cmd/set_slice_key.h"
+#include "app/cmd_transaction.h"
 #include "app/context_access.h"
+#include "app/doc.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/tilemap_mode.h"
+#include "app/tileset_mode.h"
 #include "app/tx.h"
+#include "app/ui/editor/brush_preview.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/status_bar.h"
+#include "app/ui/editor/moving_slice_state.h"
 #include "app/ui_context.h"
 #include "app/util/expand_cel_canvas.h"
+#include "base/debug.h"
 #include "doc/algorithm/rotate.h"
-#include "doc/blend_internals.h"
+#include "doc/blend_mode.h"
+#include "doc/cel.h"
+#include "doc/grid.h"
+#include "doc/layer.h"
+#include "doc/selected_layers.h"
+#include "doc/selected_objects.h"
 #include "doc/slice.h"
+#include "doc/sprite.h"
+#include "doc/tile.h"
+#include "filters/tiled_mode.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "pixman-combine32.h"
+#include "render/extra_type.h"
 #include "render/render.h"
+#include "ui/base.h"
+#include "ui/cursor_type.h"
 #include "ui/message.h"
-
-#include <algorithm>
-#include <cmath>
-#include <vector>
+#include "view/range.h"
 
 namespace app {
 

@@ -8,12 +8,14 @@
 #define APP_COMMANDS_CMD_EXPORT_SPRITE_SHEET_H_INCLUDED
 #pragma once
 
+#include <limits>
+#include <sstream>
+#include <string>
+
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
 #include "app/sprite_sheet_data_format.h"
 #include "app/sprite_sheet_type.h"
-
-#include <limits>
-#include <sstream>
 
 namespace app {
 

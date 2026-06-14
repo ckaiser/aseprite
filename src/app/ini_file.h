@@ -9,6 +9,8 @@
 #define APP_INI_FILE_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/color.h"
 #include "base/paths.h"
 #include "gfx/point.h"

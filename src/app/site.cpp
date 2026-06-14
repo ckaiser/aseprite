@@ -4,20 +4,19 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/site.h"
-
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "doc/cel.h"
 #include "doc/grid.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/sprite.h"
 #include "doc/tileset.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "ui/system.h"
 #include "view/cels.h"
 #include "view/range.h"

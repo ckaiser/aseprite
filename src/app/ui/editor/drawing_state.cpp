@@ -4,23 +4,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/drawing_state.h"
+#include <cstdlib>
+#include <string>
 
 #include "app/commands/command.h"
-#include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/tools/controller.h"
 #include "app/tools/ink.h"
-#include "app/tools/tool.h"
 #include "app/tools/tool_loop.h"
 #include "app/tools/tool_loop_manager.h"
+#include "app/ui/editor/drawing_state.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/editor/editor_customization_delegate.h"
 #include "app/ui/editor/editor_render.h"
 #include "app/ui/editor/glue.h"
 #include "app/ui/keyboard_shortcuts.h"
@@ -29,17 +23,28 @@
 #include "base/scoped_value.h"
 #include "doc/layer.h"
 #include "ui/message.h"
-#include "ui/system.h"
-
 // TODO remove these headers and make this state observable by the timeline.
 #include "app/app.h"
-#include "app/ui/main_window.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/tools/tool_loop_modifiers.h"
+#include "app/tools/trace_policy.h"
+#include "app/ui/editor/brush_preview.h"
 #include "app/ui/timeline/timeline.h"
+#include "base/debug.h"
+#include "doc/blend_mode.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "ui/cursor_type.h"
+#include "ui/keys.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstdlib>
-#include <cstring>
+namespace doc {
+class Tileset;
+} // namespace doc
 
 namespace app {
 

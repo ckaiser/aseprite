@@ -8,10 +8,16 @@
 #define APP_UI_WINDOW_WITH_HAND_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/editor/editor_observer.h"
+#include "gfx/fwd.h"
+#include "ui/widgets_list.h"
 #include "ui/window.h"
 
 namespace app {
+class Editor;
+
 namespace tools {
 class Tool;
 }

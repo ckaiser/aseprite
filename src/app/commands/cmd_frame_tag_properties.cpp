@@ -4,29 +4,36 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
+#include "app/app.h"
 #include "app/cmd/set_tag_anidir.h"
-#include "app/cmd/set_tag_color.h"
 #include "app/cmd/set_tag_name.h"
 #include "app/cmd/set_tag_range.h"
 #include "app/cmd/set_tag_repeat.h"
 #include "app/cmd/set_user_data.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
-#include "app/loop_tag.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
 #include "app/tx.h"
 #include "app/ui/tag_window.h"
 #include "app/ui/timeline/timeline.h"
 #include "base/convert_to.h"
-#include "doc/anidir.h"
+#include "doc/frame.h"
+#include "doc/object_id.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
 #include "doc/user_data.h"
+
+namespace doc {
+enum class AniDir;
+} // namespace doc
 
 namespace app {
 

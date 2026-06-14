@@ -23,6 +23,7 @@ class Ink;
 class Pointer;
 class Tool;
 class ToolBox;
+enum class InkType;
 
 // Manages the coordination between different UI elements that show
 // information about the active tool.

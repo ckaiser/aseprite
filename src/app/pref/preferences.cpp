@@ -4,20 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <stddef.h>
+#include <utility>
 
 #include "app/doc.h"
 #include "app/ini_file.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/resource_finder.h"
 #include "app/tools/ink.h"
 #include "app/tools/tool.h"
+#include "base/debug.h"
 #include "base/fs.h"
-#include "base/platform.h"
 #include "doc/sprite.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
 #include "os/system.h"
 #include "ui/system.h"
 

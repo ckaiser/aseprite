@@ -9,6 +9,8 @@
 #define APP_CONTEXT_FLAGS_H_INCLUDED
 #pragma once
 
+#include <stdint.h>
+
 #include "base/ints.h"
 
 namespace app {

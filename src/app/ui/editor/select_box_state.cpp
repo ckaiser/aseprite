@@ -4,25 +4,28 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/select_box_state.h"
+#include <algorithm>
+#include <stddef.h>
+#include <utility>
 
 #include "app/app.h"
 #include "app/tools/tool_box.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/main_window.h"
+#include "app/ui/editor/select_box_state.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
-#include "doc/image.h"
+#include "base/debug.h"
+#include "doc/color.h"
 #include "doc/sprite.h"
+#include "gfx/color.h"
 #include "gfx/rect.h"
+#include "os/keys.h"
+#include "render/projection.h"
+#include "ui/base.h"
+#include "ui/keys.h"
 #include "ui/message.h"
-#include "ui/system.h"
+#include "ui/scale.h"
 #include "ui/view.h"
 
 namespace app {

@@ -4,24 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/app.h"
 #include "app/cli/app_options.h"
-#include "app/console.h"
-#include "app/resource_finder.h"
 #include "app/send_crash.h"
-#include "base/exception.h"
-#include "base/memory.h"
+#include "base/debug.h"
 #include "base/system_console.h"
-#include "base/thread.h"
-#include "doc/palette.h"
 #include "os/error.h"
 #include "os/system.h"
-#include "ver/info.h"
 
 #if LAF_WINDOWS
   #include "base/win/coinit.h"
@@ -40,7 +29,9 @@
 #include <clocale>
 #include <cstdlib>
 #include <ctime>
+#include <exception>
 #include <iostream>
+#include <string>
 
 #if LAF_WINDOWS
   #include <windows.h>

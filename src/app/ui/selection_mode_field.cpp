@@ -3,16 +3,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/selection_mode_field.h"
+#include <string>
 
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/selection_mode_field.h"
 #include "app/ui/skin/skin_theme.h"
+#include "ui/base.h"
 #include "ui/tooltips.h"
 
 namespace app {

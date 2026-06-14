@@ -4,29 +4,28 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/colsel/wheel.h"
+#include <algorithm>
+#include <cmath>
 
 #include "app/color_spaces.h"
-#include "app/color_utils.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "app/ui/skin/skin_theme.h"
-#include "app/ui/status_bar.h"
+#include "app/ui/colsel/wheel.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/util/shader_helpers.h"
 #include "base/pi.h"
-#include "os/surface.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "include/core/SkM44.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "obs/signal.h"
+#include "os/color_space.h"
+#include "os/skia/paint.h"
+#include "ui/button.h"
 #include "ui/graphics.h"
 #include "ui/menu.h"
-#include "ui/message.h"
-#include "ui/paint_event.h"
-#include "ui/resize_event.h"
-#include "ui/size_hint_event.h"
-#include "ui/system.h"
+#include "ui/paint.h"
 
 namespace app::colsel {
 

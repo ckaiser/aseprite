@@ -13,6 +13,7 @@
 #include "base/time.h"
 #include "doc/frame.h"
 #include "doc/playback.h"
+#include "gfx/point.h"
 #include "obs/connection.h"
 #include "ui/timer.h"
 
@@ -23,6 +24,7 @@ class Tag;
 namespace app {
 
 class CommandExecutionEvent;
+class Editor;
 
 class PlayState : public StateWithWheelBehavior {
 public:

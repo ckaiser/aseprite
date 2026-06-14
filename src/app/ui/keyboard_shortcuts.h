@@ -9,16 +9,29 @@
 #define APP_UI_KEYBOARD_SHORTCUTS_H_INCLUDED
 #pragma once
 
+#include <optional>
+#include <string>
+#include <vector>
+
+#include "app/commands/params.h"
 #include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "obs/signal.h"
 
-#include <optional>
+namespace ui {
+class Message;
+class Shortcut;
+} // namespace ui
 
 namespace tinyxml2 {
 class XMLElement;
 }
 
 namespace app {
+class Command;
+namespace tools {
+class Tool;
+} // namespace tools
 
 class KeyboardShortcuts {
 public:

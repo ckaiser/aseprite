@@ -12,10 +12,15 @@
 #include "app/commands/filters/filter_preview.h"
 #include "app/commands/filters/filter_target_buttons.h"
 #include "app/ui/window_with_hand.h"
+#include "filters/target.h"
 #include "filters/tiled_mode.h"
 #include "ui/box.h"
 #include "ui/button.h"
 #include "ui/window.h"
+
+namespace ui {
+class Widget;
+} // namespace ui
 
 namespace app {
 class Editor;

@@ -9,11 +9,11 @@
 #define APP_FILE_FILE_FORMAT_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/file/format_options.h"
 #include "base/paths.h"
 #include "dio/file_format.h"
-
-#include <vector>
 
 #define FILE_SUPPORT_LOAD               0x00000001
 #define FILE_SUPPORT_SAVE               0x00000002

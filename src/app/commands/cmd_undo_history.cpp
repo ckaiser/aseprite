@@ -4,15 +4,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <exception>
+#include <optional>
+#include <stddef.h>
+#include <string>
 
 #include "app/app.h"
 #include "app/cmd.h"
-#include "app/cmd_transaction.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/context_observer.h"
@@ -20,6 +21,7 @@
 #include "app/doc_access.h"
 #include "app/doc_undo.h"
 #include "app/doc_undo_observer.h"
+#include "app/docs.h"
 #include "app/docs_observer.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
@@ -27,16 +29,31 @@
 #include "app/site.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/workspace.h"
+#include "base/debug.h"
 #include "base/mem_utils.h"
+#include "doc/frame.h"
+#include "doc/sprite.h"
 #include "fmt/format.h"
+#include "gfx/border.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "text/font.h"
 #include "text/font_metrics.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
 #include "ui/scale.h"
 #include "ui/size_hint_event.h"
+#include "ui/style.h"
+#include "ui/theme.h"
 #include "ui/view.h"
+#include "ui/widget.h"
 #include "undo/undo_state.h"
-
 #include "undo_history.xml.h"
 
 namespace app {

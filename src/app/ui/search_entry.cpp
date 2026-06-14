@@ -4,22 +4,25 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <string>
 
 #include "app/ui/search_entry.h"
-
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/keys.h"
 #include "os/surface.h"
 #include "ui/graphics.h"
+#include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
 #include "ui/size_hint_event.h"
 #include "ui/timer.h"
-
-#include <algorithm>
 
 namespace app {
 

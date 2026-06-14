@@ -3,15 +3,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <cstdlib>
+#include <exception>
+#include <limits>
 
 #include "app/ui/editor/delayed_mouse_move.h"
-
 #include "app/ui/editor/editor.h"
+#include "base/debug.h"
 #include "base/time.h"
+#include "obs/signal.h"
 #include "ui/message.h"
 
 namespace app {

@@ -3,22 +3,24 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <cstdio>
+#include <string>
 
 #include "app/util/shader_helpers.h"
-
 #include "base/exception.h"
+#include "base/log.h"
+#include "doc/color_mode.h"
 #include "doc/image.h"
 #include "fmt/format.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkColorType.h"
+#include "include/core/SkData.h"
+#include "include/core/SkString.h"
 
 #if LAF_SKIA
 
-  #include "os/skia/skia_surface.h"
-
   #include "include/core/SkSurface.h"
+  #include "os/skia/skia_surface.h"
   #if SK_ENABLE_SKSL
     #include "src/core/SkRuntimeEffectPriv.h"
   #endif

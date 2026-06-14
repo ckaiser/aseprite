@@ -4,21 +4,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <stddef.h>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/editor_view.h"
-
-#include "app/app.h"
-#include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/ui/editor/brush_preview.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_view.h"
 #include "app/ui/skin/skin_theme.h"
-#include "os/surface.h"
-#include "ui/paint_event.h"
-#include "ui/resize_event.h"
+#include "base/debug.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "obs/signal.h"
+#include "ui/base.h"
+#include "ui/scroll_bar.h"
 #include "ui/scroll_region_event.h"
 
 namespace app {

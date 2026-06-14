@@ -8,10 +8,11 @@
 #define APP_UI_LAYOUTS_H_INCLUDED
 #pragma once
 
-#include "app/ui/layout.h"
-
+#include <stddef.h>
 #include <string>
 #include <vector>
+
+#include "app/ui/layout.h"
 
 namespace app {
 

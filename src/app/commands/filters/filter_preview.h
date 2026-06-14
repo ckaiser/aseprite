@@ -9,11 +9,15 @@
 #define APP_COMMANDS_FILTERS_FILTER_PREVIEW_H_INCLUDED
 #pragma once
 
+#include <mutex>
+
 #include "app/task.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
 
-#include <mutex>
+namespace base {
+class task_token;
+} // namespace base
 
 namespace app {
 

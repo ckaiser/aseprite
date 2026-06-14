@@ -8,10 +8,11 @@
 #define APP_UI_SELECTION_MODE_FIELD_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/pref/preferences.h"
 #include "app/ui/button_set.h"
-
-#include <vector>
+#include "pref.xml.h"
 
 namespace ui {
 class TooltipManager;

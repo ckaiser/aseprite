@@ -6,16 +6,12 @@
 
 #include "app/util/layer_utils.h"
 
-#include "app/doc.h"
 #include "app/i18n/strings.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/status_bar.h"
 #include "doc/layer.h"
-#include "doc/layer_tilemap.h"
 #include "doc/sprite.h"
-#include "doc/tilesets.h"
-#include "fmt/format.h"
-#include <memory>
+#include "fmt/base.h"
 
 namespace app {
 

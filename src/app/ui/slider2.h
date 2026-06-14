@@ -8,6 +8,7 @@
 #define APP_UI_SLIDER2_H_INCLUDED
 #pragma once
 
+#include "obs/signal.h"
 #include "ui/box.h"
 #include "ui/entry.h"
 #include "ui/slider.h"

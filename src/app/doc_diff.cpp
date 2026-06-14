@@ -4,25 +4,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc_diff.h"
+#include <ostream>
+#include <string>
+#include <vector>
 
 #include "app/doc.h"
+#include "app/doc_diff.h"
+#include "base/debug.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/frame.h"
+#include "doc/grid.h"
 #include "doc/image.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
 #include "doc/layer_tilemap.h"
 #include "doc/palette.h"
 #include "doc/primitives.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
+#include "doc/tile.h"
 #include "doc/tileset.h"
 #include "doc/tilesets.h"
 #include "doc/user_data.h"
+#include "gfx/color_space.h"
 
 #ifdef _DEBUG
 namespace doc {

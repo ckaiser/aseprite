@@ -4,22 +4,29 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/resources_listbox.h"
+#include <string>
+#include <vector>
 
 #include "app/i18n/strings.h"
 #include "app/res/resource.h"
 #include "app/res/resources_loader.h"
+#include "app/ui/resources_listbox.h"
 #include "app/ui/skin/skin_theme.h"
+#include "base/debug.h"
+#include "fmt/format.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "text/font.h"
 #include "ui/graphics.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
+#include "ui/scale.h"
 #include "ui/size_hint_event.h"
 #include "ui/view.h"
+#include "ui/widget.h"
 
 namespace app {
 

@@ -9,13 +9,14 @@
 #define APP_UI_TAG_WINDOW_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/color_button.h"
 #include "app/ui/expr_entry.h"
 #include "app/ui/user_data_view.h"
 #include "doc/anidir.h"
 #include "doc/frame.h"
 #include "doc/user_data.h"
-
 #include "tag_properties.xml.h"
 
 namespace doc {

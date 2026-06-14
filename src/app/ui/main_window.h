@@ -9,15 +9,18 @@
 #define APP_UI_MAIN_WINDOW_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "app/ui/tabs.h"
+#include "gfx/fwd.h"
 #include "obs/connection.h"
 #include "ui/window.h"
-
-#include <memory>
 
 namespace ui {
 class Splitter;
 class TooltipManager;
+class Widget;
 } // namespace ui
 
 namespace app {

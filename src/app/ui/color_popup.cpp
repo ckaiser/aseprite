@@ -4,38 +4,51 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/color_popup.h"
+#include <memory>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
-#include "app/cmd/set_palette.h"
 #include "app/color.h"
-#include "app/console.h"
-#include "app/context.h"
-#include "app/context_access.h"
-#include "app/doc.h"
 #include "app/file/palette_file.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gfx.h"
-#include "app/modules/gui.h"
 #include "app/modules/palettes.h"
 #include "app/resource_finder.h"
-#include "app/transaction.h"
+#include "app/shade.h"
 #include "app/ui/color_bar.h"
+#include "app/ui/color_button_options.h"
+#include "app/ui/color_popup.h"
 #include "app/ui/palette_view.h"
 #include "app/ui/skin/skin_theme.h"
-#include "app/ui_context.h"
 #include "base/scoped_value.h"
-#include "doc/image.h"
+#include "doc/color.h"
+#include "doc/color_mode.h"
 #include "doc/palette.h"
-#include "doc/sprite.h"
 #include "gfx/border.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "gfx/size.h"
-#include "ui/ui.h"
+#include "ui/base.h"
+#include "ui/button.h"
+#include "ui/cursor_type.h"
+#include "ui/hit_test_event.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint_event.h"
+#include "ui/scale.h"
+#include "ui/separator.h"
+#include "ui/system.h"
+#include "ui/view.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
+#include "ui/widgets_list.h"
+
+namespace ui {
+class Graphics;
+} // namespace ui
 
 namespace app {
 

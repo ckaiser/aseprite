@@ -3,48 +3,80 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/editor/writing_text_state.h"
-
 #include "app/app.h"
+#include "app/cmd_transaction.h"
+#include "app/color.h"
 #include "app/color_utils.h"
 #include "app/commands/command.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
+#include "app/doc.h"
 #include "app/extra_cel.h"
 #include "app/fonts/font_info.h"
+#include "app/fonts/fonts.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
 #include "app/tx.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/skin/skin_theme.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/status_bar.h"
 #include "app/ui_context.h"
 #include "app/util/expand_cel_canvas.h"
 #include "app/util/render_text.h"
+#include "base/debug.h"
+#include "base/ref.h"
 #include "doc/blend_image.h"
-#include "doc/blend_internals.h"
+#include "doc/blend_mode.h"
+#include "doc/cel.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/layer.h"
-#include "render/dithering.h"
-#include "render/quantization.h"
+#include "doc/sprite.h"
+#include "filters/tiled_mode.h"
+#include "gfx/clip.h"
+#include "gfx/color.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "os/paint.h"
+#include "os/skia/paint.h"
+#include "os/surface.h"
+#include "render/extra_type.h"
+#include "render/projection.h"
 #include "render/render.h"
+#include "text/font.h"
 #include "text/font_metrics.h"
+#include "text/fwd.h"
+#include "text/shaper_features.h"
+#include "text/text_blob.h"
+#include "ui/cursor_type.h"
 #include "ui/entry.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint.h"
 #include "ui/paint_event.h"
-#include "ui/system.h"
+#include "ui/scale.h"
+#include "ui/view.h"
+#include "ui/widget.h"
 
 #ifdef LAF_SKIA
   #include "app/util/shader_helpers.h"
-  #include "os/skia/skia_helpers.h"
   #include "os/skia/skia_surface.h"
 #endif
 
+#include <algorithm>
 #include <cmath>
+#include <exception>
+#include <string>
 
 namespace app {
 

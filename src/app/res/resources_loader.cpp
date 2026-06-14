@@ -4,18 +4,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <map>
+#include <string>
+#include <utility>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/res/resources_loader.h"
-
-#include "app/file_system.h"
 #include "app/res/resource.h"
+#include "app/res/resources_loader.h"
 #include "app/res/resources_loader_delegate.h"
-#include "app/resource_finder.h"
-#include "base/fs.h"
+#include "base/debug.h"
 #include "base/scoped_value.h"
 
 namespace app {

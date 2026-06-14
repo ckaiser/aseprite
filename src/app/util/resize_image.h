@@ -9,6 +9,7 @@
 #pragma once
 
 #include "doc/algorithm/resize_image.h"
+
 #include "doc/color.h"
 #include "gfx/point.h"
 #include "gfx/size.h"

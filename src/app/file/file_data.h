@@ -9,14 +9,16 @@
 #define APP_FILE_FILE_DATA_H_INCLUDED
 #pragma once
 
-#include "app/color.h"
 #include <string>
+
+#include "app/color.h"
 
 namespace doc {
 class Document;
 }
 
 namespace app {
+class Color;
 
 void load_aseprite_data_file(const std::string& dataFilename,
                              doc::Document* doc,

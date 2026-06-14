@@ -4,37 +4,48 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/moving_cel_state.h"
+#include <algorithm>
+#include <cmath>
+#include <stddef.h>
+#include <string>
 
 #include "app/app.h"
 #include "app/cmd/set_cel_bounds.h"
 #include "app/commands/command.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/doc.h"
 #include "app/doc_api.h"
 #include "app/doc_range.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/snap_to_grid.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
-#include "app/ui/main_window.h"
+#include "app/ui/editor/moving_cel_state.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
+#include "base/base.h"
+#include "base/debug.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/image.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
 #include "doc/mask.h"
-#include "doc/sprite.h"
+#include "doc/selected_layers.h"
 #include "fmt/format.h"
+#include "obs/signal.h"
 #include "ui/message.h"
 #include "view/cels.h"
-
-#include <algorithm>
-#include <cmath>
+#include "view/range.h"
 
 namespace app {
 

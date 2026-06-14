@@ -4,25 +4,20 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/modules/palettes.h"
+#include <cstring>
+#include <memory>
 
 #include "app/app.h"
-#include "app/context.h"
 #include "app/extensions.h"
 #include "app/file/palette_file.h"
+#include "app/modules/palettes.h"
 #include "app/resource_finder.h"
-#include "app/site.h"
 #include "base/fs.h"
-#include "doc/image.h"
+#include "doc/color.h"
+#include "doc/frame.h"
 #include "doc/palette.h"
-#include "doc/sprite.h"
-
-#include <cstring>
+#include "gfx/color_space.h"
+#include "obs/signal.h"
 
 namespace app {
 

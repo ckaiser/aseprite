@@ -4,36 +4,30 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <memory>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
-#include "app/doc.h"
-#include "app/find_widget.h"
+#include "app/context_flags.h"
 #include "app/ini_file.h"
-#include "app/load_widget.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "doc/mask.h"
-#include "doc/sprite.h"
-#include "filters/median_filter.h"
-#include "ui/button.h"
-#include "ui/entry.h"
-#include "ui/grid.h"
-#include "ui/widget.h"
-#include "ui/window.h"
-
+#include "app/ui/expr_entry.h"
 #include "despeckle.xml.h"
-
-#include <stdio.h>
+#include "filters/median_filter.h"
+#include "filters/target.h"
+#include "filters/tiled_mode.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "ui/widget.h"
 
 namespace app {
+class Command;
 
 using namespace filters;
 

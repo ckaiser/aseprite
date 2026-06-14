@@ -9,11 +9,12 @@
 #define APP_WIDGET_LOADER_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <stddef.h>
+#include <string>
+
 #include "app/i18n/xml_translator.h"
 #include "app/widget_type_mismatch.h"
-
-#include <map>
-#include <string>
 
 namespace tinyxml2 {
 class XMLElement;

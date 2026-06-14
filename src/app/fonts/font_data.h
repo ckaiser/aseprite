@@ -9,11 +9,17 @@
 #define APP_FONTS_FONT_DATA_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <string>
+
 #include "base/disable_copying.h"
 #include "text/font.h"
+#include "text/font_hinting.h"
 #include "text/fwd.h"
 
-#include <map>
+namespace text {
+enum class FontType : uint8_t;
+} // namespace text
 
 namespace app {
 

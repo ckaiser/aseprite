@@ -4,28 +4,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/file/file_data.h"
-
-#include "app/color.h"
-#include "app/xml_document.h"
-#include "base/convert_to.h"
-#include "base/fs.h"
-#include "doc/color.h"
-#include "doc/document.h"
-#include "doc/slice.h"
-#include "fmt/format.h"
-#include "gfx/color.h"
-
-#include "tinyxml2.h"
-
 #include <cstdlib>
 #include <cstring>
 #include <set>
+#include <stdint.h>
+#include <vector>
+
+#include "app/color.h"
+#include "app/file/file_data.h"
+#include "app/xml_document.h"
+#include "base/convert_to.h"
+#include "base/debug.h"
+#include "base/fs.h"
+#include "doc/color.h"
+#include "doc/document.h"
+#include "doc/frame.h"
+#include "doc/keyframes.h"
+#include "doc/slice.h"
+#include "doc/slices.h"
+#include "doc/sprite.h"
+#include "doc/user_data.h"
+#include "fmt/format.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "tinyxml2.h"
 
 namespace app {
 

@@ -8,8 +8,12 @@
 #define APP_UI_TIMELINE_DOC_PROVIDERS_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/doc_api.h"
+#include "app/doc_api_dnd_helper.h"
 #include "base/paths.h"
+#include "doc/image_ref.h"
 
 namespace app {
 

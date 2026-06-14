@@ -4,28 +4,36 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/tool_loop_impl.h"
+#include <exception>
+#include <memory>
+#include <stddef.h>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
 #include "app/cmd/add_slice.h"
 #include "app/cmd/set_last_point.h"
 #include "app/cmd/set_mask.h"
+#include "app/cmd_transaction.h"
 #include "app/color.h"
+#include "app/color_target.h"
 #include "app/color_utils.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/context_access.h"
-#include "app/doc_undo.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
-#include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/shade.h"
+#include "app/site.h"
+#include "app/tilemap_mode.h"
+#include "app/tileset_mode.h"
 #include "app/tools/controller.h"
+#include "app/tools/dynamics.h"
+#include "app/tools/fill.h"
 #include "app/tools/freehand_algorithm.h"
 #include "app/tools/ink.h"
 #include "app/tools/intertwine.h"
@@ -34,36 +42,54 @@
 #include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 #include "app/tools/tool_loop.h"
+#include "app/tools/trace_policy.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
+#include "app/ui/editor/brush_preview.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_observer.h"
-#include "app/ui/main_window.h"
+#include "app/ui/editor/tool_loop_impl.h"
 #include "app/ui/optional_alert.h"
 #include "app/ui/status_bar.h"
 #include "app/ui_context.h"
 #include "app/util/expand_cel_canvas.h"
 #include "app/util/layer_utils.h"
 #include "app/util/slice_utils.h"
+#include "app/util/tiled_mode.h"
+#include "base/debug.h"
+#include "base/log.h"
 #include "doc/brush.h"
-#include "doc/cel.h"
+#include "doc/brush_type.h"
+#include "doc/color.h"
+#include "doc/frame.h"
+#include "doc/grid.h"
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
-#include "doc/palette.h"
-#include "doc/palette_picks.h"
+#include "doc/pixel_format.h"
 #include "doc/remap.h"
 #include "doc/slice.h"
 #include "doc/sprite.h"
-#include "fmt/format.h"
-#include "render/dithering.h"
+#include "doc/user_data.h"
+#include "filters/tiled_mode.h"
+#include "fmt/base.h"
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "pref.xml.h"
+#include "render/dithering_matrix.h"
 #include "render/rasterize.h"
 #include "render/render.h"
-#include "ui/ui.h"
+#include "ui/widget.h"
 
-#include <algorithm>
-#include <memory>
+namespace doc {
+class Cel;
+class RgbMap;
+} // namespace doc
 
 namespace app {
 

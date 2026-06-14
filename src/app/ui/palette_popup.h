@@ -10,11 +10,17 @@
 #pragma once
 
 #include "app/ui/palettes_listbox.h"
+#include "gfx/fwd.h"
 #include "ui/popup_window.h"
+
+namespace doc {
+class Palette;
+} // namespace doc
 
 namespace ui {
 class Button;
 class View;
+class Display;
 } // namespace ui
 
 namespace app {

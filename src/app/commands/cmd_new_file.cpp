@@ -4,37 +4,54 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <memory>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/color.h"
 #include "app/color_spaces.h"
+#include "app/color_target.h"
 #include "app/color_utils.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
-#include "app/console.h"
+#include "app/context.h"
 #include "app/doc.h"
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "app/ui/workspace.h"
-#include "app/ui_context.h"
+#include "app/ui/button_set.h"
+#include "app/ui/expr_entry.h"
 #include "app/util/clipboard.h"
 #include "app/util/pixel_ratio.h"
+#include "base/debug.h"
 #include "doc/cel.h"
+#include "doc/color_mode.h"
+#include "doc/frame.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
+#include "doc/image_spec.h"
 #include "doc/layer.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
+#include "doc/pixel_ratio.h"
 #include "doc/primitives.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"
-#include "render/quantization.h"
-#include "ui/ui.h"
-
+#include "gfx/clip.h"
+#include "gfx/color_space.h"
+#include "gfx/size.h"
 #include "new_sprite.xml.h"
+#include "obs/signal.h"
+#include "render/quantization.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+
+namespace app {
+class Command;
+} // namespace app
 
 using namespace ui;
 

@@ -4,29 +4,43 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/tabs.h"
+#include <algorithm>
+#include <cmath>
+#include <stddef.h>
 
 #include "app/color_spaces.h"
 #include "app/color_utils.h"
-#include "app/modules/gfx.h"
-#include "app/modules/gui.h"
 #include "app/ui/editor/editor_view.h"
 #include "app/ui/skin/skin_theme.h"
+#include "app/ui/tabs.h"
 #include "app/ui_context.h"
+#include "base/base.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/color_space.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
+#include "os/window.h"
 #include "text/font.h"
 #include "text/font_metrics.h"
-#include "ui/intern.h"
-#include "ui/ui.h"
-
-#include <algorithm>
-#include <cmath>
+#include "text/font_mgr.h"
+#include "text/shaper_features.h"
+#include "ui/app_state.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
+#include "ui/graphics.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint_event.h"
+#include "ui/resize_event.h"
+#include "ui/scale.h"
+#include "ui/size_hint_event.h"
+#include "ui/style.h"
+#include "ui/system.h"
+#include "ui/theme.h"
+#include "ui/window.h"
 
 #define ANI_ADDING_TAB_TICKS   5
 #define ANI_REMOVING_TAB_TICKS 10

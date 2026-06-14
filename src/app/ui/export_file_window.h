@@ -9,12 +9,12 @@
 #define APP_UI_EXPORT_FILE_WINDOW_H_INCLUDED
 #pragma once
 
-#include "app/pref/preferences.h"
-#include "obs/signal.h"
-
-#include "export_file.xml.h"
-
 #include <string>
+
+#include "app/pref/preferences.h"
+#include "doc/anidir.h"
+#include "export_file.xml.h"
+#include "obs/signal.h"
 
 namespace app {
 class Doc;

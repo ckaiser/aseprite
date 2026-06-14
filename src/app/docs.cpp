@@ -4,17 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/docs.h"
+#include <algorithm>
+#include <memory>
+#include <stddef.h>
+#include <utility>
 
 #include "app/doc.h"
+#include "app/docs.h"
+#include "app/docs_observer.h"
+#include "base/debug.h"
 #include "base/fs.h"
-
-#include <algorithm>
+#include "doc/image_spec.h"
+#include "doc/sprite.h"
 
 namespace app {
 

@@ -9,7 +9,15 @@
 #define APP_UI_SEARCH_ENTRY_H_INCLUDED
 #pragma once
 
+#include <memory>
+
+#include "gfx/fwd.h"
 #include "ui/entry.h"
+#include "ui/timer.h"
+
+namespace os {
+class Surface;
+} // namespace os
 
 namespace ui {
 class Timer;

@@ -4,25 +4,25 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc_api.h"
+#include <algorithm>
+#include <iterator>
+#include <memory>
+#include <set>
+#include <stddef.h>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 #include "app/cmd/add_cel.h"
 #include "app/cmd/add_frame.h"
 #include "app/cmd/add_layer.h"
 #include "app/cmd/add_tileset.h"
 #include "app/cmd/clear_cel.h"
-#include "app/cmd/clear_image.h"
 #include "app/cmd/copy_cel.h"
 #include "app/cmd/copy_frame.h"
 #include "app/cmd/flip_image.h"
 #include "app/cmd/move_cel.h"
 #include "app/cmd/move_layer.h"
-#include "app/cmd/remove_cel.h"
 #include "app/cmd/remove_frame.h"
 #include "app/cmd/remove_layer.h"
 #include "app/cmd/remove_tag.h"
@@ -40,35 +40,34 @@
 #include "app/cmd/set_tag_range.h"
 #include "app/cmd/set_total_frames.h"
 #include "app/cmd/set_transparent_color.h"
-#include "app/color_target.h"
-#include "app/color_utils.h"
-#include "app/context.h"
 #include "app/doc.h"
-#include "app/doc_undo.h"
+#include "app/doc_api.h"
 #include "app/i18n/strings.h"
-#include "app/pref/preferences.h"
-#include "app/snap_to_grid.h"
 #include "app/transaction.h"
 #include "app/util/autocrop.h"
-#include "app/util/layer_utils.h"
-#include "doc/algorithm/flip_image.h"
+#include "base/debug.h"
 #include "doc/algorithm/shrink_bounds.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/cel_list.h"
+#include "doc/document.h"
+#include "doc/grid.h"
+#include "doc/image.h"
+#include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/mask.h"
+#include "doc/object_type.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
+#include "doc/primitives.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
+#include "doc/sprite.h"
 #include "doc/tag.h"
 #include "doc/tags.h"
-#include "render/render.h"
-
-#include <algorithm>
-#include <iterator>
-#include <set>
-#include <vector>
-
-#include "gfx/point_io.h"
-#include "gfx/rect_io.h"
+#include "doc/tileset.h"
+#include "fmt/base.h"
+#include "gfx/point.h"
 
 #define TRACE_DOCAPI(...)
 

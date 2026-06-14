@@ -4,15 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/app.h"
-#include "app/commands/commands.h"
+#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
-#include "app/commands/params.h"
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/file/palette_file.h"
@@ -20,7 +18,16 @@
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
 #include "base/fs.h"
+#include "base/paths.h"
+#include "doc/sprite.h"
+#include "fmt/base.h"
+#include "gfx/color_space.h"
+#include "obs/signal.h"
 #include "ui/alert.h"
+
+namespace doc {
+class Palette;
+} // namespace doc
 
 namespace app {
 

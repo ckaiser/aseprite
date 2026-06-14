@@ -4,23 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <exception>
+#include <fstream>
 
 #include "app/res/http_loader.h"
-
 #include "base/fs.h"
 #include "base/fstream_path.h"
+#include "base/log.h"
 #include "base/replace_string.h"
 #include "base/scoped_value.h"
-#include "base/string.h"
 #include "net/http_request.h"
 #include "net/http_response.h"
 #include "ver/info.h"
-
-#include <fstream>
 
 namespace app {
 

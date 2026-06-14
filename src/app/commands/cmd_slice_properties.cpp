@@ -4,21 +4,37 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
+#include "app/app.h"
 #include "app/cmd/set_slice_key.h"
 #include "app/cmd/set_slice_name.h"
 #include "app/cmd/set_user_data.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tx.h"
 #include "app/ui/slice_window.h"
 #include "base/convert_to.h"
+#include "doc/frame.h"
+#include "doc/object_id.h"
+#include "doc/selected_objects.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
+#include "doc/user_data.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 
 namespace app {
 

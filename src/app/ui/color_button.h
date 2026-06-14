@@ -14,6 +14,8 @@
 #include "app/ui/color_button_options.h"
 #include "app/ui/color_source.h"
 #include "doc/pixel_format.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
 #include "obs/signal.h"
 #include "ui/button.h"
 

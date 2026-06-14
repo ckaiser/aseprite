@@ -4,13 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <exception>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
+#include "app/doc.h"
 #include "app/sprite_job.h"
-
+#include "app/transaction.h"
 #include "base/log.h"
 
 namespace app {

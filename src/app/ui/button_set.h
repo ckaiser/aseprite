@@ -9,12 +9,17 @@
 #define APP_UI_BUTTON_SET_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/skin/skin_part.h"
 #include "obs/signal.h"
 #include "ui/grid.h"
 #include "ui/style.h"
+#include "ui/widget.h"
 
-#include <string>
+namespace ui {
+class Message;
+} // namespace ui
 
 namespace app {
 

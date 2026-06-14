@@ -9,6 +9,8 @@
 #define APP_COMMANDS_CMD_ROTATE_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/commands/command.h"
 
 namespace app {

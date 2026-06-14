@@ -4,12 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/cel_ops.h"
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <stddef.h>
+#include <vector>
 
 #include "app/cmd/add_tile.h"
 #include "app/cmd/clear_cel.h"
@@ -22,31 +21,43 @@
 #include "app/cmd/set_cel_position.h"
 #include "app/cmd_sequence.h"
 #include "app/doc.h"
+#include "app/tilemap_mode.h"
+#include "app/tileset_mode.h"
+#include "app/util/cel_ops.h"
+#include "base/debug.h"
 #include "doc/algorithm/fill_selection.h"
 #include "doc/algorithm/flip_image.h"
+#include "doc/algorithm/flip_type.h"
 #include "doc/algorithm/resize_image.h"
 #include "doc/algorithm/shrink_bounds.h"
+#include "doc/blend_mode.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/cels_range.h"
 #include "doc/grid.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
+#include "doc/image_iterator.h"
+#include "doc/image_spec.h"
+#include "doc/image_traits.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/mask.h"
 #include "doc/palette.h"
+#include "doc/palette_picks.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
+#include "doc/primitives_fast.h"
+#include "doc/remap.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
 #include "doc/tileset.h"
-#include "doc/tilesets.h"
-#include "gfx/region.h"
+#include "doc/user_data.h"
+#include "gfx/clip.h"
+#include "gfx/size.h"
 #include "render/dithering.h"
-#include "render/ordered_dither.h"
 #include "render/quantization.h"
 #include "render/render.h"
-
-#include <algorithm>
-#include <cmath>
-#include <memory>
-#include <vector>
 
 #define OPS_TRACE(...) // TRACE(__VA_ARGS__)
 

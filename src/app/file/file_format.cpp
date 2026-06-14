@@ -4,16 +4,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/drm.h"
 #include "app/file/file_format.h"
-#include "app/file/format_options.h"
-
-#include <algorithm>
+#include "app/drm.h"
+#include "base/debug.h"
 
 namespace app {
 

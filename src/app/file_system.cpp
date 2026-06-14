@@ -10,33 +10,26 @@
    https://github.com/dacap/vaca
    Copyright (C) by David Capello (MIT License)
  */
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/file_system.h"
-
-#include "base/fs.h"
-#include "base/string.h"
-#include "dio/detect_format.h"
-#include "os/surface.h"
-#include "os/system.h"
-#include "os/window.h"
-
 #include <algorithm>
+#include <atomic>
 #include <cstdio>
 #include <map>
 #include <utility>
 #include <vector>
 
+#include "app/file_system.h"
+#include "base/debug.h"
+#include "base/fs.h"
+#include "dio/detect_format.h"
+#include "dio/file_format.h"
+#include "os/surface.h"
+
 #ifdef _WIN32
-  #include "base/win/comptr.h"
-
-  #include <windows.h>
-
   #include <shlobj.h>
   #include <shlwapi.h>
+  #include <windows.h>
+
+  #include "base/win/comptr.h"
 
   #define MYPC_CSLID "::{20D04FE0-3AEA-1069-A2D8-08002B30309D}"
 #else
@@ -59,6 +52,7 @@ namespace app {
 namespace {
 
 class FileItem;
+
 using FileItemMap = std::map<std::string, FileItem*>;
 
 // the root of the file-system

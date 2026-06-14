@@ -4,16 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <array>
+#include <cstdio>
+#include <cstring>
+#include <functional>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/resource_finder.h"
 #include "app/ui/browser_view.h"
-#include "app/ui/main_window.h"
 #include "app/ui/separator_in_view.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
@@ -21,23 +23,29 @@
 #include "base/file_handle.h"
 #include "base/fs.h"
 #include "base/split_string.h"
+#include "cmark.h"
+#include "gfx/border.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
 #include "text/font.h"
-#include "ui/alert.h"
+#include "ui/base.h"
+#include "ui/graphics.h"
+#include "ui/label.h"
 #include "ui/link_label.h"
+#include "ui/manager.h"
 #include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
+#include "ui/register_message.h"
 #include "ui/resize_event.h"
+#include "ui/scale.h"
 #include "ui/size_hint_event.h"
-#include "ui/system.h"
 #include "ui/textbox.h"
-
-#include "cmark.h"
-
-#include <array>
-#include <cstring>
-#include <string>
-#include <vector>
+#include "ui/widgets_list.h"
 
 namespace app {
 

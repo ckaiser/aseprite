@@ -3,13 +3,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <utility>
 
 #include "app/task.h"
-
 #include "base/task.h"
 #include "base/thread.h"
 #include "base/thread_pool.h"

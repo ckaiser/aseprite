@@ -9,10 +9,11 @@
 #define APP_GUI_XML_INCLUDED
 #pragma once
 
-#include "app/xml_document.h"
-
 #include <memory>
 #include <string>
+
+#include "app/xml_document.h"
+#include "tinyxml2.h"
 
 namespace app {
 

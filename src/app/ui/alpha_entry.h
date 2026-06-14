@@ -8,10 +8,10 @@
 #define APP_UI_ALPHA_ENTRY_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/ui/alpha_slider.h"
 #include "ui/int_entry.h"
-
-#include <memory>
 
 using namespace ui;
 

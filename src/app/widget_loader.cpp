@@ -4,48 +4,72 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/pref_widget.h"
-
-#include "app/widget_loader.h"
+#include <cstdlib>
+#include <cstring>
+#include <limits>
+#include <memory>
+#include <stdexcept>
 
 #include "app/app.h"
+#include "app/color.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gui.h"
 #include "app/resource_finder.h"
 #include "app/ui/alpha_slider.h"
 #include "app/ui/app_tooltips.h"
 #include "app/ui/button_set.h"
 #include "app/ui/color_button.h"
+#include "app/ui/color_button_options.h"
 #include "app/ui/drop_down_button.h"
 #include "app/ui/expr_entry.h"
 #include "app/ui/filename_field.h"
 #include "app/ui/font_entry.h"
 #include "app/ui/icon_button.h"
 #include "app/ui/mini_help_button.h"
+#include "app/ui/pref_widget.h"
 #include "app/ui/search_entry.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
+#include "app/widget_loader.h"
 #include "app/widget_not_found.h"
 #include "app/xml_document.h"
-#include "app/xml_exception.h"
+#include "base/debug.h"
 #include "base/exception.h"
-#include "base/fs.h"
 #include "base/memory.h"
+#include "doc/pixel_format.h"
+#include "gfx/border.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/surface.h"
 #include "os/system.h"
-#include "ui/textedit.h"
-#include "ui/ui.h"
-
 #include "tinyxml2.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/grid.h"
+#include "ui/image_view.h"
+#include "ui/label.h"
+#include "ui/link_label.h"
+#include "ui/listbox.h"
+#include "ui/listitem.h"
+#include "ui/panel.h"
+#include "ui/scale.h"
+#include "ui/separator.h"
+#include "ui/slider.h"
+#include "ui/splitter.h"
+#include "ui/textbox.h"
+#include "ui/textedit.h"
+#include "ui/tooltips.h"
+#include "ui/view.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
+#include "ui/window.h"
 
-#include <cstdio>
-#include <cstdlib>
-#include <cstring>
-#include <limits>
-#include <memory>
+namespace ui {
+class Style;
+} // namespace ui
 
 namespace app {
 

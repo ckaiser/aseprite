@@ -4,50 +4,70 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <cmath>
+#include <exception>
+#include <new>
+#include <stddef.h>
+#include <string>
+#include <utility>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/pixels_movement.h"
-
-#include "app/app.h"
 #include "app/cmd/clear_mask.h"
 #include "app/cmd/deselect_mask.h"
 #include "app/cmd/set_mask.h"
 #include "app/cmd/trim_cel.h"
+#include "app/cmd_transaction.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/doc.h"
-#include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
 #include "app/snap_to_grid.h"
+#include "app/tilemap_mode.h"
+#include "app/tileset_mode.h"
+#include "app/tools/rotation_algorithm.h"
+#include "app/ui/color_bar.h"
 #include "app/ui/editor/pivot_helpers.h"
+#include "app/ui/editor/pixels_movement.h"
 #include "app/ui/editor/vec2.h"
 #include "app/ui/status_bar.h"
-#include "app/ui_context.h"
 #include "app/util/cel_ops.h"
 #include "app/util/expand_cel_canvas.h"
 #include "app/util/new_image_from_mask.h"
 #include "app/util/tiled_mode.h"
+#include "base/base.h"
+#include "base/debug.h"
 #include "base/pi.h"
+#include "base/vector2d.h"
 #include "doc/algorithm/flip_image.h"
 #include "doc/algorithm/rotate.h"
 #include "doc/algorithm/rotsprite.h"
 #include "doc/algorithm/shift_image.h"
-#include "doc/blend_internals.h"
+#include "doc/blend_mode.h"
 #include "doc/cel.h"
+#include "doc/grid.h"
 #include "doc/image.h"
+#include "doc/image_iterator.h"
+#include "doc/image_traits.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
+#include "doc/pixel_format.h"
+#include "doc/primitives.h"
+#include "doc/selected_frames.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
 #include "doc/util.h"
-#include "gfx/region.h"
+#include "filters/tiled_mode.h"
+#include "gfx/clip.h"
+#include "gfx/region_skia.h"
+#include "obs/signal.h"
+#include "pixman-combine32.h"
+#include "render/extra_type.h"
 #include "render/render.h"
-
-#include <algorithm>
+#include "view/range.h"
 
 #if _DEBUG
   #define DUMP_INNER_CMDS() dumpInnerCmds()

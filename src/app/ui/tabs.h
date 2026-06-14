@@ -9,19 +9,29 @@
 #define APP_UI_TABS_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "app/ui/dockable.h"
+#include "base/debug.h"
 #include "base/ref.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "obs/connection.h"
 #include "text/fwd.h"
+#include "text/text_blob.h"
 #include "ui/animated_widget.h"
+#include "ui/base.h"
 #include "ui/layer.h"
 #include "ui/widget.h"
-
-#include <memory>
-#include <vector>
+#include "ui/widget_type.h"
 
 namespace ui {
 class Graphics;
-}
+class Message;
+} // namespace ui
 
 namespace app {
 class Tabs;

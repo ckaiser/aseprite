@@ -9,12 +9,22 @@
 #define APP_UI_EDITOR_STANDBY_STATE_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/transformation.h"
 #include "app/ui/editor/editor_decorator.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/handle_type.h"
 #include "app/ui/editor/state_with_wheel_behavior.h"
 #include "doc/algorithm/flip_type.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
 #include "obs/connection.h"
+
+namespace ui {
+class Message;
+class MouseMessage;
+} // namespace ui
 
 namespace app {
 namespace tools {
@@ -24,6 +34,7 @@ class Pointer;
 
 class DrawingState;
 class TransformHandles;
+class Editor;
 
 class StandbyState : public StateWithWheelBehavior {
 public:

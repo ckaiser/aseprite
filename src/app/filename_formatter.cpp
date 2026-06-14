@@ -4,23 +4,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/filename_formatter.h"
-
-#include "app/file/file.h"
-#include "app/file/split_filename.h"
-#include "base/convert_to.h"
-#include "base/fs.h"
-#include "base/replace_string.h"
-#include "fmt/format.h"
-
 #include <cstdlib>
 #include <cstring>
 #include <vector>
+
+#include "app/file/file.h"
+#include "app/file/split_filename.h"
+#include "app/filename_formatter.h"
+#include "base/fs.h"
+#include "base/replace_string.h"
+#include "fmt/format.h"
 
 namespace app {
 

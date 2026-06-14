@@ -4,16 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
 
 #include "app/util/wrap_point.h"
-
 #include "app/util/wrap_value.h"
-
-#include <algorithm>
+#include "filters/tiled_mode.h"
 
 namespace app {
 

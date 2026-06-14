@@ -4,24 +4,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/clipboard.h"
+#include <memory>
+#include <sstream>
+#include <stddef.h>
+#include <stdint.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "app/i18n/strings.h"
+#include "app/util/clipboard.h"
 #include "base/serialization.h"
 #include "clip/clip.h"
+#include "doc/color.h"
 #include "doc/color_scales.h"
 #include "doc/file/hex_file.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
 #include "doc/image_io.h"
+#include "doc/image_iterator.h"
+#include "doc/image_traits.h"
 #include "doc/mask.h"
 #include "doc/mask_io.h"
 #include "doc/palette.h"
 #include "doc/palette_io.h"
+#include "doc/pixel_format.h"
 #include "doc/tileset.h"
 #include "doc/tileset_io.h"
 #include "gfx/size.h"
@@ -29,9 +36,9 @@
 #include "os/window.h"
 #include "ui/alert.h"
 
-#include <sstream>
-#include <string>
-#include <vector>
+namespace doc {
+class PalettePicks;
+} // namespace doc
 
 namespace app {
 

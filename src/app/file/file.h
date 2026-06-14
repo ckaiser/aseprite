@@ -9,22 +9,29 @@
 #define APP_FILE_FILE_H_INCLUDED
 #pragma once
 
+#include <cstdio>
+#include <memory>
+#include <mutex>
+#include <stdint.h>
+#include <string>
+
 #include "app/color.h"
 #include "app/doc.h"
 #include "app/file/file_op_config.h"
 #include "app/file/format_options.h"
 #include "app/pref/preferences.h"
+#include "base/debug.h"
 #include "base/paths.h"
 #include "doc/frame.h"
 #include "doc/frames_sequence.h"
 #include "doc/image_ref.h"
+#include "doc/image_spec.h"
 #include "doc/pixel_format.h"
+#include "doc/sprite.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "os/color_space.h"
-
-#include <cstdio>
-#include <memory>
-#include <mutex>
-#include <string>
 
 // Flags for FileOp::createLoadDocumentOperation()
 #define FILE_LOAD_SEQUENCE_NONE          0x00000001
@@ -339,6 +346,7 @@ private:
   } m_seq;
 
   class FileAbstractImageImpl;
+
   std::unique_ptr<FileAbstractImageImpl> m_abstractImage;
 
   void prepareForSequence();

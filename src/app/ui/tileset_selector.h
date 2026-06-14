@@ -8,11 +8,11 @@
 #define APP_UI_TILESET_SELECTOR_H_INCLUDED
 #pragma once
 
-#include "doc/grid.h"
-#include "doc/tile.h"
-
 #include <string>
 
+#include "doc/grid.h"
+#include "doc/tile.h"
+#include "gfx/size.h"
 #include "tileset_selector.xml.h"
 
 namespace doc {

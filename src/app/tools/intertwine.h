@@ -11,8 +11,10 @@
 
 #include "app/tools/stroke.h"
 #include "doc/algo.h"
+#include "gfx/fwd.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/region_skia.h"
 
 namespace app { namespace tools {
 class ToolLoop;

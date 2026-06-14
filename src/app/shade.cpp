@@ -4,13 +4,7 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/shade.h"
-
 #include "base/split_string.h"
 
 namespace app {

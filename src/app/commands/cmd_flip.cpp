@@ -4,12 +4,7 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/cmd_flip.h"
+#include <vector>
 
 #include "app/app.h"
 #include "app/cmd/flip_mask.h"
@@ -17,28 +12,45 @@
 #include "app/cmd/set_cel_bounds.h"
 #include "app/cmd/set_mask_position.h"
 #include "app/cmd/trim_cel.h"
+#include "app/cmd_transaction.h"
+#include "app/commands/cmd_flip.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/site.h"
 #include "app/tools/tool_box.h"
 #include "app/tx.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/editor/moving_pixels_state.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui/toolbar.h"
 #include "app/util/expand_cel_canvas.h"
 #include "doc/algorithm/flip_image.h"
 #include "doc/cel.h"
+#include "doc/cel_list.h"
 #include "doc/cels_range.h"
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
 #include "doc/sprite.h"
+#include "filters/tiled_mode.h"
+#include "fmt/base.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
 
 namespace app {
+namespace tools {
+class Tool;
+} // namespace tools
 
 FlipCommand::FlipCommand() : Command(CommandId::Flip())
 {

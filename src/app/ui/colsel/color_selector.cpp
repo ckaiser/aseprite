@@ -4,48 +4,54 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/colsel/color_selector.h"
+#include <algorithm>
+#include <cmath>
 
 #include "app/app.h"
 #include "app/color_spaces.h"
-#include "app/color_utils.h"
 #include "app/modules/gfx.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/ui/colsel/color_selector.h"
 #include "app/ui/colsel/spectrum.h"
 #include "app/ui/colsel/tint_shade_tone.h"
 #include "app/ui/colsel/wheel.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/util/shader_helpers.h"
-#include "base/concurrent_queue.h"
 #include "base/scoped_value.h"
-#include "base/thread.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "include/core/SkM44.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRect.h"
+#include "include/core/SkShader.h"
+#include "os/color_space.h"
+#include "os/sampling.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
+#include "ui/cursor_type.h"
+#include "ui/graphics.h"
 #include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
-#include "ui/register_message.h"
 #include "ui/scale.h"
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
+#include "ui/widget_type.h"
 
-#include <algorithm>
-#include <cmath>
-#include <condition_variable>
-#include <cstdio>
-#include <thread>
+namespace ui {
+class Display;
+} // namespace ui
 
 #if SK_ENABLE_SKSL
-  #include "os/skia/skia_surface.h"
-
   #include "include/core/SkCanvas.h"
   #include "include/effects/SkRuntimeEffect.h"
+  #include "os/skia/skia_surface.h"
 #endif
 
 namespace app::colsel {

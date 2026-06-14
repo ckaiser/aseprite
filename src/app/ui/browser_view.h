@@ -9,9 +9,13 @@
 #define APP_UI_BROWSER_VIEW_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/tabs.h"
 #include "app/ui/workspace_view.h"
+#include "gfx/color.h"
 #include "ui/view.h"
+#include "ui/widget.h"
 
 namespace app {
 class BrowserView : public ui::Widget,

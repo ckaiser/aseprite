@@ -4,20 +4,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/colsel/tint_shade_tone.h"
-
-#include "app/color_utils.h"
-#include "app/pref/preferences.h"
-#include "app/ui/skin/skin_theme.h"
-#include "app/util/shader_helpers.h"
-#include "ui/graphics.h"
-
 #include <algorithm>
+
+#include "app/color.h"
+#include "app/ui/colsel/tint_shade_tone.h"
+#include "app/ui/skin/skin_part.h"
+#include "app/util/shader_helpers.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "include/core/SkM44.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "ui/base.h"
 
 namespace app::colsel {
 

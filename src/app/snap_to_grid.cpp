@@ -4,17 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <cstdlib>
 
 #include "app/snap_to_grid.h"
-
 #include "gfx/point.h"
 #include "gfx/rect.h"
-
-#include <cstdlib>
 
 namespace app {
 

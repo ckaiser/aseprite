@@ -4,21 +4,23 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/slice_window.h"
-
-#include "app/doc.h"
-#include "app/pref/preferences.h"
-#include "app/ui/user_data_view.h"
-#include "doc/slice.h"
-#include "doc/sprite.h"
-#include "ui/manager.h"
-
 #include <algorithm>
+
+#include "app/pref/preferences.h"
+#include "app/ui/color_button.h"
+#include "app/ui/expr_entry.h"
+#include "app/ui/slice_window.h"
+#include "app/ui/user_data_view.h"
+#include "base/debug.h"
+#include "doc/selected_objects.h"
+#include "doc/slice.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "ui/button.h"
+#include "ui/entry.h"
+#include "ui/textedit.h"
 
 namespace app {
 
@@ -30,7 +32,7 @@ SliceWindow::SliceWindow(const doc::Sprite* sprite,
 {
   ASSERT(!slices.empty());
 
-  Slice* slice = slices.frontAs<Slice>();
+  doc::Slice* slice = slices.frontAs<doc::Slice>();
   m_userDataView.configureAndSet(slice->userData(), propertiesGrid());
   userData()->Click.connect([this] { onToggleUserData(); });
 

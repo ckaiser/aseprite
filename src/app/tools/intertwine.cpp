@@ -4,24 +4,24 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/tools/intertwine.h"
+#include <algorithm>
+#include <cmath>
+#include <stdlib.h>
+#include <vector>
 
 #include "app/tools/controller.h"
+#include "app/tools/intertwine.h"
 #include "app/tools/point_shape.h"
 #include "app/tools/stroke.h"
 #include "app/tools/symmetry.h"
 #include "app/tools/tool_loop.h"
+#include "app/tools/tool_loop_modifiers.h"
+#include "base/base.h"
 #include "base/pi.h"
 #include "doc/algo.h"
-#include "doc/algorithm/hline.h"
-#include "doc/layer.h"
-
-#include <cmath>
+#include "doc/brush.h"
+#include "doc/brush_type.h"
+#include "gfx/rect.h"
 
 namespace app { namespace tools {
 

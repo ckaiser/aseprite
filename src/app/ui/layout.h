@@ -10,13 +10,14 @@
 
 #include <memory>
 #include <string>
+#include <string_view>
 
 #include "tinyxml2.h"
 
 namespace app {
 class Dock;
-
 class Layout;
+
 using LayoutPtr = std::shared_ptr<Layout>;
 
 class Layout final {

@@ -9,17 +9,19 @@
 #define APP_COMMANDS_CMD_SAVE_FILE_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/commands/command.h"
 #include "app/commands/new_params.h"
 #include "doc/anidir.h"
+#include "doc/frame.h"
 #include "doc/frames_sequence.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
 
-#include <string>
-
 namespace app {
 class Doc;
+class Context;
 
 struct SaveFileParams : public NewParams {
   Param<bool> ui{

@@ -13,6 +13,7 @@
 
 namespace app {
 class Editor;
+class EditorObserver;
 
 class EditorObservers : public obs::observable<EditorObserver> {
 public:

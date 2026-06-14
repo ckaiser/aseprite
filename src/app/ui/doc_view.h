@@ -9,10 +9,15 @@
 #define APP_UI_DOC_VIEW_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/doc_observer.h"
 #include "app/ui/input_chain_element.h"
 #include "app/ui/tabs.h"
 #include "app/ui/workspace_view.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
 #include "ui/box.h"
 
 namespace doc {
@@ -27,6 +32,7 @@ namespace app {
 class Doc;
 class Editor;
 class Site;
+class DocEvent;
 
 class DocViewPreviewDelegate {
 public:

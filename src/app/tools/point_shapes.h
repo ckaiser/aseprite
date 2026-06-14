@@ -9,7 +9,10 @@
 
 #include "app/tools/ink.h"
 #include "app/tools/symmetry.h"
+#include "app/util/wrap_value.h"
 #include "doc/algorithm/flip_image.h"
+#include "doc/algorithm/floodfill.h"
+#include "doc/compressed_image.h"
 #include "doc/primitives.h"
 #include "render/gradient.h"
 

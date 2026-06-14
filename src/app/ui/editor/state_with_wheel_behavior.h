@@ -16,12 +16,15 @@
 #include "doc/frame.h"
 #include "doc/layer.h"
 #include "doc/layer_list.h"
+#include "gfx/point.h"
 
 namespace render {
 class Zoom;
 }
 
 namespace app {
+class Editor;
+enum class WheelAction;
 
 namespace tools {
 class Tool;

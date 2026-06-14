@@ -4,34 +4,32 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/context.h"
+#include <exception>
+#include <stddef.h>
+#include <string>
+#include <vector>
 
 #include "app/active_site_handler.h"
 #include "app/app.h"
 #include "app/commands/command.h"
-#include "app/commands/commands.h"
 #include "app/console.h"
+#include "app/context.h"
+#include "app/context_observer.h"
 #include "app/doc.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
 #include "app/util/clipboard.h"
+#include "base/debug.h"
+#include "base/log.h"
 #include "base/scoped_value.h"
 #include "doc/layer.h"
+#include "doc/sprite.h"
 #include "ui/system.h"
 
 #ifdef _DEBUG
-  #include "doc/layer_tilemap.h"
   #include "doc/tileset.h"
   #include "doc/tilesets.h"
 #endif
-
-#include <algorithm>
-#include <stdexcept>
 
 namespace app {
 

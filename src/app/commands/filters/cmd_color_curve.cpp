@@ -4,25 +4,28 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <memory>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/color.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/filters/color_curve_editor.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
-#include "app/ini_file.h"
-#include "doc/sprite.h"
+#include "app/context_flags.h"
 #include "filters/color_curve.h"
 #include "filters/color_curve_filter.h"
-#include "ui/ui.h"
+#include "filters/target.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "ui/view.h"
+#include "ui/widget.h"
 
 namespace app {
+class Command;
 
 using namespace filters;
 

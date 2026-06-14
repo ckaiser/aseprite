@@ -3,29 +3,25 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/layout.h"
+#include <cstring>
+#include <vector>
 
 #include "app/app.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/dock.h"
+#include "app/ui/layout.h"
 #include "app/ui/main_window.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui/toolbar.h"
 #include "app/ui/workspace.h"
-#include "app/xml_document.h"
-#include "app/xml_exception.h"
 #include "base/convert_to.h"
+#include "base/debug.h"
+#include "base/log.h"
+#include "gfx/size.h"
+#include "ui/base.h"
 #include "ui/widget.h"
-
-#include <cstring>
-#include <sstream>
 
 namespace app {
 

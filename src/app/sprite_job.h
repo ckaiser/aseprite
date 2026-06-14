@@ -9,19 +9,25 @@
 #define APP_SPRITE_JOB_H_INCLUDED
 #pragma once
 
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+
 #include "app/context.h"
 #include "app/context_access.h"
 #include "app/job.h"
 #include "app/tx.h"
 #include "render/task_delegate.h"
 
-#include <functional>
-#include <memory>
-#include <string>
+namespace doc {
+class Sprite;
+} // namespace doc
 
 namespace app {
 
 class Context;
+class Doc;
 
 // Creates a Job to run a task in a background thread. At the same
 // time it creates a new Tx in the main thread (to group all sub-Txs)

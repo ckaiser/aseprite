@@ -9,9 +9,11 @@
 #define APP_TRANSFORMATION_H_INCLUDED
 #pragma once
 
+#include <cstddef>
+#include <vector>
+
 #include "gfx/point.h"
 #include "gfx/rect.h"
-#include <vector>
 
 #define CORNER_THICK_FOR_TILEMAP_MODE 0.001f
 #define CORNER_THICK_FOR_PIXELS_MODE  1.0f

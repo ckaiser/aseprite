@@ -9,6 +9,8 @@
 #define APP_UI_COLOR_SLIDERS_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/color.h"
 #include "obs/connection.h"
 #include "obs/signal.h"
@@ -16,13 +18,12 @@
 #include "ui/grid.h"
 #include "ui/widget.h"
 
-#include <vector>
-
 namespace ui {
 class Box;
 class Label;
 class Slider;
 class Entry;
+class Component;
 } // namespace ui
 
 namespace app {

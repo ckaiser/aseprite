@@ -4,25 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/commands/filters/filter_target_buttons.h"
-
+#include "app/commands/filters/cels_target.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gfx.h"
-#include "app/modules/gui.h"
-#include "app/ui/skin/skin_theme.h"
-#include "doc/image.h"
+#include "app/ui/skin/skin_part.h"
+#include "doc/pixel_format.h"
 #include "fmt/format.h"
-#include "ui/box.h"
-#include "ui/button.h"
-#include "ui/theme.h"
-#include "ui/widget.h"
-
-#include <cstring>
+#include "ui/base.h"
 
 namespace app {
 

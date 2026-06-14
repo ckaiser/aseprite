@@ -3,22 +3,29 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/select_text_box_state.h"
+#include <algorithm>
+#include <cmath>
+#include <memory>
+#include <string>
 
 #include "app/app.h"
 #include "app/fonts/font_info.h"
 #include "app/fonts/fonts.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_state.h"
+#include "app/ui/editor/select_text_box_state.h"
 #include "app/ui/editor/writing_text_state.h"
 #include "app/ui/status_bar.h"
-#include "app/util/render_text.h"
+#include "doc/sprite.h"
 #include "fmt/format.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "text/font.h"
+
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace app {
 

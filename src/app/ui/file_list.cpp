@@ -4,26 +4,44 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/file_list.h"
-
-#include "app/modules/gfx.h"
-#include "app/thumbnail_generator.h"
-#include "app/ui/skin/skin_theme.h"
-#include "base/string.h"
-#include "base/time.h"
-#include "os/surface.h"
-#include "text/font.h"
-#include "text/font_metrics.h"
-#include "ui/ui.h"
-
 #include <algorithm>
 #include <cctype>
 #include <cstring>
+#include <optional>
+
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/thumbnail_generator.h"
+#include "app/ui/file_list.h"
+#include "app/ui/skin/skin_part.h"
+#include "app/ui/skin/skin_theme.h"
+#include "base/debug.h"
+#include "base/string.h"
+#include "base/time.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/size.h"
+#include "os/keys.h"
+#include "os/paint.h"
+#include "os/sampling.h"
+#include "os/skia/paint.h"
+#include "os/surface.h"
+#include "text/font.h"
+#include "text/font_metrics.h"
+#include "text/font_mgr.h"
+#include "text/text_blob.h"
+#include "ui/base.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint.h"
+#include "ui/paint_event.h"
+#include "ui/scale.h"
+#include "ui/scroll_bar.h"
+#include "ui/size_hint_event.h"
+#include "ui/view.h"
+#include "ui/widget_type.h"
 
 #define ISEARCH_KEYPRESS_INTERVAL_MSECS 500
 

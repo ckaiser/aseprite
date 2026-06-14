@@ -6,22 +6,24 @@
 // the End-User License Agreement for Aseprite.
 
 #define PAL_TRACE(...) // TRACEARGS
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <cstdlib>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
 #include "app/color.h"
 #include "app/color_spaces.h"
 #include "app/color_utils.h"
-#include "app/commands/commands.h"
+#include "app/context.h"
 #include "app/modules/gfx.h"
-#include "app/modules/gui.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
 #include "app/site.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/palette_view.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui_context.h"
@@ -29,31 +31,47 @@
 #include "app/util/conversion_to_surface.h"
 #include "app/util/pal_ops.h"
 #include "base/convert_to.h"
+#include "base/debug.h"
+#include "doc/color.h"
+#include "doc/color_mode.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
+#include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
 #include "doc/remap.h"
+#include "doc/sprite.h"
 #include "doc/tileset.h"
 #include "fmt/format.h"
+#include "gfx/border.h"
 #include "gfx/color.h"
+#include "gfx/fwd.h"
 #include "gfx/point.h"
+#include "gfx/size.h"
+#include "os/color_space.h"
+#include "os/paint.h"
+#include "os/sampling.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
 #include "text/font.h"
+#include "text/fwd.h"
+#include "ui/cursor_type.h"
 #include "ui/graphics.h"
 #include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint.h"
 #include "ui/paint_event.h"
+#include "ui/scale.h"
 #include "ui/size_hint_event.h"
+#include "ui/style.h"
 #include "ui/system.h"
 #include "ui/theme.h"
 #include "ui/view.h"
 #include "ui/widget.h"
-
-#include <algorithm>
-#include <cstdlib>
-#include <cstring>
-#include <set>
+#include "ui/widget_type.h"
 
 namespace app {
 

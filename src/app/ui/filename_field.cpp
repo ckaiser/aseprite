@@ -3,24 +3,27 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/filename_field.h"
+#include <vector>
 
 #include "app/app.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
-#include "app/ui/skin/skin_theme.h"
+#include "app/ui/filename_field.h"
 #include "base/fs.h"
+#include "fmt/base.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "ui/base.h"
 #include "ui/box.h"
-#include "ui/button.h"
 #include "ui/entry.h"
+#include "ui/manager.h"
 #include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/separator.h"
 
 namespace app {
 

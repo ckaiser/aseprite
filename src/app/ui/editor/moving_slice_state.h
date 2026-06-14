@@ -9,17 +9,37 @@
 #define APP_UI_EDITOR_MOVING_SLICE_STATE_H_INCLUDED
 #pragma once
 
+#include <functional>
+#include <memory>
+#include <vector>
+
+#include "app/extra_cel.h"
+#include "app/site.h"
+#include "app/tx.h"
 #include "app/ui/editor/editor_hit.h"
 #include "app/ui/editor/pixels_movement.h"
 #include "app/ui/editor/standby_state.h"
 #include "app/util/new_image_from_mask.h"
 #include "doc/frame.h"
+#include "doc/image.h"
 #include "doc/image_ref.h"
+#include "doc/layer_list.h"
 #include "doc/mask.h"
 #include "doc/selected_layers.h"
 #include "doc/selected_objects.h"
 #include "doc/slice.h"
 #include "gfx/border.h"
+#include "gfx/clip.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+
+namespace doc {
+class SelectedObjects;
+} // namespace doc
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace app {
 class Editor;
@@ -40,6 +60,7 @@ public:
 
 private:
   struct Item;
+
   using ItemContentPartFunc =
     std::function<void(const doc::Image* src, const doc::Mask* mask, const gfx::Rect& bounds)>;
 

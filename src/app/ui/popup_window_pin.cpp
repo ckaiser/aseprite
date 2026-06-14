@@ -4,21 +4,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/popup_window_pin.h"
-
-#include "app/modules/gfx.h"
-#include "app/modules/gui.h"
-#include "app/ui/skin/skin_theme.h"
-#include "gfx/border.h"
-#include "gfx/size.h"
-#include "ui/ui.h"
-
-#include <vector>
+#include "app/ui/skin/skin_part.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/scale.h"
 
 namespace app {
 

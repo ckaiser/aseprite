@@ -4,13 +4,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/ui/skin/skin_property.h"
-
 #include "ui/widget.h"
 
 namespace app { namespace skin {

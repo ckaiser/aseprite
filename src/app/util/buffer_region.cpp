@@ -3,17 +3,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <stddef.h>
+#include <stdint.h>
+#include <vector>
 
 #include "app/util/buffer_region.h"
-
 #include "doc/image.h"
-#include "gfx/region.h"
-
-#include <algorithm>
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
 
 namespace app {
 

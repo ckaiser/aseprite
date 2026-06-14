@@ -9,10 +9,10 @@
 #define APP_FILE_SELECTOR_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "base/paths.h"
 #include "doc/pixel_ratio.h"
-
-#include <string>
 
 namespace ui {
 class ComboBox;

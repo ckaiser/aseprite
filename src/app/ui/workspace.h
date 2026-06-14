@@ -9,14 +9,19 @@
 #define APP_UI_WORKSPACE_H_INCLUDED
 #pragma once
 
+#include "app/ui/dockable.h"
 #include "app/ui/input_chain_element.h"
 #include "app/ui/tabs.h"
 #include "app/ui/workspace_panel.h"
+#include "app/ui/workspace_views.h"
+#include "gfx/fwd.h"
 #include "obs/signal.h"
 #include "ui/widget.h"
+#include "ui/widget_type.h"
 
 namespace app {
 class WorkspaceTabs;
+class WorkspaceView;
 
 class Workspace : public ui::Widget,
                   public app::InputChainElement,

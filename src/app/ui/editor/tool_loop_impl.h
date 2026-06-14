@@ -14,6 +14,7 @@
 #include "app/tools/ink_type.h"
 #include "app/tools/pointer.h"
 #include "app/tools/tool_loop.h"
+#include "app/tools/tool_loop_modifiers.h"
 #include "doc/brush.h"
 #include "doc/image_ref.h"
 #include "gfx/fwd.h"
@@ -27,6 +28,11 @@ class Color;
 class Context;
 class Editor;
 class Site;
+namespace tools {
+class Controller;
+class Ink;
+class Tool;
+} // namespace tools
 
 struct ToolLoopParams {
   tools::Tool* tool = nullptr;

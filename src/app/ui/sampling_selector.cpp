@@ -3,17 +3,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/sampling_selector.h"
-
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "obs/signal.h"
 #include "ui/listitem.h"
 
 namespace app {
+namespace gen {
+enum class Downsampling;
+} // namespace gen
 
 using namespace ui;
 

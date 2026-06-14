@@ -3,17 +3,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "doc/layer_tilemap.h"
-#include "doc/sprite.h"
-#include "tileset_utils.h"
-
 #include <fmt/format.h>
 #include <string>
+#include <vector>
+
+#include "doc/grid.h"
+#include "doc/layer_tilemap.h"
+#include "doc/sprite.h"
+#include "doc/tileset.h"
+#include "gfx/size.h"
+#include "tileset_utils.h"
 
 namespace app {
 

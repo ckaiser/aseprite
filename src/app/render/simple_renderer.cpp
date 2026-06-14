@@ -3,15 +3,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/render/simple_renderer.h"
-
 #include "app/ui/editor/editor_render.h"
 #include "app/util/conversion_to_surface.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
+#include "doc/pixel_format.h"
+#include "doc/sprite.h"
+#include "gfx/size.h"
 
 namespace app {
 

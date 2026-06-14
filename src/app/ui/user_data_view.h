@@ -8,6 +8,7 @@
 #define APP_UI_USER_DATA_VIEW_H_INCLUDED
 #pragma once
 
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/color_button.h"
 #include "doc/user_data.h"
@@ -16,10 +17,17 @@
 #include "ui/grid.h"
 #include "ui/label.h"
 #include "ui/textedit.h"
-
 #include "user_data.xml.h"
 
+namespace ui {
+class Grid;
+class Label;
+class TextEdit;
+class View;
+} // namespace ui
+
 namespace app {
+class ColorButton;
 
 class UserDataView {
 public:

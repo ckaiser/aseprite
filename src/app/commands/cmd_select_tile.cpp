@@ -4,21 +4,30 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <string>
 
 #include "app/cmd/set_mask.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/site.h"
 #include "app/snap_to_grid.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/editor/editor.h"
 #include "doc/mask.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "pref.xml.h"
 
 namespace app {
 

@@ -3,18 +3,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include <cstdlib>
 #include <string>
 
 #include "app/ui/hex_color_entry.h"
 #include "base/hex.h"
 #include "gfx/border.h"
+#include "ui/base.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/scale.h"
 
 namespace app {

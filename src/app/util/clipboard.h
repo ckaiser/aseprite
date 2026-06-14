@@ -9,14 +9,21 @@
 #define APP_UTIL_CLIPBOARD_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "doc/cel_list.h"
+#include "doc/color.h"
+#include "doc/image.h"
 #include "doc/image_ref.h"
+#include "doc/mask.h"
+#include "doc/palette.h"
+#include "doc/tileset.h"
 #include "gfx/point.h"
 #include "gfx/size.h"
 #include "ui/base.h"
 #include "ui/clipboard_delegate.h"
-
-#include <memory>
 
 namespace doc {
 class Image;
@@ -127,6 +134,7 @@ private:
   bool setNativePalette(const doc::Palette* palette, const doc::PalettePicks& picks);
 
   struct Data;
+
   std::unique_ptr<Data> m_data;
 };
 

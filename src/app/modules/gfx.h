@@ -12,10 +12,16 @@
 #include "app/color.h"
 #include "app/pref/preferences.h"
 #include "doc/color_mode.h"
+#include "doc/tile.h"
 #include "gfx/color.h"
+#include "gfx/fwd.h"
 #include "gfx/rect.h"
 #include "gfx/size.h"
 #include "ui/base.h"
+
+namespace doc {
+enum class ColorMode;
+} // namespace doc
 
 namespace os {
 class Surface;

@@ -9,17 +9,20 @@
 #define APP_UI_EDITOR_SELECT_BOX_STATE_H_INCLUDED
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "app/ui/editor/editor_decorator.h"
 #include "app/ui/editor/ruler.h"
 #include "app/ui/editor/standby_state.h"
 #include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/size.h"
 #include "ui/cursor_type.h"
 #include "ui/mouse_button.h"
 
-#include <string>
-#include <vector>
-
 namespace app {
+class Editor;
 
 // State used to select boxes or points. Used for multiple-purposes:
 // - To select a new canvas size in CanvasSizeCommand

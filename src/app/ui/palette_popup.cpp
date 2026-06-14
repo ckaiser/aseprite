@@ -4,32 +4,42 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/palette_popup.h"
+#include <functional>
+#include <stddef.h>
+#include <string>
+#include <vector>
 
 #include "app/commands/cmd_set_palette.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/launcher.h"
 #include "app/match_words.h"
-#include "app/res/palettes_loader_delegate.h"
 #include "app/res/resource.h"
+#include "app/ui/palette_popup.h"
 #include "app/ui/palettes_listbox.h"
+#include "app/ui/resources_listbox.h"
 #include "app/ui/search_entry.h"
 #include "app/ui_context.h"
-#include "ui/box.h"
+#include "gfx/border.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "palette_popup.xml.h"
 #include "ui/button.h"
 #include "ui/fit_bounds.h"
 #include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/scale.h"
-#include "ui/theme.h"
 #include "ui/view.h"
+#include "ui/widget.h"
 
-#include "palette_popup.xml.h"
+namespace doc {
+class Palette;
+} // namespace doc
+namespace ui {
+class Display;
+} // namespace ui
 
 namespace app {
 

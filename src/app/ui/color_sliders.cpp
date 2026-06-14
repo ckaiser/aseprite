@@ -4,35 +4,42 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <limits>
+#include <memory>
+#include <string>
 
 #include "app/app.h"
 #include "app/color_spaces.h"
 #include "app/color_utils.h"
 #include "app/modules/gfx.h"
-#include "app/ui/alpha_entry.h"
 #include "app/ui/alpha_slider.h"
 #include "app/ui/color_sliders.h"
 #include "app/ui/expr_entry.h"
+#include "app/ui/skin/skin_property.h"
 #include "app/ui/skin/skin_slider_property.h"
 #include "app/ui/skin/skin_theme.h"
+#include "base/debug.h"
 #include "base/scoped_value.h"
-#include "gfx/hsl.h"
-#include "gfx/rgb.h"
+#include "gfx/color.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "os/color_space.h"
+#include "os/keys.h"
+#include "os/skia/paint.h"
+#include "ui/base.h"
 #include "ui/box.h"
 #include "ui/entry.h"
 #include "ui/graphics.h"
+#include "ui/keys.h"
 #include "ui/label.h"
+#include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint.h"
 #include "ui/size_hint_event.h"
 #include "ui/slider.h"
-#include "ui/theme.h"
-
-#include <algorithm>
-#include <limits>
+#include "ui/widget_type.h"
 
 namespace app {
 

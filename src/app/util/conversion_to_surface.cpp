@@ -4,19 +4,20 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/util/conversion_to_surface.h"
-
 #include "base/24bits.h"
-#include "doc/algo.h"
-#include "doc/color_scales.h"
+#include "base/debug.h"
+#include "doc/color.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
+#include "doc/image_spec.h"
+#include "doc/image_traits.h"
 #include "doc/palette.h"
-#include "doc/rgbmap.h"
+#include "doc/pixel_format.h"
+#include "gfx/color.h"
+#include "gfx/rect.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
 #include "os/surface.h"
 #include "os/surface_format.h"
 
@@ -26,6 +27,7 @@
 
 #include <algorithm>
 #include <stdexcept>
+#include <stdint.h>
 
 namespace app {
 

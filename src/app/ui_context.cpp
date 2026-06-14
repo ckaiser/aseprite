@@ -4,12 +4,7 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui_context.h"
+#include <stddef.h>
 
 #include "app/app.h"
 #include "app/doc.h"
@@ -19,16 +14,18 @@
 #include "app/ui/editor/editor.h"
 #include "app/ui/input_chain.h"
 #include "app/ui/main_window.h"
+#include "app/ui/palette_view.h"
 #include "app/ui/preview_editor.h"
-#include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui/workspace.h"
 #include "app/ui/workspace_tabs.h"
-#include "doc/sprite.h"
+#include "app/ui/workspace_view.h"
+#include "app/ui_context.h"
+#include "base/debug.h"
+#include "doc/palette_picks.h"
 #include "ui/manager.h"
 #include "ui/system.h"
-
-#include <algorithm>
+#include "view/range.h"
 
 namespace app {
 

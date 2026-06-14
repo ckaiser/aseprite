@@ -4,34 +4,27 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/color.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
-#include "app/ini_file.h"
-#include "app/modules/gui.h"
+#include "app/context_flags.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/button_set.h"
-#include "app/ui/color_button.h"
 #include "app/ui/color_sliders.h"
-#include "doc/image.h"
-#include "doc/mask.h"
-#include "doc/sprite.h"
 #include "filters/hue_saturation_filter.h"
-#include "ui/button.h"
-#include "ui/label.h"
-#include "ui/slider.h"
+#include "filters/target.h"
+#include "obs/signal.h"
 #include "ui/widget.h"
-#include "ui/window.h"
 
 namespace app {
+class Command;
 
 using Mode = filters::HueSaturationFilter::Mode;
 

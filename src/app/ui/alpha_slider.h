@@ -8,10 +8,16 @@
 #define APP_UI_ALPHA_SLIDER_H_INCLUDED
 #pragma once
 
+#include <string>
+
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "ui/slider.h"
 
 namespace app {
+namespace gen {
+enum class AlphaRange;
+} // namespace gen
 
 class AlphaSlider : public ui::Slider,
                     ui::SliderDelegate {

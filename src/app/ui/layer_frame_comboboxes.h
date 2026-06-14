@@ -9,11 +9,11 @@
 #define APP_UI_LAYER_FRAME_COMBOBOXES_H_INCLUDED
 #pragma once
 
-#include "doc/anidir.h"
-#include "ui/listitem.h"
-
 #include <string>
 #include <vector>
+
+#include "doc/anidir.h"
+#include "ui/listitem.h"
 
 namespace doc {
 class Layer;
@@ -24,6 +24,7 @@ class Slice;
 class Slices;
 class Sprite;
 class Tag;
+enum class AniDir;
 } // namespace doc
 
 namespace ui {

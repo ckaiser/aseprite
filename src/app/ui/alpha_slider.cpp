@@ -3,15 +3,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <cstdlib>
 
 #include "app/ui/alpha_slider.h"
-#include "ui/message.h"
-
-#include <algorithm>
+#include "pref.xml.h"
 
 using namespace ui;
 using namespace app::gen;

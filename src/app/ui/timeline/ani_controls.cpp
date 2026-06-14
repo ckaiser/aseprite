@@ -4,26 +4,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/timeline/ani_controls.h"
-
 #include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
+#include "app/commands/params.h"
 #include "app/i18n/strings.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
+#include "base/debug.h"
+#include "obs/signal.h"
+#include "ui/base.h"
 #include "ui/tooltips.h"
-
-#include <algorithm>
-#include <cstdarg>
-#include <cstdio>
-#include <cstring>
 
 namespace app {
 

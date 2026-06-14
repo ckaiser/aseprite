@@ -9,12 +9,15 @@
 #define APP_UI_SKIN_SKIN_PART_H_INCLUDED
 #pragma once
 
-#include "gfx/rect.h"
-#include "gfx/size.h"
-#include "os/surface_list.h"
-
+#include <cstddef>
 #include <memory>
 #include <vector>
+
+#include "base/ref.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "os/surface.h"
+#include "os/surface_list.h"
 
 namespace os {
 class Surface;

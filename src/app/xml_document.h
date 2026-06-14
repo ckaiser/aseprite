@@ -9,12 +9,11 @@
 #define APP_XML_DOCUMENT_H_INCLUDED
 #pragma once
 
-#include "base/exception.h"
-
-#include "tinyxml2.h"
-
 #include <memory>
 #include <string>
+
+#include "base/exception.h"
+#include "tinyxml2.h"
 
 namespace app {
 

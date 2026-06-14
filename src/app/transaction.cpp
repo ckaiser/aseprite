@@ -4,22 +4,23 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/transaction.h"
-
+#include "app/cmd.h"
 #include "app/cmd_transaction.h"
-#include "app/context_access.h"
+#include "app/context.h"
 #include "app/doc.h"
+#include "app/doc_range.h"
 #include "app/doc_undo.h"
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
+#include "app/sprite_position.h"
+#include "base/debug.h"
 #include "doc/sprite.h"
 #include "ui/manager.h"
-#include "ui/system.h"
+
+namespace doc {
+class Palette;
+} // namespace doc
 
 #define TX_TRACE(...)
 

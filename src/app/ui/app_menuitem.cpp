@@ -4,30 +4,24 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/app_menuitem.h"
+#include <string>
 
 #include "app/app_menus.h"
 #include "app/commands/command.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
-#include "app/modules/gui.h"
-#include "app/ui/keyboard_shortcuts.h"
+#include "app/context.h"
+#include "app/ui/app_menuitem.h"
 #include "app/ui_context.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
 #include "os/menus.h"
+#include "text/font.h"
 #include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/scale.h"
-#include "ui/shortcut.h"
 #include "ui/size_hint_event.h"
-#include "ui/widget.h"
-
-#include <cstdarg>
-#include <string>
 
 namespace app {
 

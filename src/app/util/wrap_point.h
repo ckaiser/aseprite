@@ -13,6 +13,10 @@
 #include "gfx/point.h"
 #include "gfx/size.h"
 
+namespace filters {
+enum class TiledMode;
+} // namespace filters
+
 namespace app {
 
 gfx::Point wrap_point(const filters::TiledMode tiledMode,

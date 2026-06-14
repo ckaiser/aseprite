@@ -3,33 +3,42 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/dock.h"
+#include <algorithm>
+#include <assert.h>
+#include <string>
 
 #include "app/app.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
-#include "app/modules/gfx.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/ui/dock.h"
 #include "app/ui/dockable.h"
-#include "app/ui/layout_selector.h"
 #include "app/ui/main_window.h"
 #include "app/ui/skin/skin_theme.h"
+#include "base/debug.h"
+#include "gfx/border.h"
+#include "gfx/color.h"
+#include "gfx/rect.h"
+#include "os/sampling.h"
+#include "os/skia/paint.h"
+#include "os/surface.h"
 #include "os/system.h"
+#include "pref.xml.h"
 #include "ui/cursor_type.h"
-#include "ui/label.h"
+#include "ui/display.h"
+#include "ui/graphics.h"
 #include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint.h"
 #include "ui/paint_event.h"
 #include "ui/resize_event.h"
 #include "ui/scale.h"
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
 #include "ui/widget.h"
+#include "ui/widget_type.h"
 
 namespace app {
 

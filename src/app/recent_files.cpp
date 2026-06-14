@@ -4,20 +4,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/recent_files.h"
+#include <algorithm>
+#include <cstring>
+#include <iterator>
+#include <vector>
 
 #include "app/ini_file.h"
+#include "app/recent_files.h"
+#include "base/debug.h"
 #include "base/fs.h"
 #include "fmt/format.h"
-
-#include <cstdio>
-#include <cstring>
-#include <set>
 
 namespace {
 

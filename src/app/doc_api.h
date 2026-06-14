@@ -9,6 +9,9 @@
 #define APP_DOC_API_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <string>
+
 #include "app/doc_api_dnd_helper.h"
 #include "app/drop_frame_place.h"
 #include "app/tags_handling.h"
@@ -16,10 +19,10 @@
 #include "doc/color.h"
 #include "doc/frame.h"
 #include "doc/image_ref.h"
+#include "doc/layer_list.h"
+#include "doc/object_id.h"
 #include "doc/tile.h"
 #include "gfx/rect.h"
-
-#include <map>
 
 namespace doc {
 class Cel;
@@ -37,6 +40,11 @@ class Sprite;
 namespace app {
 class Doc;
 class Transaction;
+namespace docapi {
+class DocProvider;
+enum class DroppedOn;
+enum class InsertionPoint;
+} // namespace docapi
 
 using namespace doc;
 using namespace docapi;

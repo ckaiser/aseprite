@@ -9,13 +9,19 @@
 #define APP_UI_EDITOR_DRAWING_STATE_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/tools/pointer.h"
 #include "app/tools/velocity.h"
 #include "app/ui/editor/delayed_mouse_move.h"
 #include "app/ui/editor/standby_state.h"
 #include "base/time.h"
+#include "gfx/fwd.h"
 #include "obs/connection.h"
-#include <memory>
+
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace app {
 namespace tools {
@@ -25,6 +31,7 @@ class ToolLoopManager;
 
 class CommandExecutionEvent;
 class ExpandCelCanvas;
+class Editor;
 
 class DrawingState : public StandbyState,
                      DelayedMouseMoveDelegate {

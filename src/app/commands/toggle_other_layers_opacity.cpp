@@ -3,21 +3,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/app.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/main_window.h"
 #include "app/ui/preview_editor.h"
 #include "fmt/format.h"
-#include "ui/system.h"
 
 namespace app {
+class Command;
 
 struct ToggleOtherLayersOpacityParams : public NewParams {
   Param<bool> preview{ this, false, "preview" };

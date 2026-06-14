@@ -4,21 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/workspace.h"
-
-#include "app/app.h"
-#include "app/ui/input_chain.h"
 #include "app/ui/skin/skin_theme.h"
+#include "app/ui/workspace.h"
 #include "app/ui/workspace_tabs.h"
 #include "app/ui/workspace_view.h"
+#include "base/debug.h"
 #include "base/remove_from_container.h"
+#include "gfx/rect.h"
+#include "ui/base.h"
+#include "ui/graphics.h"
+#include "ui/manager.h"
 #include "ui/paint_event.h"
 #include "ui/resize_event.h"
+#include "ui/widgets_list.h"
 
 namespace app {
 

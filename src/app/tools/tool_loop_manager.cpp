@@ -4,14 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <cmath>
+#include <string>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/tools/tool_loop_manager.h"
-
-#include "app/context.h"
 #include "app/snap_to_grid.h"
 #include "app/tools/controller.h"
 #include "app/tools/ink.h"
@@ -19,18 +16,15 @@
 #include "app/tools/point_shape.h"
 #include "app/tools/symmetry.h"
 #include "app/tools/tool_loop.h"
+#include "app/tools/tool_loop_manager.h"
+#include "app/tools/trace_policy.h"
 #include "app/tools/velocity.h"
+#include "app/util/tiled_mode.h"
+#include "base/debug.h"
 #include "doc/brush.h"
-#include "doc/image.h"
-#include "doc/primitives.h"
-#include "doc/sprite.h"
-#include "gfx/point_io.h"
-#include "gfx/rect_io.h"
-#include "gfx/region.h"
-
-#include <algorithm>
-#include <climits>
-#include <cmath>
+#include "filters/tiled_mode.h"
+#include "gfx/rect.h"
+#include "os/pointer_type.h"
 
 #define TOOL_TRACE(...) // TRACEARGS(__VA_ARGS__)
 

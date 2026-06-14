@@ -8,6 +8,8 @@
 #define APP_UTIL_PIXEL_RATIO_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "base/convert_to.h"
 #include "doc/pixel_ratio.h"
 

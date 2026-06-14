@@ -4,29 +4,24 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/button_set.h"
+#include <stddef.h>
+#include <vector>
 
 #include "app/modules/gui.h"
+#include "app/ui/button_set.h"
 #include "app/ui/skin/skin_theme.h"
-#include "gfx/color.h"
-#include "os/surface.h"
-#include "ui/box.h"
-#include "ui/button.h"
-#include "ui/graphics.h"
+#include "base/debug.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "os/keys.h"
+#include "ui/base.h"
+#include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
-#include "ui/size_hint_event.h"
-#include "ui/system.h"
 #include "ui/theme.h"
 #include "ui/widget.h"
-
-#include <algorithm>
-#include <cstdarg>
+#include "ui/widget_type.h"
 
 namespace app {
 

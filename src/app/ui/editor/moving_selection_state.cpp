@@ -4,25 +4,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/moving_selection_state.h"
+#include <string>
 
 #include "app/cmd/set_mask_position.h"
 #include "app/commands/command.h"
-#include "app/commands/commands.h"
+#include "app/commands/command_ids.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/doc.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_state.h"
+#include "app/ui/editor/moving_selection_state.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui_context.h"
+#include "base/debug.h"
+#include "base/exception.h"
 #include "doc/mask.h"
+#include "doc/mask_boundaries.h"
 #include "fmt/format.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "ui/cursor_type.h"
 #include "ui/message.h"
 
 namespace app {

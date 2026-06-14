@@ -4,31 +4,50 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <exception>
+#include <string>
 
 #include "app/app.h"
+#include "app/app_brushes.h"
+#include "app/brush_slot.h"
 #include "app/cmd/clear_rect.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
+#include "app/commands/params.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tools/active_tool.h"
 #include "app/tools/ink.h"
+#include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 #include "app/tx.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/select_box_state.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/status_bar.h"
 #include "app/ui_context.h"
 #include "app/util/new_image_from_mask.h"
 #include "base/convert_to.h"
+#include "base/debug.h"
+#include "doc/brush.h"
+#include "doc/cel.h"
+#include "doc/image_ref.h"
 #include "doc/mask.h"
+#include "doc/sprite.h"
+#include "gfx/rect.h"
+#include "ui/mouse_button.h"
 
 namespace app {
 

@@ -3,33 +3,59 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <iterator>
+#include <map>
+#include <memory>
+#include <sstream>
+#include <stdint.h>
+#include <string>
+#include <string_view>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/params.h"
 #include "app/context.h"
 #include "app/i18n/strings.h"
-#include "app/ini_file.h"
 #include "app/match_words.h"
-#include "app/modules/gui.h"
-#include "app/ui/app_menuitem.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
+#include "app/ui/search_entry.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/workspace_tabs.h"
 #include "base/chrono.h"
+#include "base/split_string.h"
+#include "base/string.h"
 #include "commands.h"
+#include "fmt/base.h"
+#include "fmt/format.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/connection.h"
+#include "obs/signal.h"
+#include "os/keys.h"
 #include "tinyexpr.h"
-#include "ui/entry.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/cursor_type.h"
 #include "ui/fit_bounds.h"
+#include "ui/keys.h"
 #include "ui/label.h"
+#include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/system.h"
+#include "ui/widget.h"
+#include "ui/window.h"
 
 #ifdef ENABLE_SCRIPTING
   #include "app/console.h"
@@ -38,7 +64,9 @@
 
 #include "run_command.xml.h"
 
-#include <cmath>
+namespace ui {
+class Display;
+} // namespace ui
 
 namespace app {
 

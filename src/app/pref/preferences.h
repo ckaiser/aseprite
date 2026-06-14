@@ -9,6 +9,10 @@
 #define APP_PREF_PREFERENCES_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <string>
+#include <vector>
+
 #include "app/color.h"
 #include "app/commands/filters/cels_target.h"
 #include "app/docs_observer.h"
@@ -32,14 +36,9 @@
 #include "filters/hue_saturation_filter.h"
 #include "filters/tiled_mode.h"
 #include "gfx/rect.h"
+#include "pref.xml.h"
 #include "render/onionskin_position.h"
 #include "render/zoom.h"
-
-#include "pref.xml.h"
-
-#include <map>
-#include <string>
-#include <vector>
 
 namespace app {
 namespace tools {
@@ -47,6 +46,7 @@ class Tool;
 }
 
 class Doc;
+class OptionBase;
 
 typedef app::gen::ToolPref ToolPreferences;
 typedef app::gen::DocPref DocumentPreferences;

@@ -4,42 +4,54 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/file_selector.h"
+#include <algorithm>
+#include <cctype>
+#include <exception>
+#include <list>
+#include <map>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
 #include "app/console.h"
-#include "app/file/file.h"
+#include "app/file_selector.h"
+#include "app/file_system.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gfx.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
+#include "app/ui/button_set.h"
 #include "app/ui/file_list.h"
 #include "app/ui/file_list_view.h"
+#include "app/ui/file_selector.h"
 #include "app/ui/separator_in_view.h"
-#include "app/ui/skin/skin_theme.h"
-#include "app/widget_loader.h"
-#include "base/convert_to.h"
+#include "app/ui/skin/skin_part.h"
+#include "base/debug.h"
 #include "base/fs.h"
 #include "base/paths.h"
-#include "base/string.h"
-#include "ui/ui.h"
-
+#include "fmt/base.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
 #include "new_folder_window.xml.h"
-
-#include <algorithm>
-#include <cctype>
-#include <cerrno>
-#include <iterator>
-#include <list>
-#include <set>
-#include <string>
-#include <vector>
+#include "obs/connection.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "ui/alert.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/display.h"
+#include "ui/entry.h"
+#include "ui/keys.h"
+#include "ui/listitem.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/view.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
 
 #ifndef MAX_PATH
   #define MAX_PATH 4096 // TODO this is needed for Linux, is it correct?

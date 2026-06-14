@@ -9,6 +9,10 @@
 #define APP_DOC_H_INCLUDED
 #pragma once
 
+#include <atomic>
+#include <memory>
+#include <string>
+
 #include "app/doc_observer.h"
 #include "app/extra_cel.h"
 #include "app/file/format_options.h"
@@ -21,13 +25,11 @@
 #include "doc/frame.h"
 #include "doc/mask_boundaries.h"
 #include "doc/pixel_format.h"
+#include "doc/tile.h"
+#include "gfx/point.h"
 #include "gfx/rect.h"
 #include "obs/observable.h"
 #include "os/color_space.h"
-
-#include <atomic>
-#include <memory>
-#include <string>
 
 namespace doc {
 class Cel;
@@ -36,6 +38,7 @@ class LayerTilemap;
 class Mask;
 class Sprite;
 class Tileset;
+class Slice;
 } // namespace doc
 
 namespace gfx {
@@ -48,6 +51,7 @@ class Context;
 class DocApi;
 class DocUndo;
 class Transaction;
+class DocObserver;
 
 using namespace doc;
 

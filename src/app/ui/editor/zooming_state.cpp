@@ -4,27 +4,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/zooming_state.h"
-
-#include "app/app.h"
-#include "app/ui/editor/editor.h"
-#include "app/ui/skin/skin_theme.h"
-#include "app/ui/status_bar.h"
-#include "doc/sprite.h"
-#include "gfx/rect.h"
-#include "os/window.h"
-#include "ui/manager.h"
-#include "ui/message.h"
-#include "ui/system.h"
-#include "ui/theme.h"
-#include "ui/view.h"
-
 #include <cmath>
+
+#include "app/ui/editor/editor.h"
+#include "app/ui/editor/zooming_state.h"
+#include "app/ui/skin/skin_theme.h"
+#include "os/window.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
+#include "ui/message.h"
+#include "ui/scale.h"
 
 namespace app {
 

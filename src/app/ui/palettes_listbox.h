@@ -8,9 +8,14 @@
 #define APP_UI_PALETTES_LISTBOX_H_INCLUDED
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "app/ui/resources_listbox.h"
 #include "app/ui/separator_in_view.h"
+#include "gfx/fwd.h"
 #include "obs/connection.h"
+#include "obs/signal.h"
 #include "ui/tooltips.h"
 
 namespace doc {

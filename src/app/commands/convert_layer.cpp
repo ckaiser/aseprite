@@ -3,10 +3,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <map>
+#include <string>
+#include <vector>
 
 #include "app/cmd/add_cel.h"
 #include "app/cmd/add_layer.h"
@@ -15,28 +14,43 @@
 #include "app/cmd/copy_cel.h"
 #include "app/cmd/layer_from_background.h"
 #include "app/cmd/remove_layer.h"
-#include "app/commands/command.h"
+#include "app/cmd_transaction.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/site.h"
 #include "app/tx.h"
 #include "app/ui/tileset_selector.h"
 #include "app/util/cel_ops.h"
+#include "base/debug.h"
+#include "doc/cel.h"
+#include "doc/cel_list.h"
+#include "doc/frame.h"
 #include "doc/grid.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
+#include "doc/object_id.h"
+#include "doc/tile.h"
 #include "doc/tileset.h"
-
-#ifdef ENABLE_SCRIPTING
-  #include "app/script/luacpp.h"
-#endif
-
+#include "gfx/point.h"
+#include "lua.h"
 #include "tileset_selector_window.xml.h"
+#include "ui/box.h"
+#include "ui/button.h"
 
-#include <map>
+namespace doc {
+class Sprite;
+} // namespace doc
 
 namespace app {
+class Command;
+class Doc;
 
 enum class ConvertLayerParam { None, Background, Layer, Tilemap };
 

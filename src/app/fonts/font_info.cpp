@@ -3,16 +3,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/fonts/font_info.h"
+#include <algorithm>
+#include <cstdlib>
+#include <vector>
 
 #include "app/app.h"
 #include "app/fonts/font_data.h"
+#include "app/fonts/font_info.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/main_window.h"
 #include "app/ui/skin/skin_theme.h"
@@ -21,10 +20,8 @@
 #include "fmt/format.h"
 #include "text/font_mgr.h"
 #include "text/font_style_set.h"
-
-#include <cmath>
-#include <cstdlib>
-#include <vector>
+#include "text/font_type.h"
+#include "text/typeface.h"
 
 namespace app {
 

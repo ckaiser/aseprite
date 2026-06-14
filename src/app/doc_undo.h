@@ -9,15 +9,21 @@
 #define APP_DOCUMENT_UNDO_H_INCLUDED
 #pragma once
 
+#include <iosfwd>
+#include <stddef.h>
+#include <string>
+
 #include "app/doc_range.h"
 #include "app/sprite_position.h"
 #include "base/disable_copying.h"
 #include "base/exception.h"
+#include "doc/cel_list.h"
 #include "obs/observable.h"
 #include "undo/undo_history.h"
 
-#include <iosfwd>
-#include <string>
+namespace undo {
+class UndoState;
+} // namespace undo
 
 namespace app {
 using namespace doc;

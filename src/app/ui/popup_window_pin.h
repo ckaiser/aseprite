@@ -8,6 +8,8 @@
 #define APP_UI_POPUP_FRAME_PIN_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "ui/popup_window.h"
 
 namespace app {

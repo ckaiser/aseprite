@@ -4,33 +4,36 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <memory>
+#include <string>
 
 #include "app/context.h"
 #include "app/doc.h"
+#include "app/docs.h"
 #include "app/file/file.h"
 #include "app/file/file_format.h"
 #include "app/file/file_formats_manager.h"
-#include "base/fs.h"
-#include "base/string.h"
+#include "base/paths.h"
 #include "dio/detect_format.h"
+#include "dio/file_format.h"
 #include "doc/cel.h"
+#include "doc/color_mode.h"
 #include "doc/file/act_file.h"
 #include "doc/file/col_file.h"
 #include "doc/file/gpl_file.h"
 #include "doc/file/hex_file.h"
 #include "doc/file/pal_file.h"
+#include "doc/frame.h"
 #include "doc/image.h"
+#include "doc/image_spec.h"
 #include "doc/layer.h"
 #include "doc/palette.h"
 #include "doc/sprite.h"
-
-#include <cstring>
+#include "gfx/color_space.h"
 
 namespace app {
+struct FileOpConfig;
 
 using namespace doc;
 

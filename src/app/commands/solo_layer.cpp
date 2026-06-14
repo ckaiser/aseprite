@@ -4,16 +4,26 @@
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
 
-#include "app/commands/command.h"
-#include "app/commands/new_params.h"
-#include "app/context_access.h"
-#include "app/doc.h"
-#include "app/i18n/strings.h"
-#include "doc/layer.h"
-
 #include <algorithm>
+#include <string>
+#include <vector>
+
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/new_params.h"
+#include "app/context.h"
+#include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
+#include "app/i18n/strings.h"
+#include "base/debug.h"
+#include "doc/layer.h"
+#include "doc/selected_layers.h"
+#include "doc/sprite.h"
 
 namespace app {
+class Command;
 
 struct SoloLayerParams : public NewParams {
   Param<int> layerId{ this, 0, "layerId" };

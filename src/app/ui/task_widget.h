@@ -8,7 +8,10 @@
 #define APP_UI_TASK_WIDGET_H_INCLUDED
 #pragma once
 
+#include <utility>
+
 #include "app/task.h"
+#include "base/task.h"
 #include "obs/signal.h"
 #include "ui/box.h"
 #include "ui/button.h"

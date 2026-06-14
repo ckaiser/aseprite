@@ -4,47 +4,48 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <set>
+#include <string>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/filters/filter_manager_impl.h"
-
-#include "app/app.h"
 #include "app/cmd/copy_region.h"
 #include "app/cmd/patch_cel.h"
 #include "app/cmd/set_palette.h"
-#include "app/cmd/unlink_cel.h"
+#include "app/cmd_transaction.h"
+#include "app/commands/filters/cels_target.h"
+#include "app/commands/filters/filter_manager_impl.h"
+#include "app/context.h"
 #include "app/context_access.h"
 #include "app/doc.h"
-#include "app/ini_file.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/site.h"
 #include "app/transaction.h"
+#include "app/tx.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/palette_view.h"
-#include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
 #include "app/util/cel_ops.h"
+#include "base/debug.h"
 #include "doc/algorithm/shrink_bounds.h"
 #include "doc/cel.h"
+#include "doc/cel_list.h"
 #include "doc/cels_range.h"
 #include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
+#include "doc/object_id.h"
 #include "doc/palette.h"
+#include "doc/palette_picks.h"
+#include "doc/primitives.h"
 #include "doc/sprite.h"
 #include "filters/filter.h"
-#include "ui/manager.h"
+#include "filters/tiled_mode.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "render/projection.h"
 #include "ui/view.h"
 #include "ui/widget.h"
-#include "view/cels.h"
-
-#include <cstdlib>
-#include <cstring>
-#include <set>
 
 namespace app {
 

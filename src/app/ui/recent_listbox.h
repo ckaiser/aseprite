@@ -9,6 +9,8 @@
 #define APP_UI_RECENT_LISTBOX_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "base/paths.h"
 #include "obs/connection.h"
 #include "ui/listbox.h"

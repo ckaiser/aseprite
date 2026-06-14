@@ -4,24 +4,28 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/layer_boundaries.h"
+#include <string>
 
 #include "app/cmd/set_mask.h"
 #include "app/console.h"
 #include "app/context_access.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/modules/gui.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui_context.h"
+#include "app/util/layer_boundaries.h"
+#include "base/debug.h"
+#include "base/exception.h"
 #include "doc/cel.h"
-#include "doc/document.h"
-#include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
+#include "doc/sprite.h"
+
+namespace doc {
+class Image;
+} // namespace doc
 
 using namespace doc;
 

@@ -8,9 +8,10 @@
 #define APP_SHADE_H_INCLUDED
 #pragma once
 
-#include "app/color.h"
-
+#include <string>
 #include <vector>
+
+#include "app/color.h"
 
 namespace app {
 

@@ -4,16 +4,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <memory>
+#include <stdexcept>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/load_matrix.h"
-
-#include "app/context.h"
 #include "app/doc.h"
 #include "app/file/file.h"
+#include "app/load_matrix.h"
+#include "doc/cel.h"
+#include "doc/image.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"

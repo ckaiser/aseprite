@@ -3,11 +3,6 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/render/shader_renderer.h"
 
 #if SK_ENABLE_SKSL && ENABLE_DEVMODE // TODO remove ENABLE_DEVMODE when the ShaderRenderer is ready
@@ -15,11 +10,10 @@
   #include "app/color_utils.h"
   #include "app/util/shader_helpers.h"
   #include "doc/render_plan.h"
-  #include "os/common/generic_surface.h"
-  #include "os/skia/skia_surface.h"
-
   #include "include/core/SkCanvas.h"
   #include "include/effects/SkRuntimeEffect.h"
+  #include "os/common/generic_surface.h"
+  #include "os/skia/skia_surface.h"
 
 namespace app {
 

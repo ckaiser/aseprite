@@ -6,6 +6,10 @@
 
 #include "app/util/open_file_job.h"
 
+#include <exception>
+
+#include "app/doc.h"
+
 namespace app {
 
 void OpenFileJob::showProgressWindow()

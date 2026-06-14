@@ -4,25 +4,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <functional>
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
 #include "app/ui/main_menu_bar.h"
 #include "app/ui/main_window.h"
-#include "app/ui/status_bar.h"
-#include "fmt/format.h"
 #include "ui/scale.h"
 #include "ui/system.h"
 #include "ui/theme.h"
 
 #if defined _WIN32 && defined ENABLE_DEVMODE
-  #include <windows.h>
-
   #include <psapi.h>
+  #include <windows.h>
 #endif
 
 namespace app {

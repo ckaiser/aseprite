@@ -12,6 +12,7 @@
 #include "app/pref/preferences.h"
 #include "app/tools/stroke.h"
 #include "doc/brush.h"
+#include "pref.xml.h"
 
 namespace app { namespace tools {
 

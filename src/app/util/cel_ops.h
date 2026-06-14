@@ -9,16 +9,18 @@
 #define APP_UTIL_CEL_OPS_H_INCLUDED
 #pragma once
 
+#include <functional>
+#include <vector>
+
 #include "app/tilemap_mode.h"
 #include "app/tileset_mode.h"
 #include "doc/color.h"
 #include "doc/frame.h"
 #include "doc/image_ref.h"
 #include "gfx/point.h"
+#include "gfx/rect.h"
 #include "gfx/region.h"
-
-#include <functional>
-#include <vector>
+#include "gfx/region_skia.h"
 
 namespace doc {
 class Cel;
@@ -27,10 +29,13 @@ class LayerTilemap;
 class PalettePicks;
 class Sprite;
 class Tileset;
+class Image;
 } // namespace doc
 
 namespace app {
 class CmdSequence;
+enum class TilemapMode;
+enum class TilesetMode;
 
 typedef std::function<doc::ImageRef(const doc::ImageRef& origTile,
                                     const gfx::Rect& tileBoundsInCanvas)>

@@ -4,22 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/commands/filters/filter_preview.h"
-
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_render.h"
+#include "base/debug.h"
+#include "base/task.h"
 #include "base/thread.h"
 #include "doc/layer.h"
-#include "doc/sprite.h"
-#include "ui/manager.h"
+#include "filters/filter_indexed_data.h"
+#include "gfx/point.h"
+#include "obs/signal.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/widget.h"
+#include "ui/widget_type.h"
 
 namespace app {
 

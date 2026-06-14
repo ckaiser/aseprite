@@ -9,7 +9,12 @@
 #define APP_UI_PREF_WIDGET_H_INCLUDED
 #pragma once
 
+#include <string>
+#include <vector>
+
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "base/debug.h"
 #include "base/exception.h"
 #include "base/split_string.h"
 #include "ui/message.h"

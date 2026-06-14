@@ -9,11 +9,17 @@
 #define APP_CONTEXT_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <stdint.h>
+#include <utility>
+#include <vector>
+
 #include "app/commands/params.h"
 #include "app/context_flags.h"
 #include "app/context_observer.h"
 #include "app/docs.h"
 #include "app/docs_observer.h"
+#include "app/site.h"
 #include "app/util/conversion_to_image.h"
 #include "base/disable_copying.h"
 #include "base/exception.h"
@@ -23,9 +29,6 @@
 #include "obs/signal.h"
 #include "os/surface.h"
 #include "view/range.h"
-
-#include <memory>
-#include <vector>
 
 namespace doc {
 class Layer;
@@ -39,6 +42,7 @@ class Command;
 class Doc;
 class DocView;
 class Preferences;
+class ContextObserver;
 
 class CommandResult {
 public:

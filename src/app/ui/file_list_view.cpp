@@ -3,15 +3,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/file_list_view.h"
-
 #include "app/ui/file_list.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
 #include "ui/scroll_region_event.h"
+#include "ui/widget.h"
 
 namespace app {
 

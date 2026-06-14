@@ -8,9 +8,14 @@
 #define APP_TILESET_UTILS_H_INCLUDED
 #pragma once
 
+#include <string>
+
+#include "doc/tile.h"
 #include "doc/tileset.h"
 
-#include <string>
+namespace doc {
+class Tileset;
+} // namespace doc
 
 namespace app {
 

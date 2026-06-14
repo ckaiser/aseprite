@@ -3,17 +3,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/mini_help_button.h"
-
 #include "app/ui/skin/skin_theme.h"
 #include "base/launcher.h"
-#include "ui/message.h"
-#include "ui/system.h"
+#include "gfx/border.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "ui/style.h"
+#include "ui/widget.h"
 #include "ver/info.h"
 
 namespace app {

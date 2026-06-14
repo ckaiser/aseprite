@@ -8,10 +8,13 @@
 #define APP_UI_EDITOR_DELAYED_MOUSE_MOVE_STATE_H_INCLUDED
 #pragma once
 
-#include "app/ui/editor/standby_state.h"
-#include "ui/timer.h"
-
 #include <limits>
+
+#include "app/ui/editor/standby_state.h"
+#include "base/time.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "ui/timer.h"
 
 namespace ui {
 class MouseMessage;

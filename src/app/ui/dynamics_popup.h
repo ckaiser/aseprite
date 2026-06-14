@@ -8,6 +8,8 @@
 #define APP_UI_DYNAMICS_POPUP_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/pref/preferences.h"
 #include "app/tools/dynamics.h"
 #include "app/tools/velocity.h"
@@ -15,6 +17,7 @@
 #include "base/time.h"
 #include "doc/brush.h"
 #include "gfx/region.h"
+#include "gfx/region_skia.h"
 #include "ui/popup_window.h"
 
 namespace app {

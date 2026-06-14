@@ -4,17 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <cmath>
 
 #include "app/transformation.h"
-
 #include "gfx/point.h"
 #include "gfx/size.h"
-
-#include <cmath>
 
 namespace app {
 

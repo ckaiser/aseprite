@@ -4,26 +4,30 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/cmd/set_grid_bounds.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/transaction.h"
 #include "app/tx.h"
+#include "app/ui/expr_entry.h"
 #include "app/ui/status_bar.h"
 #include "doc/mask.h"
-#include "ui/window.h"
-
+#include "gfx/rect.h"
 #include "grid_settings.xml.h"
-
-#include <algorithm>
+#include "obs/signal.h"
+#include "ui/button.h"
 
 namespace app {
 

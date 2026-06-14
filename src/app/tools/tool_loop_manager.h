@@ -9,14 +9,20 @@
 #define APP_TOOLS_TOOL_LOOP_MANAGER_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/tools/dynamics.h"
 #include "app/tools/pointer.h"
 #include "app/tools/stroke.h"
 #include "doc/brush.h"
+#include "gfx/fwd.h"
 #include "gfx/point.h"
 #include "gfx/region.h"
+#include "gfx/region_skia.h"
 
-#include <vector>
+namespace doc {
+class Brush;
+} // namespace doc
 
 namespace gfx {
 class Region;

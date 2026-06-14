@@ -6,48 +6,77 @@
 // the End-User License Agreement for Aseprite.
 
 #define BP_TRACE(...) // TRACEARGS(__VA_ARGS__)
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/brush_preview.h"
+#include <algorithm>
+#include <array>
+#include <memory>
+#include <stddef.h>
+#include <vector>
 
 #include "app/app.h"
 #include "app/color.h"
 #include "app/color_utils.h"
 #include "app/doc.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/snap_to_grid.h"
+#include "app/tilemap_mode.h"
 #include "app/tools/controller.h"
+#include "app/tools/dynamics.h"
+#include "app/tools/fill.h"
 #include "app/tools/ink.h"
 #include "app/tools/intertwine.h"
 #include "app/tools/point_shape.h"
+#include "app/tools/stroke.h"
 #include "app/tools/tool.h"
 #include "app/tools/tool_loop.h"
 #include "app/ui/context_bar.h"
+#include "app/ui/editor/brush_preview.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/tool_loop_impl.h"
-#include "app/ui_context.h"
 #include "app/util/shader_helpers.h"
 #include "app/util/wrap_value.h"
 #include "base/debug.h"
-#include "base/scoped_value.h"
-#include "doc/algo.h"
-#include "doc/blend_internals.h"
+#include "base/ref.h"
+#include "doc/blend_mode.h"
 #include "doc/brush.h"
+#include "doc/brush_type.h"
 #include "doc/cel.h"
+#include "doc/grid.h"
 #include "doc/image.h"
 #include "doc/layer.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
+#include "doc/sprite.h"
+#include "doc/tile.h"
+#include "filters/tiled_mode.h"
+#include "gfx/clip.h"
+#include "gfx/path_skia.h"
+#include "gfx/size.h"
+#include "include/core/SkBlender.h"
+#include "include/core/SkPaint.h"
+#include "include/core/SkRefCnt.h"
+#include "include/effects/SkRuntimeEffect.h"
+#include "os/cursor.h"
+#include "os/native_cursor.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
 #include "os/window.h"
+#include "pixman-combine32.h"
+#include "pref.xml.h"
+#include "render/extra_type.h"
+#include "render/projection.h"
 #include "render/render.h"
+#include "render/zoom.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
+#include "ui/graphics.h"
 #include "ui/layer.h"
-#include "ui/manager.h"
+#include "ui/paint.h"
 #include "ui/system.h"
-
-#include <array>
+#include "ui/widget.h"
 
 namespace app {
 

@@ -4,22 +4,23 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/key.h"
+#include <algorithm>
+#include <stddef.h>
+#include <string>
+#include <vector>
 
 #include "app/commands/command.h"
 #include "app/i18n/strings.h"
 #include "app/tools/tool.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
+#include "base/debug.h"
+#include "os/keys.h"
+#include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/mouse_button.h"
 #include "ui/shortcut.h"
-
-#include <string>
-#include <vector>
 
 #define I18N_KEY(a) app::Strings::keyboard_shortcuts_##a()
 

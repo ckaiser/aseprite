@@ -3,36 +3,54 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/font_entry.h"
+#include <algorithm>
+#include <cstdlib>
+#include <exception>
+#include <vector>
 
 #include "app/app.h"
 #include "app/console.h"
+#include "app/fonts/fonts.h"
 #include "app/i18n/strings.h"
 #include "app/recent_files.h"
+#include "app/ui/font_entry.h"
 #include "app/ui/font_popup.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "base/contains.h"
 #include "base/convert_to.h"
+#include "base/debug.h"
 #include "base/scoped_value.h"
 #include "fmt/format.h"
+#include "font_style.xml.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "os/keys.h"
+#include "os/skia/paint.h"
+#include "os/window.h"
+#include "text/font.h"
+#include "text/font_hinting.h"
+#include "text/font_mgr.h"
 #include "text/font_style_set.h"
+#include "text/font_type.h"
+#include "text/fwd.h"
+#include "text/typeface.h"
+#include "ui/base.h"
+#include "ui/button.h"
 #include "ui/display.h"
 #include "ui/fit_bounds.h"
+#include "ui/keys.h"
 #include "ui/manager.h"
 #include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/popup_window.h"
 #include "ui/scale.h"
-
-#include "font_style.xml.h"
-
-#include <algorithm>
-#include <cstdlib>
-#include <vector>
+#include "ui/theme.h"
+#include "ui/widget.h"
 
 namespace app {
 

@@ -3,23 +3,34 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/tile_button.h"
+#include <stddef.h>
+#include <string>
 
 #include "app/modules/gfx.h"
+#include "app/site.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
+#include "app/ui/tile_button.h"
 #include "app/ui_context.h"
+#include "doc/tileset.h"
 #include "fmt/format.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "os/window.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
 #include "ui/graphics.h"
+#include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
+#include "ui/scale.h"
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
 #include "ui/window.h"
 
 namespace app {

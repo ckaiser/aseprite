@@ -9,17 +9,23 @@
 #define APP_UI_FILE_LIST_H_INCLUDED
 #pragma once
 
+#include <deque>
+#include <string>
+#include <vector>
+
 #include "app/file_system.h"
 #include "base/paths.h"
 #include "base/time.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
 #include "obs/signal.h"
 #include "ui/animated_widget.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
 
-#include <deque>
-#include <string>
-#include <vector>
+namespace ui {
+class Graphics;
+} // namespace ui
 
 namespace os {
 class Surface;

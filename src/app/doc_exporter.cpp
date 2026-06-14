@@ -4,57 +4,74 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc_exporter.h"
+#include <algorithm>
+#include <cstdio>
+#include <exception>
+#include <fstream>
+#include <iomanip>
+#include <iostream>
+#include <map>
+#include <memory>
+#include <set>
+#include <stdint.h>
+#include <unordered_map>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
-#include "app/cmd/set_pixel_format.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/doc.h"
+#include "app/doc_exporter.h"
 #include "app/file/file.h"
 #include "app/filename_formatter.h"
 #include "app/restore_visible_layers.h"
 #include "app/snap_to_grid.h"
+#include "app/sprite_sheet_data_format.h"
+#include "app/sprite_sheet_type.h"
 #include "app/util/autocrop.h"
-#include "base/convert_to.h"
+#include "base/debug.h"
 #include "base/fs.h"
 #include "base/fstream_path.h"
 #include "base/replace_string.h"
-#include "base/string.h"
+#include "base/task.h"
 #include "doc/algorithm/shrink_bounds.h"
+#include "doc/anidir.h"
+#include "doc/blend_mode.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/cel_list.h"
+#include "doc/color.h"
+#include "doc/color_mode.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
 #include "doc/image.h"
+#include "doc/image_spec.h"
 #include "doc/images_map.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/layer_tilemap.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
 #include "doc/selected_frames.h"
 #include "doc/selected_layers.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
+#include "doc/tileset.h"
+#include "doc/user_data.h"
+#include "gfx/clip.h"
+#include "gfx/color_space.h"
 #include "gfx/packing_rects.h"
-#include "gfx/rect_io.h"
+#include "gfx/point.h"
 #include "gfx/size.h"
 #include "render/dithering.h"
-#include "render/ordered_dither.h"
 #include "render/quantization.h"
 #include "render/render.h"
 #include "ver/info.h"
-
-#include <algorithm>
-#include <cstdio>
-#include <fstream>
-#include <iomanip>
-#include <iostream>
-#include <memory>
-#include <set>
-#include <vector>
 
 #define DX_TRACE(...) // TRACEARGS
 

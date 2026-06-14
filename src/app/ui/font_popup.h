@@ -9,14 +9,24 @@
 #define APP_UI_FONT_POPUP_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/task.h"
+#include "gfx/fwd.h"
+#include "obs/signal.h"
 #include "ui/listbox.h"
 #include "ui/popup_window.h"
 #include "ui/timer.h"
 
+namespace base {
+class task_token;
+} // namespace base
+
 namespace ui {
 class Button;
 class View;
+class Display;
+class Widget;
 } // namespace ui
 
 namespace app {

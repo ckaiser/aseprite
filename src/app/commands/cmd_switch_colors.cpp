@@ -4,18 +4,27 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/app.h"
+#include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/tilemap_mode.h"
+#include "app/tools/ink_type.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
+#include "base/debug.h"
+#include "doc/tile.h"
 
 namespace app {
+namespace tools {
+class Tool;
+} // namespace tools
 
 class SwitchColorsCommand : public Command {
 public:

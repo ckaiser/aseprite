@@ -11,9 +11,17 @@
 
 #include "app/context.h"
 #include "app/ui/editor/standby_state.h"
+#include "gfx/point.h"
 #include "obs/connection.h"
 
+namespace ui {
+class MouseMessage;
+} // namespace ui
+
 namespace app {
+class CommandExecutionEvent;
+class Editor;
+
 class MovingSelectionState : public StandbyState {
 public:
   MovingSelectionState(Editor* editor, ui::MouseMessage* msg);

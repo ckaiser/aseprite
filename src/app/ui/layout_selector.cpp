@@ -3,30 +3,35 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/layout_selector.h"
+#include <memory>
+#include <stdint.h>
+#include <string_view>
+#include <vector>
 
 #include "app/app.h"
 #include "app/i18n/strings.h"
 #include "app/match_words.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/ui/layout_selector.h"
 #include "app/ui/main_window.h"
 #include "app/ui/separator_in_view.h"
 #include "app/ui/skin/skin_theme.h"
-#include "fmt/printf.h"
+#include "base/debug.h"
+#include "fmt/base.h"
+#include "gfx/color.h"
+#include "gfx/rect.h"
+#include "new_layout.xml.h"
+#include "obs/connection.h"
+#include "obs/signal.h"
 #include "ui/alert.h"
 #include "ui/app_state.h"
+#include "ui/button.h"
 #include "ui/entry.h"
-#include "ui/label.h"
 #include "ui/listitem.h"
 #include "ui/tooltips.h"
+#include "ui/widget.h"
 #include "ui/window.h"
-
-#include "new_layout.xml.h"
 
 #define ANI_TICKS 2
 

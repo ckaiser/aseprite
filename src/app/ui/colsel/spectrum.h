@@ -9,7 +9,10 @@
 #define APP_UI_COLSEL_SPECTRUM_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/colsel/color_selector.h"
+#include "gfx/fwd.h"
 
 namespace app::colsel {
 

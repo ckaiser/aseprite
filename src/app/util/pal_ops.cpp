@@ -3,13 +3,8 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/util/pal_ops.h"
-
+#include "base/debug.h"
 #include "doc/palette.h"
 #include "doc/palette_picks.h"
 #include "doc/remap.h"

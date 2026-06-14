@@ -4,10 +4,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "app/cmd/add_tileset.h"
 #include "app/cmd/assign_color_profile.h"
@@ -17,8 +16,14 @@
 #include "app/cmd/set_user_data.h"
 #include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
@@ -26,20 +31,47 @@
 #include "app/tx.h"
 #include "app/ui/app_tooltips.h"
 #include "app/ui/color_button.h"
+#include "app/ui/color_button_options.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/user_data_view.h"
 #include "app/util/pixel_ratio.h"
 #include "app/util/tileset_utils.h"
+#include "base/debug.h"
+#include "base/exception.h"
 #include "base/mem_utils.h"
+#include "base/ref.h"
+#include "doc/color.h"
+#include "doc/layer_tilemap.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
+#include "doc/pixel_ratio.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
+#include "doc/tileset.h"
 #include "doc/tilesets.h"
 #include "doc/user_data.h"
+#include "fmt/base.h"
+#include "gfx/color_space.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
 #include "os/color_space.h"
 #include "os/system.h"
-#include "ui/ui.h"
-
 #include "sprite_properties.xml.h"
+#include "ui/alert.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/label.h"
+#include "ui/listbox.h"
+#include "ui/listitem.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/size_hint_event.h"
+#include "ui/view.h"
+#include "ui/viewport.h"
+#include "ui/widget.h"
 
 namespace app {
 

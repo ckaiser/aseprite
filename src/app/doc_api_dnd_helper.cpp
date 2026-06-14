@@ -3,19 +3,23 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc_api.h"
+#include <memory>
+#include <vector>
 
 #include "app/cmd/copy_cel.h"
 #include "app/cmd/set_pixel_format.h"
 #include "app/cmd/set_total_frames.h"
-#include "app/file/file.h"
+#include "app/doc.h"
+#include "app/doc_api.h"
+#include "app/doc_api_dnd_helper.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
 #include "app/transaction.h"
+#include "doc/fit_criteria.h"
+#include "doc/frame.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/sprite.h"
 #include "render/dithering.h"
 
 namespace {

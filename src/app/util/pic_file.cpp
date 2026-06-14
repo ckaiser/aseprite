@@ -3,20 +3,20 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "base/cfile.h"
-#include "base/file_handle.h"
-#include "doc/color_scales.h"
-#include "doc/image.h"
-#include "doc/palette.h"
-#include "doc/primitives.h"
-
 #include <cstdio>
 #include <memory>
+#include <string>
+
+#include "base/cfile.h"
+#include "base/debug.h"
+#include "base/file_handle.h"
+#include "doc/color.h"
+#include "doc/color_scales.h"
+#include "doc/frame.h"
+#include "doc/image.h"
+#include "doc/palette.h"
+#include "doc/pixel_format.h"
+#include "doc/primitives.h"
 
 namespace app {
 

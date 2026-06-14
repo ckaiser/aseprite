@@ -3,10 +3,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <stdio.h>
+#include <string>
 
 #include "app/util/pic_file.h"
 #include "base/cfile.h"
@@ -14,8 +13,9 @@
 #include "base/fs.h"
 #include "doc/image.h"
 #include "doc/mask.h"
-
-#include <memory>
+#include "doc/pixel_format.h"
+#include "gfx/clip.h"
+#include "gfx/rect.h"
 
 namespace app {
 

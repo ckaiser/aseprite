@@ -8,6 +8,7 @@
 #define APP_UI_EDITOR_VIEW_H_INCLUDED
 #pragma once
 
+#include "gfx/fwd.h"
 #include "obs/connection.h"
 #include "ui/view.h"
 

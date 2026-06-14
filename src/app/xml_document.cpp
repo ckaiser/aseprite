@@ -4,16 +4,12 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string.h>
 
 #include "app/xml_document.h"
-
 #include "app/xml_exception.h"
+#include "base/exception.h"
 #include "base/file_handle.h"
-
 #include "tinyxml2.h"
 
 namespace app {

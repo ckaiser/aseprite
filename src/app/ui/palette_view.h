@@ -9,6 +9,9 @@
 #define APP_UI_PALETTE_VIEW_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include "app/color.h"
 #include "app/context_observer.h"
 #include "app/ui/color_source.h"
@@ -16,14 +19,17 @@
 #include "app/ui/tile_source.h"
 #include "doc/palette_picks.h"
 #include "doc/tile.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "obs/connection.h"
 #include "obs/signal.h"
 #include "ui/event.h"
 #include "ui/mouse_button.h"
 #include "ui/widget.h"
 
-#include <memory>
-#include <vector>
+namespace ui {
+class Message;
+} // namespace ui
 
 namespace doc {
 class Palette;

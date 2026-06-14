@@ -4,31 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/color.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
-#include "app/ini_file.h"
-#include "app/modules/gui.h"
-#include "app/ui/color_button.h"
-#include "doc/image.h"
-#include "doc/mask.h"
-#include "doc/sprite.h"
+#include "app/context_flags.h"
 #include "filters/invert_color_filter.h"
-#include "ui/button.h"
-#include "ui/label.h"
-#include "ui/slider.h"
-#include "ui/widget.h"
-#include "ui/window.h"
+#include "filters/target.h"
 
 namespace app {
+class Command;
 
 struct InvertColorParams : public NewParams {
   Param<bool> ui{ this, true, "ui" };

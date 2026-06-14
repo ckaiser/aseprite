@@ -9,6 +9,7 @@
 #define APP_RESTORE_VISIBLE_LAYERS_H_INCLUDED
 #pragma once
 
+#include <utility>
 #include <vector>
 
 namespace doc {

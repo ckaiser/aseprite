@@ -4,42 +4,52 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <memory>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/cmd/set_mask.h"
 #include "app/color.h"
 #include "app/color_utils.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/app_tooltips.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/color_button.h"
+#include "app/ui/color_button_options.h"
 #include "app/ui/selection_mode_field.h"
-#include "doc/image.h"
 #include "doc/mask.h"
 #include "doc/sprite.h"
+#include "obs/signal.h"
+#include "pref.xml.h"
+#include "ui/base.h"
 #include "ui/box.h"
 #include "ui/button.h"
 #include "ui/label.h"
 #include "ui/slider.h"
-#include "ui/widget.h"
 #include "ui/window.h"
+
+namespace doc {
+class Image;
+} // namespace doc
 
 // Uncomment to see the performance of doc::MaskBoundaries ctor
 // #define SHOW_BOUNDARIES_GEN_PERFORMANCE
 
 namespace app {
+class Command;
 
 using namespace ui;
 

@@ -9,11 +9,11 @@
 #define APP_TRANSACTION_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/cmd_transaction.h"
 #include "app/doc_observer.h"
 #include "base/exception.h"
-
-#include <string>
 
 namespace view {
 class Range;
@@ -24,6 +24,8 @@ namespace app {
 class Cmd;
 class Context;
 class DocUndo;
+class CmdTransaction;
+class Doc;
 
 enum Modification {
   ModifyDocument,      // This item changes the "saved status" of the document.

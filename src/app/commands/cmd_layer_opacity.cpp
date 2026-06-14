@@ -4,23 +4,25 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <string>
 
 #include "app/cmd/set_layer_opacity.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/site.h"
 #include "app/tx.h"
-#include "app/ui/timeline/timeline.h"
 #include "doc/layer.h"
-
-#include <string>
+#include "doc/selected_layers.h"
+#include "fmt/base.h"
 
 namespace app {
 

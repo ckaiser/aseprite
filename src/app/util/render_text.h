@@ -9,13 +9,18 @@
 #define APP_UTIL_RENDER_TEXT_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "doc/image_ref.h"
 #include "gfx/color.h"
 #include "gfx/rect.h"
+#include "text/fwd.h"
 #include "text/text_blob.h"
 #include "ui/paint.h"
 
-#include <string>
+namespace os {
+class Paint;
+} // namespace os
 
 namespace app {
 

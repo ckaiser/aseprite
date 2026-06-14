@@ -9,12 +9,14 @@
 #define APP_TOOLS_STROKE_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/pref/preferences.h"
+#include "base/debug.h"
 #include "doc/brush.h"
+#include "gfx/fwd.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
-
-#include <vector>
 
 namespace app { namespace tools {
 

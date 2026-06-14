@@ -4,37 +4,43 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <utility>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/modules/gfx.h"
-
-#include "app/app.h"
 #include "app/color_spaces.h"
 #include "app/color_utils.h"
-#include "app/console.h"
-#include "app/modules/gui.h"
+#include "app/modules/gfx.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/site.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/util/conversion_to_surface.h"
+#include "base/debug.h"
 #include "doc/blend_funcs.h"
+#include "doc/color.h"
+#include "doc/color_mode.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
+#include "doc/tileset.h"
 #include "gfx/color.h"
+#include "gfx/matrix_skia.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/size.h"
+#include "os/color_space.h"
+#include "os/paint.h"
+#include "os/sampling.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
-#include "ui/intern.h"
+#include "ui/graphics.h"
 #include "ui/paint.h"
+#include "ui/scale.h"
 #include "ui/system.h"
-#include "ui/theme.h"
-
-#include <algorithm>
 
 namespace app {
 

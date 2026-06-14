@@ -4,17 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/home_view.h"
-
 #include "app/app.h"
 #include "app/app_menus.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/crash/data_recovery.h"
 #include "app/i18n/strings.h"
 #include "app/ui/data_recovery_view.h"
@@ -26,12 +22,17 @@
 #include "app/ui/workspace_tabs.h"
 #include "app/ui_context.h"
 #include "app/util/clipboard.h"
-#include "base/exception.h"
-#include "fmt/format.h"
-#include "ui/label.h"
+#include "base/debug.h"
+#include "fmt/base.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/link_label.h"
+#include "ui/menu.h"
 #include "ui/resize_event.h"
-#include "ui/system.h"
-#include "ui/textbox.h"
+#include "ui/scale.h"
 #include "ui/view.h"
 #include "ver/info.h"
 
@@ -49,6 +50,7 @@
 #endif
 
 namespace app {
+class Command;
 
 using namespace ui;
 using namespace app::skin;

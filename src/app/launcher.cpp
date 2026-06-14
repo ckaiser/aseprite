@@ -4,16 +4,10 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/launcher.h"
-
 #include "app/i18n/strings.h"
-#include "base/exception.h"
 #include "base/launcher.h"
+#include "fmt/base.h"
 #include "ui/alert.h"
 
 namespace app { namespace launcher {

@@ -9,6 +9,12 @@
 #define APP_UI_TIMELINE_TIMELINE_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <memory>
+#include <string>
+#include <vector>
+
+#include "app/context_observer.h"
 #include "app/doc_observer.h"
 #include "app/docs_observer.h"
 #include "app/loop_tag.h"
@@ -21,28 +27,36 @@
 #include "base/debug.h"
 #include "doc/frame.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/object.h"
+#include "doc/object_id.h"
 #include "doc/object_version.h"
 #include "doc/selected_frames.h"
 #include "doc/selected_layers.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
 #include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "obs/connection.h"
 #include "obs/observable.h"
+#include "pref.xml.h"
+#include "ui/base.h"
 #include "ui/scroll_bar.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
+#include "view/frames.h"
 #include "view/range.h"
 #include "view/timeline_adapter.h"
-
-#include <memory>
-#include <vector>
 
 namespace doc {
 class Cel;
 class Layer;
 class LayerImage;
 class Sprite;
+class SelectedLayers;
+enum class LayerFlags;
 } // namespace doc
 
 namespace ui {
@@ -50,9 +64,12 @@ class Graphics;
 class TooltipManager;
 class DragEvent;
 struct PaintWidgetPartInfo;
+class Message;
+class Style;
 } // namespace ui
 
 namespace app {
+class TimelineObserver;
 
 namespace skin {
 class SkinTheme;

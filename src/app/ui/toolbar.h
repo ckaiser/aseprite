@@ -9,21 +9,28 @@
 #define APP_UI_TOOLBAR_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <memory>
+
 #include "app/tools/active_tool_observer.h"
 #include "app/ui/dockable.h"
 #include "app/ui/skin/skin_part.h"
+#include "gfx/fwd.h"
 #include "gfx/point.h"
 #include "obs/connection.h"
+#include "ui/base.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
 
-#include <map>
-#include <memory>
+namespace os {
+class Surface;
+} // namespace os
 
 namespace ui {
 class CloseEvent;
 class PopupWindow;
 class TipWindow;
+class Graphics;
 } // namespace ui
 
 namespace app {
@@ -109,6 +116,7 @@ private:
   // Window displayed to show a tool-group
   std::unique_ptr<ui::PopupWindow> m_popupWindow;
   class ToolStrip;
+
   ToolStrip* m_currentStrip = nullptr;
 
   // Tool-tip window

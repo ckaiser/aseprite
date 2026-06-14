@@ -9,9 +9,16 @@
 #define APP_UI_COLSEL_COLOR_SELECTOR_H_INCLUDED
 #pragma once
 
+#include <cmath>
+#include <memory>
+#include <string>
+
 #include "app/color.h"
 #include "app/ui/color_source.h"
 #include "base/enum_flags.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "include/core/SkRefCnt.h"
 #include "obs/connection.h"
 #include "obs/signal.h"
 #include "os/surface.h"
@@ -19,7 +26,12 @@
 #include "ui/mouse_button.h"
 #include "ui/widget.h"
 
-#include <cmath>
+class SkRuntimeEffect;
+class SkRuntimeShaderBuilder;
+namespace ui {
+class Display;
+class Graphics;
+} // namespace ui
 
 // TODO We should wrap the SkRuntimeEffect in laf-os, SkRuntimeEffect
 //      and SkRuntimeShaderBuilder might change in future Skia

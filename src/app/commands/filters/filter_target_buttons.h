@@ -8,6 +8,8 @@
 #define APP_COMMANDS_FILTERS_FILTER_TARGET_BUTTONS_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/commands/filters/cels_target.h"
 #include "app/ui/app_tooltips.h"
 #include "app/ui/button_set.h"
@@ -20,6 +22,8 @@ class ButtonBase;
 }
 
 namespace app {
+enum class CelsTarget;
+
 using namespace filters;
 
 class FilterTargetButtons : public ButtonSet {

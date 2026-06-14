@@ -4,17 +4,23 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/modules/gui.h"
+#include "app/site.h"
 #include "app/tx.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
+#include "doc/selected_frames.h"
 #include "doc/sprite.h"
 
 namespace app {

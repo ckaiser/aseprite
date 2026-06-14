@@ -9,22 +9,28 @@
 #define APP_COMMANDS_FILTERS_FILTER_MANAGER_IMPL_H_INCLUDED
 #pragma once
 
+#include <cstring>
+#include <memory>
+#include <vector>
+
 #include "app/commands/filters/cels_target.h"
 #include "app/context_access.h"
 #include "app/site.h"
 #include "app/tx.h"
 #include "base/exception.h"
 #include "base/task.h"
+#include "doc/frame.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
+#include "doc/image_iterator.h"
 #include "doc/image_ref.h"
+#include "doc/image_traits.h"
 #include "doc/pixel_format.h"
 #include "filters/filter_indexed_data.h"
 #include "filters/filter_manager.h"
+#include "filters/target.h"
+#include "gfx/point.h"
 #include "gfx/rect.h"
-
-#include <cstring>
-#include <memory>
-#include <vector>
 
 namespace doc {
 class Cel;
@@ -32,6 +38,7 @@ class Image;
 class Layer;
 class Mask;
 class Sprite;
+class Palette;
 } // namespace doc
 
 namespace filters {
@@ -42,6 +49,8 @@ namespace app {
 class Context;
 class Doc;
 class Editor;
+class Tx;
+enum class CelsTarget;
 
 using namespace filters;
 

@@ -4,15 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/editor/pivot_helpers.h"
-
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/transformation.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "pref.xml.h"
 
 namespace app {
 

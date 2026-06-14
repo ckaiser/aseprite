@@ -8,9 +8,13 @@
 #define APP_FILE_FILE_FORMATS_MANAGER_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "dio/file_format.h"
 
-#include <vector>
+namespace dio {
+enum class FileFormat;
+} // namespace dio
 
 namespace app {
 

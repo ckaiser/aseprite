@@ -4,19 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/file/file.h"
+#include <algorithm>
+#include <cstdarg>
+#include <cstring>
+#include <exception>
+#include <stdio.h>
+#include <vector>
 
 #include "app/cmd/convert_color_profile.h"
-#include "app/color_spaces.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/doc.h"
-#include "app/drm.h"
+#include "app/file/file.h"
 #include "app/file/file_data.h"
 #include "app/file/file_format.h"
 #include "app/file/file_formats_manager.h"
@@ -24,32 +23,47 @@
 #include "app/file/split_filename.h"
 #include "app/filename_formatter.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gui.h"
-#include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "app/tx.h"
+#include "app/ui/expr_entry.h"
 #include "app/ui/incompat_file_window.h"
 #include "app/ui/optional_alert.h"
-#include "app/ui/status_bar.h"
+#include "ask_for_color_profile.xml.h"
 #include "base/fs.h"
-#include "base/string.h"
+#include "base/log.h"
 #include "dio/detect_format.h"
 #include "doc/algorithm/resize_image.h"
-#include "doc/doc.h"
+#include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/color.h"
+#include "doc/color_mode.h"
+#include "doc/frames_iterators.h"
+#include "doc/image.h"
+#include "doc/layer.h"
+#include "doc/palette.h"
+#include "doc/primitives.h"
+#include "doc/slice.h"
+#include "doc/slices.h"
+#include "doc/tag.h"
+#include "doc/tags.h"
+#include "fmt/base.h"
 #include "fmt/format.h"
+#include "gfx/clip.h"
+#include "gfx/color_space.h"
+#include "obs/signal.h"
+#include "open_sequence.xml.h"
+#include "pref.xml.h"
+#include "render/bg_options.h"
 #include "render/quantization.h"
 #include "render/render.h"
 #include "ui/alert.h"
+#include "ui/button.h"
+#include "ui/label.h"
+#include "ui/listbox.h"
 #include "ui/listitem.h"
 #include "ui/system.h"
+#include "ui/widget.h"
 #include "ver/info.h"
-
-#include "ask_for_color_profile.xml.h"
-#include "open_sequence.xml.h"
-
-#include <algorithm>
-#include <cstdarg>
-#include <cstring>
 
 namespace app {
 

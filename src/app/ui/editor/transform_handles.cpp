@@ -4,20 +4,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <cmath>
+#include <stddef.h>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/transform_handles.h"
-
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/transform_handles.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "base/pi.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
 #include "os/surface.h"
-
-#include <algorithm>
+#include "render/projection.h"
+#include "ui/graphics.h"
 
 namespace app {
 

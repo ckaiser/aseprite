@@ -4,20 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/filters/filter_window.h"
+#include <string>
 
 #include "app/commands/filters/filter_manager_impl.h"
+#include "app/commands/filters/filter_window.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "base/debug.h"
+#include "obs/signal.h"
+#include "ui/base.h"
 
 namespace app {
+enum class CelsTarget;
 
 using namespace filters;
 using namespace ui;

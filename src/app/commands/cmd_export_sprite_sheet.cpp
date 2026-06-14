@@ -4,51 +4,86 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <functional>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/commands/cmd_export_sprite_sheet.h"
+#include "app/commands/command_factory.h"
 #include "app/console.h"
 #include "app/context.h"
-#include "app/context_access.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_exporter.h"
+#include "app/docs.h"
 #include "app/file/file.h"
 #include "app/file_selector.h"
 #include "app/filename_formatter.h"
 #include "app/i18n/strings.h"
 #include "app/job.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
 #include "app/restore_visible_layers.h"
+#include "app/site.h"
 #include "app/task.h"
+#include "app/ui/button_set.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/navigate_state.h"
+#include "app/ui/expr_entry.h"
+#include "app/ui/filename_field.h"
 #include "app/ui/layer_frame_comboboxes.h"
 #include "app/ui/optional_alert.h"
 #include "app/ui/status_bar.h"
-#include "app/ui/timeline/timeline.h"
+#include "app/ui_context.h"
 #include "app/util/layer_utils.h"
+#include "base/debug.h"
 #include "base/fs.h"
+#include "base/paths.h"
 #include "base/string.h"
+#include "base/task.h"
 #include "base/thread.h"
+#include "doc/cel.h"
+#include "doc/frame.h"
+#include "doc/image_buffer.h"
 #include "doc/layer.h"
-#include "doc/tag.h"
-#include "doc/tileset.h"
-#include "fmt/format.h"
-#include "ui/message.h"
-#include "ui/system.h"
-
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
+#include "doc/sprite.h"
 #include "export_sprite_sheet.xml.h"
+#include "fmt/base.h"
+#include "fmt/format.h"
+#include "gfx/point.h"
+#include "obs/signal.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/grid.h"
+#include "ui/listitem.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/panel.h"
+#include "ui/system.h"
+#include "ui/timer.h"
+#include "ui/view.h"
+#include "ui/widget.h"
+#include "ui/widgets_list.h"
+#include "ui/window.h"
 
-#include <limits>
-#include <string>
+namespace doc {
+class Tag;
+} // namespace doc
 
 namespace app {
+class Command;
 
 using namespace ui;
 

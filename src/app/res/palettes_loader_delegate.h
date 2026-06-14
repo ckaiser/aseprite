@@ -9,6 +9,8 @@
 #define APP_RES_PALETTES_LOADER_DELEGATE_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/file/file_op_config.h"
 #include "app/res/resources_loader_delegate.h"
 

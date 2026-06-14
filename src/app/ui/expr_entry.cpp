@@ -4,20 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <cmath>
 
 #include "app/ui/expr_entry.h"
-
-#include "ui/message.h"
-
 #include "fmt/format.h"
 #include "tinyexpr.h"
-
-#include <cmath>
-#include <cstdio>
+#include "ui/message.h"
+#include "ui/message_type.h"
 
 namespace app {
 

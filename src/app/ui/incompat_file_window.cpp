@@ -3,17 +3,26 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <functional>
 
 #include "app/ui/incompat_file_window.h"
-
 #include "base/trim_string.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "ui/box.h"
+#include "ui/display.h"
 #include "ui/fit_bounds.h"
 #include "ui/manager.h"
-#include "ui/scale.h"
+#include "ui/scroll_bar.h"
+#include "ui/textbox.h"
+#include "ui/view.h"
+
+namespace ui {
+class Widget;
+} // namespace ui
 
 namespace app {
 

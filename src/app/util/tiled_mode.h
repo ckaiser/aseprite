@@ -11,7 +11,23 @@
 #include "app/transformation.h"
 #include "doc/sprite.h"
 #include "filters/tiled_mode.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
 #include "render/projection.h"
+
+namespace app {
+class Transformation;
+} // namespace app
+namespace doc {
+class Image;
+class Sprite;
+} // namespace doc
+namespace gfx {
+class Region;
+} // namespace gfx
+namespace render {
+class Projection;
+} // namespace render
 
 using namespace filters;
 

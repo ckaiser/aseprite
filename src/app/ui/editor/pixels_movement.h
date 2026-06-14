@@ -9,6 +9,9 @@
 #define APP_UI_EDITOR_PIXELS_MOVEMENT_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <vector>
+
 #include "app/context_access.h"
 #include "app/extra_cel.h"
 #include "app/site.h"
@@ -16,22 +19,26 @@
 #include "app/tx.h"
 #include "app/ui/editor/handle_type.h"
 #include "doc/algorithm/flip_type.h"
+#include "doc/cel_list.h"
+#include "doc/color.h"
 #include "doc/frame.h"
 #include "doc/image_ref.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 #include "gfx/size.h"
 #include "obs/connection.h"
-
-#include <memory>
 
 namespace doc {
 class Image;
 class Mask;
 class Sprite;
+class Grid;
 } // namespace doc
 
 namespace app {
 class Doc;
 class TiledModeHelper;
+class Context;
 
 namespace cmd {
 class SetMask;

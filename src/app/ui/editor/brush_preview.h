@@ -9,6 +9,8 @@
 #define APP_UI_EDITOR_BRUSH_PREVIEW_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/extra_cel.h"
 #include "doc/brush.h"
 #include "doc/color.h"
@@ -18,15 +20,19 @@
 #include "gfx/point.h"
 #include "gfx/rect.h"
 #include "gfx/region.h"
+#include "gfx/region_skia.h"
 #include "os/surface.h"
 #include "ui/cursor.h"
 #include "ui/layer.h"
 
-#include <vector>
+namespace os {
+class Paint;
+} // namespace os
 
 namespace doc {
 class Layer;
 class Sprite;
+class Grid;
 } // namespace doc
 
 namespace ui {
@@ -36,6 +42,7 @@ class Graphics;
 namespace app {
 class Editor;
 class Site;
+enum class TilemapMode;
 
 class BrushPreview {
 public:

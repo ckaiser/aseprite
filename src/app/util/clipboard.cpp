@@ -4,48 +4,68 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <stddef.h>
+#include <stdexcept>
 
 #include "app/app.h"
 #include "app/cmd/add_slice.h"
-#include "app/cmd/clear_mask.h"
 #include "app/cmd/deselect_mask.h"
 #include "app/cmd/set_mask.h"
 #include "app/cmd/trim_cel.h"
+#include "app/cmd_transaction.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/doc_range.h"
 #include "app/doc_range_ops.h"
+#include "app/docs.h"
+#include "app/docs_observer.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gfx.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/tilemap_mode.h"
 #include "app/tx.h"
-#include "app/ui/color_bar.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/skin/skin_theme.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
 #include "app/util/cel_ops.h"
 #include "app/util/clipboard.h"
 #include "app/util/new_image_from_mask.h"
-#include "app/util/slice_utils.h"
+#include "base/debug.h"
 #include "clip/clip.h"
 #include "doc/algorithm/shrink_bounds.h"
 #include "doc/blend_image.h"
-#include "doc/doc.h"
+#include "doc/blend_mode.h"
+#include "doc/cel.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
+#include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/layer_tilemap.h"
+#include "doc/object.h"
+#include "doc/object_id.h"
+#include "doc/palette_picks.h"
+#include "doc/pixel_format.h"
+#include "doc/primitives.h"
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
+#include "doc/slice.h"
+#include "doc/sprite.h"
+#include "fmt/base.h"
+#include "gfx/clip.h"
+#include "gfx/rect.h"
 #include "render/dithering.h"
-#include "render/ordered_dither.h"
 #include "render/quantization.h"
-#include "view/cels.h"
 
-#include <memory>
-#include <stdexcept>
+namespace doc {
+class RgbMap;
+} // namespace doc
 
 namespace app {
 

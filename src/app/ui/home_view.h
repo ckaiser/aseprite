@@ -9,13 +9,16 @@
 #define APP_UI_HOME_VIEW_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/check_update_delegate.h"
 #include "app/ui/input_chain_element.h"
 #include "app/ui/tabs.h"
 #include "app/ui/workspace_view.h"
-#include "ui/box.h"
-
+#include "gfx/color.h"
+#include "gfx/fwd.h"
 #include "home_view.xml.h"
+#include "ui/box.h"
 
 namespace ui {
 class View;

@@ -4,80 +4,136 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/editor.h"
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <functional>
+#include <memory>
+#include <stdlib.h>
+#include <string>
+#include <typeinfo>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/color.h"
 #include "app/color_picker.h"
 #include "app/color_utils.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
-#include "app/commands/params.h"
 #include "app/commands/quick_command.h"
 #include "app/console.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_event.h"
-#include "app/i18n/strings.h"
-#include "app/ini_file.h"
-#include "app/modules/gfx.h"
+#include "app/extra_cel.h"
 #include "app/modules/gui.h"
-#include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/snap_to_grid.h"
+#include "app/tilemap_mode.h"
 #include "app/tools/active_tool.h"
 #include "app/tools/controller.h"
 #include "app/tools/ink.h"
+#include "app/tools/pointer.h"
 #include "app/tools/symmetry.h"
 #include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
+#include "app/tools/tool_loop_modifiers.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/doc_view.h"
 #include "app/ui/editor/drawing_state.h"
+#include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
 #include "app/ui/editor/editor_decorator.h"
 #include "app/ui/editor/editor_render.h"
 #include "app/ui/editor/glue.h"
+#include "app/ui/editor/handle_type.h"
 #include "app/ui/editor/moving_pixels_state.h"
 #include "app/ui/editor/pixels_movement.h"
 #include "app/ui/editor/play_state.h"
 #include "app/ui/editor/scrolling_state.h"
 #include "app/ui/editor/standby_state.h"
 #include "app/ui/editor/zooming_state.h"
-#include "app/ui/main_window.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui/toolbar.h"
 #include "app/ui_context.h"
-#include "app/util/layer_utils.h"
 #include "app/util/tile_flags_utils.h"
+#include "base/base.h"
 #include "base/chrono.h"
-#include "base/convert_to.h"
+#include "base/debug.h"
 #include "base/scoped_value.h"
-#include "doc/doc.h"
+#include "doc/blend_mode.h"
+#include "doc/cel.h"
+#include "doc/color.h"
+#include "doc/grid.h"
+#include "doc/image.h"
+#include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/layer_tilemap.h"
+#include "doc/mask.h"
 #include "doc/mask_boundaries.h"
+#include "doc/pixel_format.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
+#include "doc/sprite.h"
+#include "doc/tags.h"
+#include "doc/tileset.h"
+#include "doc/user_data.h"
+#include "filters/tiled_mode.h"
 #include "fmt/format.h"
+#include "gfx/clip.h"
+#include "gfx/path_skia.h"
+#include "gfx/region_skia.h"
+#include "obs/signal.h"
 #include "os/color_space.h"
+#include "os/keys.h"
+#include "os/paint.h"
+#include "os/pointer_type.h"
 #include "os/sampling.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
-#include "render/rasterize.h"
-#include "ui/ui.h"
+#include "pref.xml.h"
+#include "render/extra_type.h"
+#include "render/onionskin_options.h"
+#include "render/onionskin_type.h"
+#include "render/zoom.h"
+#include "text/font.h"
+#include "text/fwd.h"
+#include "ui/base.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
+#include "ui/menu.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/mouse_button.h"
+#include "ui/paint.h"
+#include "ui/paint_event.h"
+#include "ui/scale.h"
+#include "ui/shortcut.h"
+#include "ui/size_hint_event.h"
+#include "ui/system.h"
+#include "ui/theme.h"
+#include "ui/view.h"
 #include "view/layers.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
-#include <limits>
-#include <memory>
+namespace doc {
+class Tag;
+} // namespace doc
+namespace ui {
+class Display;
+} // namespace ui
 
 namespace app {
+class EditorObserver;
+enum class TilesetMode;
 
 using namespace app::skin;
 using namespace gfx;

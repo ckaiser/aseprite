@@ -4,22 +4,25 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/tools/active_tool.h"
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/color.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/tools/active_tool.h"
 #include "app/tools/active_tool_observer.h"
 #include "app/tools/ink.h"
+#include "app/tools/ink_type.h"
 #include "app/tools/pointer.h"
+#include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
+#include "base/debug.h"
+#include "pref.xml.h"
 
 namespace app { namespace tools {
 

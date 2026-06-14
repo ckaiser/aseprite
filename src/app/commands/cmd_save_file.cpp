@@ -4,20 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/cmd_save_file.h"
+#include <exception>
+#include <memory>
 
 #include "app/app.h"
-#include "app/commands/command.h"
+#include "app/commands/cmd_save_file.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_undo.h"
 #include "app/file/file.h"
 #include "app/file/file_format.h"
@@ -30,21 +31,32 @@
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
 #include "app/restore_visible_layers.h"
+#include "app/site.h"
 #include "app/ui/export_file_window.h"
+#include "app/ui/filename_field.h"
 #include "app/ui/incompat_file_window.h"
 #include "app/ui/layer_frame_comboboxes.h"
 #include "app/ui/optional_alert.h"
 #include "app/ui/status_bar.h"
 #include "base/convert_to.h"
+#include "base/debug.h"
 #include "base/fs.h"
+#include "base/paths.h"
 #include "dio/file_format.h"
 #include "doc/mask.h"
+#include "doc/pixel_ratio.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
-#include "ui/ui.h"
-#include "undo/undo_state.h"
+#include "fmt/base.h"
+#include "obs/signal.h"
+#include "ui/alert.h"
+
+namespace undo {
+class UndoState;
+} // namespace undo
 
 namespace app {
+class Command;
 
 class SaveFileJob : public Job,
                     public IFileOpProgress {

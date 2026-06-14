@@ -9,7 +9,7 @@
 #pragma once
 
 #include "doc/color.h"
-#include "doc/frame.h"
+#include "doc/pixel_format.h"
 #include "gfx/size.h"
 #include "render/bg_type.h"
 

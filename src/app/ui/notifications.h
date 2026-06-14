@@ -10,6 +10,7 @@
 #pragma once
 
 #include "app/ui/dockable.h"
+#include "ui/base.h"
 #include "ui/button.h"
 #include "ui/menu.h"
 

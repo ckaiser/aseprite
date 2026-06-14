@@ -9,16 +9,20 @@
 #define APP_UI_APP_MENUITEM_H_INCLUDED
 #pragma once
 
+#include <cstddef>
+#include <memory>
+#include <string>
+
 #include "app/commands/params.h"
 #include "app/ui/key.h"
+#include "app/ui/key_context.h"
+#include "base/ref.h"
 #include "os/menus.h"
 #include "os/shortcut.h"
 #include "ui/menu.h"
 
-#include <cstddef>
-#include <memory>
-
 namespace app {
+class Command;
 
 // A widget that represent a menu item of the application.
 //

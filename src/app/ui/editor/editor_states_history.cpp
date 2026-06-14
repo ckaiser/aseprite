@@ -3,12 +3,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <stddef.h>
 
 #include "app/ui/editor/editor_states_history.h"
+#include "base/debug.h"
 
 namespace app {
 

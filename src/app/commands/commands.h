@@ -9,12 +9,12 @@
 #define APP_COMMANDS_COMMANDS_H_INCLUDED
 #pragma once
 
-#include "app/commands/command_ids.h"
-#include "ui/base.h"
-
 #include <map>
 #include <string>
 #include <vector>
+
+#include "app/commands/command_ids.h"
+#include "ui/base.h"
 
 namespace app {
 class Command;

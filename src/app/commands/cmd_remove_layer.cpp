@@ -4,28 +4,39 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <functional>
+#include <map>
+#include <set>
+#include <string>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/cmd/remove_tileset.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tx.h"
 #include "app/ui/optional_alert.h"
 #include "app/ui/status_bar.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
 #include "doc/layer_tilemap.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
+#include "doc/tileset.h"
 #include "doc/tilesets.h"
+#include "fmt/base.h"
 #include "ui/alert.h"
-#include "ui/widget.h"
 
 namespace app {
 

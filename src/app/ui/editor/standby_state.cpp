@@ -4,33 +4,41 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/standby_state.h"
+#include <algorithm>
+#include <cmath>
+#include <cstring>
+#include <memory>
+#include <new>
+#include <string>
 
 #include "app/app.h"
 #include "app/app_menus.h"
+#include "app/color.h"
 #include "app/color_picker.h"
 #include "app/commands/cmd_eyedropper.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
-#include "app/doc_range.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
-#include "app/ini_file.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/tilemap_mode.h"
 #include "app/tools/active_tool.h"
 #include "app/tools/ink.h"
 #include "app/tools/pick_ink.h"
+#include "app/tools/pointer.h"
 #include "app/tools/tool.h"
 #include "app/ui/app_menuitem.h"
 #include "app/ui/doc_view.h"
+#include "app/ui/editor/brush_preview.h"
 #include "app/ui/editor/dragging_value_state.h"
 #include "app/ui/editor/drawing_state.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
+#include "app/ui/editor/editor_hit.h"
 #include "app/ui/editor/glue.h"
 #include "app/ui/editor/handle_type.h"
 #include "app/ui/editor/moving_cel_state.h"
@@ -40,13 +48,15 @@
 #include "app/ui/editor/moving_symmetry_state.h"
 #include "app/ui/editor/pivot_helpers.h"
 #include "app/ui/editor/pixels_movement.h"
-#include "app/ui/editor/scrolling_state.h"
 #include "app/ui/editor/select_text_box_state.h"
+#include "app/ui/editor/standby_state.h"
 #include "app/ui/editor/tool_loop_impl.h"
 #include "app/ui/editor/transform_handles.h"
 #include "app/ui/editor/vec2.h"
-#include "app/ui/editor/zooming_state.h"
-#include "app/ui/main_window.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
+#include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui_context.h"
@@ -54,27 +64,52 @@
 #include "app/util/new_image_from_mask.h"
 #include "app/util/readable_time.h"
 #include "app/util/tile_flags_utils.h"
+#include "base/convert_to.h"
+#include "base/debug.h"
 #include "base/pi.h"
-#include "base/vector2d.h"
+#include "doc/cel.h"
 #include "doc/grid.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/layer.h"
-#include "doc/layer_tilemap.h"
 #include "doc/mask.h"
+#include "doc/mask_boundaries.h"
+#include "doc/selected_objects.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
+#include "fmt/base.h"
 #include "fmt/format.h"
+#include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "os/pointer_type.h"
 #include "os/surface.h"
 #include "os/system.h"
-#include "ui/alert.h"
+#include "pref.xml.h"
+#include "ui/base.h"
+#include "ui/cursor_type.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
+#include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/pointer_type.h"
+#include "ui/scale.h"
 #include "ui/view.h"
+#include "view/range.h"
 
-#include <algorithm>
-#include <cmath>
-#include <cstring>
+namespace ui {
+class Cursor;
+} // namespace ui
 
 namespace app {
+class Command;
+namespace tools {
+class ToolLoop;
+} // namespace tools
 
 using namespace ui;
 

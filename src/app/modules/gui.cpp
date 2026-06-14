@@ -4,48 +4,58 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
+#include "app/modules/gui.h"
 #include "app/app.h"
 #include "app/app_menus.h"
-#include "app/commands/cmd_open_file.h"
-#include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/console.h"
-#include "app/crash/data_recovery.h"
 #include "app/doc.h"
+#include "app/docs.h"
 #include "app/ini_file.h"
-#include "app/modules/gfx.h"
-#include "app/modules/gui.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "app/tools/ink.h"
 #include "app/tools/tool_box.h"
-#include "app/ui/editor/editor.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_menu_bar.h"
 #include "app/ui/main_window.h"
 #include "app/ui/skin/skin_property.h"
 #include "app/ui/skin/skin_theme.h"
-#include "app/ui/status_bar.h"
 #include "app/ui/toolbar.h"
 #include "app/ui_context.h"
 #include "app/util/open_batch.h"
+#include "base/debug.h"
 #include "base/fs.h"
-#include "base/memory.h"
+#include "base/paths.h"
+#include "base/ref.h"
 #include "base/string.h"
-#include "doc/sprite.h"
+#include "gfx/color_space.h"
+#include "gfx/point.h"
+#include "gfx/region_skia.h"
+#include "os/capabilities.h"
+#include "os/color_space.h"
 #include "os/error.h"
 #include "os/screen.h"
-#include "os/surface.h"
 #include "os/system.h"
 #include "os/window.h"
-#include "ui/intern.h"
-#include "ui/ui.h"
+#include "os/window_spec.h"
+#include "pref.xml.h"
+#include "ui/display.h"
+#include "ui/fit_bounds.h"
+#include "ui/layout_io.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/scale.h"
+#include "ui/system.h"
+#include "ui/theme.h"
+#include "ui/timer.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
+#include "ui/window.h"
 
 #ifdef ENABLE_STEAM
   #include "steam/steam.h"
@@ -54,6 +64,7 @@
 #include <algorithm>
 #include <cstdio>
 #include <list>
+#include <string>
 #include <vector>
 
 #if defined(ENABLE_DEVMODE) && defined(ENABLE_DATA_RECOVERY)
@@ -61,6 +72,7 @@
 #endif
 
 namespace app {
+class DocView;
 
 using namespace gfx;
 using namespace ui;

@@ -4,19 +4,24 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/notifications.h"
+#include <string>
 
 #include "app/notification_delegate.h"
+#include "app/ui/notifications.h"
 #include "app/ui/skin/skin_theme.h"
-#include "base/launcher.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "ui/menu.h"
 #include "ui/paint_event.h"
 #include "ui/size_hint_event.h"
+#include "ui/style.h"
+#include "ui/theme.h"
+
+namespace ui {
+class Graphics;
+} // namespace ui
 
 namespace app {
 

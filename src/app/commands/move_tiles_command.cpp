@@ -3,23 +3,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/app.h"
+#include "app/cmd_transaction.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/site.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/util/cel_ops.h"
+#include "base/debug.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
-#include "doc/remap.h"
-#include "doc/tileset.h"
+#include "doc/palette_picks.h"
+
+namespace doc {
+class Tileset;
+} // namespace doc
 
 namespace app {
+class Command;
 
 using namespace ui;
 

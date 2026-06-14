@@ -4,21 +4,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/tools/point_shape.h"
+#include <algorithm>
 
 #include "app/tools/ink.h"
+#include "app/tools/point_shape.h"
 #include "app/tools/tool_loop.h"
 #include "app/util/wrap_value.h"
-#include "doc/brush.h"
 #include "doc/image.h"
 #include "doc/sprite.h"
-
-#include <algorithm>
+#include "filters/tiled_mode.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
 
 namespace app { namespace tools {
 

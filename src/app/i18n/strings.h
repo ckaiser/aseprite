@@ -9,14 +9,15 @@
 #define APP_I18N_STRINGS_INCLUDED
 #pragma once
 
-#include "app/i18n/lang_info.h"
-#include "fmt/core.h"
-#include "obs/signal.h"
-#include "strings.ini.h"
-
 #include <set>
 #include <string>
 #include <unordered_map>
+
+#include "app/i18n/lang_info.h"
+#include "fmt/base.h"
+#include "fmt/core.h"
+#include "obs/signal.h"
+#include "strings.ini.h"
 
 namespace app {
 

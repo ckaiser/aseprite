@@ -10,13 +10,18 @@
 #pragma once
 
 #include "app/ui/key_context.h"
+#include "select_shortcut.xml.h"
+#include "ui/keys.h"
 #include "ui/shortcut.h"
 #include "ui/tooltips.h"
 
-#include "select_shortcut.xml.h"
+namespace ui {
+class CheckBox;
+} // namespace ui
 
 namespace app {
 class KeyboardShortcuts;
+enum class KeyContext;
 
 class SelectShortcut : public app::gen::SelectShortcut {
 public:

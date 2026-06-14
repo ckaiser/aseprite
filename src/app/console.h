@@ -10,6 +10,7 @@
 #pragma once
 
 #include <exception>
+#include <string>
 
 namespace app {
 class Context;
@@ -29,6 +30,7 @@ private:
   static bool isUIAvailable();
 
   class ConsoleWindow;
+
   static ConsoleWindow* m_console;
 };
 

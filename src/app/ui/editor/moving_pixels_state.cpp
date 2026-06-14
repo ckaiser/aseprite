@@ -6,55 +6,62 @@
 // the End-User License Agreement for Aseprite.
 
 #define MOVPIXS_TRACE(...) // TRACE(__VA_ARGS__)
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/moving_pixels_state.h"
+#include <memory>
+#include <string>
 
 #include "app/app.h"
+#include "app/color_target.h"
 #include "app/color_utils.h"
 #include "app/commands/cmd_flip.h"
 #include "app/commands/cmd_move_mask.h"
 #include "app/commands/cmd_rotate.h"
 #include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/move_thing.h"
 #include "app/console.h"
-#include "app/i18n/strings.h"
+#include "app/context.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tools/ink.h"
 #include "app/tools/tool.h"
 #include "app/transformation.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
+#include "app/ui/editor/editor_state.h"
+#include "app/ui/editor/moving_pixels_state.h"
 #include "app/ui/editor/pixels_movement.h"
 #include "app/ui/editor/standby_state.h"
 #include "app/ui/editor/transform_handles.h"
-#include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/key_context.h"
 #include "app/ui/main_window.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
 #include "app/util/clipboard.h"
 #include "app/util/layer_utils.h"
+#include "base/debug.h"
 #include "base/gcd.h"
 #include "base/pi.h"
-#include "doc/algorithm/flip_image.h"
+#include "doc/image.h"
+#include "doc/layer.h"
 #include "doc/mask.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"
-#include "gfx/rect.h"
+#include "gfx/point.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "ui/cursor_type.h"
+#include "ui/keys.h"
 #include "ui/manager.h"
-#include "ui/menu.h"
 #include "ui/message.h"
-#include "ui/system.h"
-#include "ui/view.h"
-
-#include <cstring>
+#include "ui/message_type.h"
 
 namespace app {
 

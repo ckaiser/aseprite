@@ -4,19 +4,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <functional>
+#include <istream>
+#include <stddef.h>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/color_button.h"
-
-#include "app/app.h"
 #include "app/color.h"
 #include "app/color_utils.h"
 #include "app/modules/gfx.h"
 #include "app/site.h"
-#include "app/ui/color_bar.h"
+#include "app/ui/color_button.h"
 #include "app/ui/color_popup.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/skin/skin_theme.h"
@@ -24,12 +22,34 @@
 #include "app/ui_context.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
 #include "gfx/rect_io.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "os/surface.h"
 #include "os/system.h"
 #include "os/window.h"
-#include "ui/ui.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
+#include "ui/fit_bounds.h"
+#include "ui/graphics.h"
+#include "ui/load_layout_event.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint_event.h"
+#include "ui/popup_window.h"
+#include "ui/save_layout_event.h"
+#include "ui/scale.h"
+#include "ui/size_hint_event.h"
+#include "ui/system.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
 
-#include <algorithm>
+namespace doc {
+enum class ColorMode;
+} // namespace doc
 
 namespace app {
 

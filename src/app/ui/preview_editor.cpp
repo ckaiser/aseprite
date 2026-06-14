@@ -4,41 +4,54 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <stddef.h>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/preview_editor.h"
-
-#include "app/app.h"
-#include "app/doc.h"
-#include "app/doc_event.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/loop_tag.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
-#include "app/ui/editor/editor_view.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/play_state.h"
+#include "app/ui/preview_editor.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/toolbar.h"
 #include "app/ui_context.h"
-#include "doc/sprite.h"
+#include "base/debug.h"
+#include "gfx/border.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "render/zoom.h"
 #include "ui/base.h"
 #include "ui/button.h"
 #include "ui/close_event.h"
+#include "ui/component.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
 #include "ui/fit_bounds.h"
+#include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/style.h"
 #include "ui/system.h"
+#include "ui/view.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
 
-#include "doc/tag.h"
+namespace doc {
+class Tag;
+} // namespace doc
 
 namespace app {
+class Doc;
 
 using namespace app::skin;
 using namespace ui;

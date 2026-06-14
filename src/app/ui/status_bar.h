@@ -9,6 +9,9 @@
 #define APP_UI_STATUS_BAR_H_INCLUDED
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "app/color.h"
 #include "app/context_observer.h"
 #include "app/tools/active_tool_observer.h"
@@ -19,9 +22,6 @@
 #include "ui/base.h"
 #include "ui/box.h"
 
-#include <string>
-#include <vector>
-
 namespace ui {
 class Box;
 class Button;
@@ -29,6 +29,7 @@ class Entry;
 class Label;
 class TooltipManager;
 class Window;
+class Widget;
 } // namespace ui
 
 namespace render {
@@ -39,6 +40,7 @@ namespace app {
 class ButtonSet;
 class Editor;
 class ZoomEntry;
+class Doc;
 
 namespace tools {
 class Tool;
@@ -103,11 +105,13 @@ private:
 
   // About text
   class AboutStatusBar;
+
   AboutStatusBar* m_about;
 
   // Indicators
   class Indicators;
   class IndicatorsGeneration;
+
   Indicators* m_indicators;
 
   // Box of main commands
@@ -120,10 +124,12 @@ private:
 
   // Tip window
   class CustomizedTipWindow;
+
   CustomizedTipWindow* m_tipwindow;
 
   // Snap to grid window
   class SnapToGridWindow;
+
   SnapToGridWindow* m_snapToGridWindow;
 };
 

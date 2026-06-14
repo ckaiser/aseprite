@@ -7,13 +7,15 @@
 #ifndef APP_COMMANDS_NEW_PARAMS_H
 #define APP_COMMANDS_NEW_PARAMS_H
 
-#include "app/commands/command.h"
-#include "app/commands/params.h"
-#include "app/context.h"
-
+#include <initializer_list>
 #include <map>
 #include <string>
 #include <utility>
+
+#include "app/commands/command.h"
+#include "app/commands/params.h"
+#include "app/context.h"
+#include "base/debug.h"
 
 #ifdef ENABLE_SCRIPTING
 extern "C" struct lua_State;

@@ -3,19 +3,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/commands/cmd_export_sprite_sheet.h"
+#include "app/commands/command_factory.h"
 #include "app/commands/command_ids.h"
+#include "app/commands/new_params.h"
 #include "app/context.h"
+#include "app/context_flags.h"
 #include "app/site.h"
+#include "app/sprite_sheet_data_format.h"
 #include "app/ui/layer_frame_comboboxes.h"
 #include "doc/layer.h"
 
 namespace app {
+class Command;
 
 class ExportTilesetCommand : public ExportSpriteSheetCommand {
 public:

@@ -10,7 +10,12 @@
 #pragma once
 
 #include "app/tools/stroke.h"
+#include "gfx/fwd.h"
 #include "gfx/rect.h"
+
+namespace doc {
+enum class SymmetryIndex;
+} // namespace doc
 
 namespace app { namespace tools {
 class ToolLoop;

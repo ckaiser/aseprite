@@ -9,18 +9,20 @@
 #define APP_DOCS_H_INCLUDED
 #pragma once
 
+#include <string>
+#include <vector>
+
 #include "app/docs_observer.h"
 #include "base/disable_copying.h"
 #include "doc/color_mode.h"
 #include "doc/object_id.h"
 #include "obs/observable.h"
 
-#include <vector>
-
 namespace app {
 
 class Context;
 class Doc;
+class DocsObserver;
 
 class Docs : public obs::observable<DocsObserver> {
 public:

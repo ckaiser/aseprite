@@ -4,20 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/filters/convolution_matrix_stock.h"
-
-#include "app/resource_finder.h"
-#include "app/util/filetoks.h"
-#include "base/file_handle.h"
-#include "filters/convolution_matrix.h"
-
 #include <cstdlib>
 #include <cstring>
+#include <stdio.h>
+#include <string>
+
+#include "app/commands/filters/convolution_matrix_stock.h"
+#include "app/resource_finder.h"
+#include "app/util/filetoks.h"
+#include "base/base.h"
+#include "base/file_handle.h"
+#include "filters/convolution_matrix.h"
+#include "filters/target.h"
 
 namespace app {
 

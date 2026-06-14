@@ -9,10 +9,10 @@
 #define APP_DOC_RANGE_OPS_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/doc_range.h"
 #include "app/tags_handling.h"
-
-#include <vector>
 
 namespace app {
 class Doc;

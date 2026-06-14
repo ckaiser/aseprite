@@ -4,28 +4,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/zoom_entry.h"
+#include <cstdlib>
 
 #include "app/modules/gui.h"
+#include "app/ui/zoom_entry.h"
 #include "base/scoped_value.h"
 #include "fmt/format.h"
 #include "gfx/rect.h"
-#include "gfx/region.h"
-#include "ui/manager.h"
-#include "ui/message.h"
-#include "ui/popup_window.h"
-#include "ui/slider.h"
-#include "ui/system.h"
-#include "ui/theme.h"
-
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
+#include "render/zoom.h"
 
 namespace app {
 

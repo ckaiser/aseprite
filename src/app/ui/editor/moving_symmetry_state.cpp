@@ -4,19 +4,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/moving_symmetry_state.h"
-
-#include "app/ui/editor/editor.h"
-#include "app/ui/status_bar.h"
-#include "fmt/format.h"
-#include "ui/message.h"
-
+#include <algorithm>
 #include <cmath>
+
+#include "app/pref/option.h"
+#include "app/ui/editor/editor.h"
+#include "app/ui/editor/moving_symmetry_state.h"
+#include "app/ui/status_bar.h"
+#include "doc/sprite.h"
+#include "fmt/format.h"
+#include "pref.xml.h"
+#include "ui/message.h"
 
 namespace app {
 

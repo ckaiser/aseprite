@@ -4,13 +4,7 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/extensions.h"
-
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/commands/command.h"
@@ -18,23 +12,35 @@
 #include "app/console.h"
 #include "app/context.h"
 #include "app/doc.h"
-#include "app/doc_undo.h"
+#include "app/docs.h"
 #include "app/ini_file.h"
 #include "app/load_matrix.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/resource_finder.h"
+#include "app/script/values.h"
+#include "base/debug.h"
+#include "base/disable_copying.h"
 #include "base/exception.h"
 #include "base/file_content.h"
 #include "base/file_handle.h"
 #include "base/fs.h"
 #include "base/fstream_path.h"
 #include "base/log.h"
+#include "base/paths.h"
+#include "base/string.h"
 #include "dio/detect_format.h"
+#include "dio/file_format.h"
+#include "doc/sprite.h"
 #include "file/file.h"
 #include "file/file_format.h"
 #include "file/file_formats_manager.h"
-#include "render/dithering_matrix.h"
-#include "ui/system.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "lauxlib.h"
+#include "lua.h"
+#include "nlohmann/detail/json_ref.hpp"
+#include "nlohmann/json_fwd.hpp"
 #include "ui/widget.h"
 
 #if ENABLE_SENTRY
@@ -48,20 +54,31 @@
 #endif
 
 #include "archive.h"
+
 #define WIN32_LEAN_AND_MEAN
 #include "archive_entry.h"
 #include "fmt/format.h"
 #include "nlohmann/json.hpp"
+
+struct archive;
+struct archive_entry;
 
 #ifdef LAF_WINDOWS
   // archive_entry.h includes windows.h and this breaks LOG
   #undef ERROR
 #endif
 
+#include <algorithm>
 #include <cctype>
+#include <cmath>
+#include <exception>
 #include <fstream>
+#include <iterator>
+#include <set>
 #include <sstream>
+#include <stddef.h>
 #include <string>
+#include <utility>
 
 #ifdef ENABLE_SCRIPTING
   #include "script/docobj.h"

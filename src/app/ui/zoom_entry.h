@@ -8,9 +8,16 @@
 #define APP_UI_ZOOM_ENTRY_H_INCLUDED
 #pragma once
 
+#include <string>
+
+#include "obs/signal.h"
 #include "render/zoom.h"
 #include "ui/int_entry.h"
 #include "ui/slider.h"
+
+namespace render {
+class Zoom;
+} // namespace render
 
 namespace app {
 

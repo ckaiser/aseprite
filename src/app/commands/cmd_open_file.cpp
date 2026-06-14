@@ -4,33 +4,32 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/cmd_open_file.h"
+#include <algorithm>
+#include <memory>
+#include <vector>
 
 #include "app/app.h"
+#include "app/commands/cmd_open_file.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/doc.h"
 #include "app/file/file.h"
 #include "app/file/file_format.h"
 #include "app/file_selector.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
-#include "app/ui/status_bar.h"
-#include "app/ui_context.h"
 #include "app/util/open_file_job.h"
 #include "base/fs.h"
 #include "dio/file_format.h"
 #include "doc/sprite.h"
-#include "ui/ui.h"
-
-#include <cstdio>
+#include "gfx/rect.h"
+#include "pref.xml.h"
 
 namespace app {
 

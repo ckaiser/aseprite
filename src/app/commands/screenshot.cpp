@@ -3,39 +3,42 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <memory>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/cmd/convert_color_profile.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
+#include "app/commands/params.h"
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/file/file.h"
 #include "app/i18n/strings.h"
 #include "app/resource_finder.h"
-#include "base/buffer.h"
 #include "base/fs.h"
 #include "doc/cel.h"
 #include "doc/color.h"
+#include "doc/color_mode.h"
 #include "doc/image.h"
+#include "doc/image_spec.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"
+#include "gfx/color.h"
+#include "gfx/color_space.h"
+#include "os/color_space.h"
 #include "os/surface.h"
 #include "os/window.h"
-#include "ui/alert.h"
+#include "ui/display.h"
 #include "ui/manager.h"
-#include "ui/scale.h"
 
 #ifdef ENABLE_STEAM
   #include "steam/steam.h"
 #endif
 
 namespace app {
+class Command;
 
 using namespace ui;
 

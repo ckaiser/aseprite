@@ -4,22 +4,28 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
+#include <vector>
 
 #include "app/cmd/flatten_layers.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
-#include "app/doc_range.h"
+#include "app/context_flags.h"
+#include "app/doc_access.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tx.h"
-#include "app/ui/color_bar.h"
 #include "doc/layer.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
+#include "view/range.h"
 
 namespace app {
 

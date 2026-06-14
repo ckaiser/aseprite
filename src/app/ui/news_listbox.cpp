@@ -4,34 +4,43 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <cctype>
+#include <cstdlib>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/news_listbox.h"
-
-#include "app/app.h"
 #include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/res/http_loader.h"
+#include "app/ui/news_listbox.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/xml_document.h"
+#include "base/debug.h"
 #include "base/fs.h"
 #include "base/string.h"
 #include "base/time.h"
-#include "text/font_metrics.h"
+#include "gfx/border.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "text/font_mgr.h"
+#include "text/fwd.h"
+#include "text/text_blob.h"
+#include "tinyxml2.h"
 #include "ui/link_label.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
 #include "ui/size_hint_event.h"
+#include "ui/theme.h"
 #include "ui/view.h"
 #include "ver/info.h"
 
-#include "tinyxml2.h"
-
-#include <cctype>
-#include <sstream>
+namespace ui {
+class Graphics;
+class Style;
+} // namespace ui
 
 namespace app {
 

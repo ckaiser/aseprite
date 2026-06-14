@@ -3,17 +3,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/pixel_ratio.h"
-
-#include "base/split_string.h"
-
+#include <algorithm>
 #include <string>
 #include <vector>
+
+#include "app/util/pixel_ratio.h"
+#include "base/convert_to.h"
+#include "base/split_string.h"
 
 namespace base {
 

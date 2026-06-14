@@ -4,27 +4,36 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <functional>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
 #include "app/cmd/add_tileset.h"
 #include "app/cmd/clear_mask.h"
 #include "app/cmd/move_layer.h"
 #include "app/cmd/trim_cel.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/new_params.h"
 #include "app/commands/params.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/restore_visible_layers.h"
+#include "app/site.h"
 #include "app/tx.h"
 #include "app/ui/main_window.h"
 #include "app/ui/status_bar.h"
@@ -32,24 +41,44 @@
 #include "app/ui_context.h"
 #include "app/util/clipboard.h"
 #include "app/util/new_image_from_mask.h"
+#include "base/debug.h"
+#include "base/log.h"
+#include "doc/cel.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
+#include "doc/grid.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
 #include "doc/layer_tilemap.h"
+#include "doc/mask.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
+#include "doc/tileset.h"
+#include "doc/tilesets.h"
+#include "fmt/base.h"
 #include "fmt/format.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "new_layer.xml.h"
+#include "render/bg_options.h"
 #include "render/dithering.h"
-#include "render/ordered_dither.h"
 #include "render/quantization.h"
 #include "render/render.h"
-#include "ui/ui.h"
-
-#include "new_layer.xml.h"
-
-#include <algorithm>
-#include <cstring>
-#include <string>
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/label.h"
 
 namespace app {
+class Command;
 
 using namespace ui;
 

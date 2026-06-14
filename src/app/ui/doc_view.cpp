@@ -4,31 +4,36 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/doc_view.h"
+#include <exception>
+#include <memory>
+#include <stddef.h>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
-#include "app/cmd/clear_mask.h"
-#include "app/cmd/deselect_mask.h"
-#include "app/cmd/trim_cel.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
 #include "app/doc_access.h"
 #include "app/doc_event.h"
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tx.h"
+#include "app/ui/doc_view.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
+#include "app/ui/editor/editor_observer.h"
 #include "app/ui/editor/editor_view.h"
 #include "app/ui/editor/navigate_state.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
 #include "app/ui/status_bar.h"
@@ -37,23 +42,34 @@
 #include "app/ui_context.h"
 #include "app/util/clipboard.h"
 #include "app/util/slice_utils.h"
-#include "base/fs.h"
+#include "base/debug.h"
+#include "doc/cel_list.h"
 #include "doc/color.h"
 #include "doc/layer.h"
-#include "doc/slice.h"
+#include "doc/selected_objects.h"
 #include "doc/sprite.h"
+#include "doc/user_data.h"
+#include "fmt/base.h"
 #include "fmt/format.h"
+#include "os/pointer_type.h"
+#include "os/window.h"
 #include "ui/alert.h"
+#include "ui/base.h"
 #include "ui/display.h"
 #include "ui/menu.h"
 #include "ui/message.h"
-#include "ui/shortcut.h"
+#include "ui/message_type.h"
+#include "ui/mouse_button.h"
+#include "ui/pointer_type.h"
 #include "ui/system.h"
 #include "ui/view.h"
 
-#include <typeinfo>
+namespace doc {
+class Slice;
+} // namespace doc
 
 namespace app {
+class Command;
 
 using namespace ui;
 

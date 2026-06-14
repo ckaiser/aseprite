@@ -4,36 +4,51 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/palettes_listbox.h"
+#include <algorithm>
+#include <functional>
+#include <memory>
+#include <stddef.h>
+#include <string_view>
 
 #include "app/app.h"
 #include "app/doc.h"
 #include "app/extensions.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
-#include "app/modules/palettes.h"
 #include "app/res/palette_resource.h"
 #include "app/res/palettes_loader_delegate.h"
+#include "app/res/resource.h"
+#include "app/res/resources_loader.h"
+#include "app/res/resources_loader_delegate.h"
 #include "app/ui/doc_view.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/icon_button.h"
+#include "app/ui/palettes_listbox.h"
 #include "app/ui/separator_in_view.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
+#include "base/debug.h"
 #include "base/fs.h"
 #include "base/launcher.h"
+#include "doc/color.h"
 #include "doc/palette.h"
 #include "doc/sprite.h"
+#include "fmt/format.h"
+#include "gfx/border.h"
+#include "gfx/color.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "os/surface.h"
+#include "ui/base.h"
+#include "ui/box.h"
 #include "ui/graphics.h"
+#include "ui/listbox.h"
 #include "ui/message.h"
-#include "ui/size_hint_event.h"
+#include "ui/message_type.h"
+#include "ui/scale.h"
 #include "ui/tooltips.h"
+#include "ui/widget.h"
 
 namespace app {
 

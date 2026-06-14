@@ -9,15 +9,16 @@
 #define APP_UI_KEY_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "app/commands/params.h"
 #include "app/ui/key_context.h"
 #include "base/convert_to.h"
 #include "base/vector2d.h"
 #include "ui/shortcut.h"
-
-#include <memory>
-#include <utility>
-#include <vector>
 
 namespace ui {
 class Message;
@@ -134,6 +135,7 @@ private:
 using AppShortcuts = ui::ShortcutsT<AppShortcut>;
 
 class Key;
+
 using KeyPtr = std::shared_ptr<Key>;
 using Keys = std::vector<KeyPtr>;
 using DragVector = base::Vector2d<double>;

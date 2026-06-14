@@ -4,20 +4,14 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/commands.h"
+#include <cstring>
+#include <utility>
 
 #include "app/commands/command.h"
-#include "app/console.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/commands.h"
+#include "base/debug.h"
 #include "base/string.h"
-#include "ui/ui.h"
-
-#include <cstring>
-#include <exception>
 
 namespace app {
 
@@ -32,6 +26,7 @@ Commands::Commands()
 #define FOR_EACH_COMMAND(Name) add(CommandFactory::create##Name##Command());
 
 #include "app/commands/commands_list.h"
+
 #undef FOR_EACH_COMMAND
 }
 

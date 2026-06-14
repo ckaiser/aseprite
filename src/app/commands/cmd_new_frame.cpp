@@ -4,24 +4,38 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <string>
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/site.h"
 #include "app/tx.h"
 #include "app/ui/main_window.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
-#include "doc/layer.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
+#include "fmt/base.h"
+#include "view/range.h"
+
+namespace doc {
+class Layer;
+} // namespace doc
 
 namespace app {
 

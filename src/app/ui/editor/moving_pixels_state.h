@@ -9,16 +9,24 @@
 #define APP_UI_EDITOR_MOVING_PIXELS_STATE_H_INCLUDED
 #pragma once
 
+#include "app/color.h"
 #include "app/ui/context_bar_observer.h"
 #include "app/ui/editor/delayed_mouse_move.h"
 #include "app/ui/editor/editor_observer.h"
 #include "app/ui/editor/handle_type.h"
 #include "app/ui/editor/pixels_movement.h"
 #include "app/ui/editor/standby_state.h"
+#include "app/ui/key.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline_observer.h"
+#include "doc/algorithm/flip_type.h"
+#include "gfx/fwd.h"
 #include "obs/connection.h"
 #include "ui/timer.h"
+
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace doc {
 class Layer;
@@ -27,6 +35,7 @@ class Layer;
 namespace app {
 class CommandExecutionEvent;
 class Editor;
+class Transformation;
 
 class MovingPixelsState : public StandbyState,
                           EditorObserver,

@@ -9,21 +9,31 @@
 #define APP_UI_EDITOR_MOVING_CEL_STATE_H_INCLUDED
 #pragma once
 
-#include "app/ui/editor/standby_state.h"
+#include <vector>
 
 #include "app/context_access.h"
 #include "app/ui/editor/delayed_mouse_move.h"
 #include "app/ui/editor/handle_type.h"
+#include "app/ui/editor/standby_state.h"
 #include "doc/cel_list.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/connection.h"
 
-#include <vector>
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace doc {
 class Cel;
-}
+class Layer;
+} // namespace doc
 
 namespace app {
 class Editor;
+class CommandExecutionEvent;
 
 class MovingCelCollect {
 public:

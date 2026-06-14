@@ -4,28 +4,32 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/export_file_window.h"
+#include <algorithm>
+#include <vector>
 
 #include "app/doc.h"
 #include "app/file/file.h"
 #include "app/i18n/strings.h"
-#include "app/site.h"
+#include "app/pref/option.h"
+#include "app/ui/export_file_window.h"
+#include "app/ui/filename_field.h"
 #include "app/ui/layer_frame_comboboxes.h"
 #include "app/ui_context.h"
-#include "base/convert_to.h"
 #include "base/fs.h"
+#include "base/paths.h"
 #include "base/string.h"
 #include "doc/selected_frames.h"
+#include "doc/sprite.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
+#include "fmt/base.h"
 #include "fmt/format.h"
+#include "obs/signal.h"
 #include "ui/alert.h"
-
-#include <algorithm>
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/widget.h"
 
 namespace app {
 

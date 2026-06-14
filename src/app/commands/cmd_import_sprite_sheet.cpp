@@ -4,37 +4,63 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <memory>
+#include <stddef.h>
+#include <string>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/new_params.h"
+#include "app/commands/params.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/doc.h"
 #include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/sprite_sheet_type.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/editor_state.h"
 #include "app/ui/editor/select_box_state.h"
-#include "app/ui/workspace.h"
+#include "app/ui/expr_entry.h"
+#include "base/debug.h"
 #include "doc/cel.h"
+#include "doc/frame.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/mask.h"
 #include "doc/sprite.h"
-#include "render/render.h"
-#include "ui/ui.h"
-
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "import_sprite_sheet.xml.h"
+#include "obs/signal.h"
+#include "render/render.h"
+#include "ui/alert.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/label.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/view.h"
+#include "ui/widgets_list.h"
+#include "ui/window.h"
 
 namespace app {
+class Command;
 
 using namespace ui;
 

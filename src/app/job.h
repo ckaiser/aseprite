@@ -9,14 +9,19 @@
 #define APP_JOB_H_INCLUDED
 #pragma once
 
-#include "ui/alert.h"
-#include "ui/timer.h"
-
 #include <atomic>
 #include <exception>
+#include <memory>
 #include <mutex>
 #include <string>
 #include <thread>
+
+#include "ui/alert.h"
+#include "ui/timer.h"
+
+namespace ui {
+class Timer;
+} // namespace ui
 
 namespace app {
 

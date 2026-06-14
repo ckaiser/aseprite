@@ -10,11 +10,12 @@
 #pragma once
 
 #include "app/file_selector.h"
-#include "ui/window.h"
-
-#include "file_selector.xml.h"
 
 #include <string>
+
+#include "base/paths.h"
+#include "file_selector.xml.h"
+#include "ui/window.h"
 
 namespace ui {
 class Button;
@@ -26,6 +27,7 @@ namespace app {
 class FileList;
 class FileListView;
 class IFileItem;
+enum class FileSelectorType;
 
 class FileSelector : public app::gen::FileSelector {
 public:

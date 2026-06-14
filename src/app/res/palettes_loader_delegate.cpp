@@ -4,23 +4,19 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/res/palettes_loader_delegate.h"
+#include <map>
+#include <memory>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/extensions.h"
 #include "app/file/palette_file.h"
-#include "app/file_system.h"
 #include "app/res/palette_resource.h"
+#include "app/res/palettes_loader_delegate.h"
 #include "app/resource_finder.h"
 #include "base/fs.h"
-#include "base/scoped_value.h"
 #include "doc/palette.h"
-#include "ui/system.h"
 
 namespace app {
 

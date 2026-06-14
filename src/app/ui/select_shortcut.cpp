@@ -4,20 +4,26 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/select_shortcut.h"
+#include <stddef.h>
+#include <string>
+#include <vector>
 
 #include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/select_shortcut.h"
 #include "obs/signal.h"
+#include "os/keys.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/button.h"
 #include "ui/entry.h"
+#include "ui/label.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/mouse_button.h"
 
 namespace app {
+enum class KeyContext;
 
 using namespace ui;
 

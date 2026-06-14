@@ -3,26 +3,22 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/util/resize_image.h"
+#include <algorithm>
+#include <cmath>
+#include <memory>
 
 #include "app/cmd/replace_image.h"
 #include "app/cmd/set_cel_bounds.h"
 #include "app/cmd/set_cel_position.h"
 #include "app/tx.h"
+#include "app/util/resize_image.h"
 #include "doc/cel.h"
 #include "doc/image.h"
 #include "doc/image_ref.h"
+#include "doc/image_spec.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
-
-#include <algorithm>
-#include <cmath>
-#include <memory>
+#include "gfx/rect.h"
 
 namespace app {
 

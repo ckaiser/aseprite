@@ -6,9 +6,14 @@
 
 #include "app/util/slice_utils.h"
 
-#include "app/context_access.h"
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+
 #include "app/site.h"
+#include "doc/selected_objects.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"
 
@@ -28,7 +33,7 @@ std::string get_unique_slice_name(const doc::Sprite* sprite, const std::string& 
 
 std::vector<doc::Slice*> get_selected_slices(const Site& site)
 {
-  std::vector<Slice*> selectedSlices;
+  std::vector<doc::Slice*> selectedSlices;
   if (site.sprite() && !site.selectedSlices().empty()) {
     for (auto* slice : site.sprite()->slices()) {
       if (site.selectedSlices().contains(slice->id())) {

@@ -8,16 +8,17 @@
 #define APP_UTIL_SHADER_HELPERS_H_INCLUDED
 #pragma once
 
+#include "include/core/SkImageInfo.h"
+#include "include/core/SkSurface.h"
 #if LAF_SKIA
 
   #include "app/color.h"
   #include "gfx/color.h"
-  #include "os/surface.h"
-
   #include "include/core/SkCanvas.h"
   #include "include/core/SkImage.h"
   #include "include/core/SkM44.h"
   #include "include/core/SkRefCnt.h"
+  #include "os/surface.h"
 
   #if SK_ENABLE_SKSL
     #include "include/effects/SkRuntimeEffect.h"

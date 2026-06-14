@@ -9,11 +9,13 @@
 #define APP_UI_CONTEXT_H_INCLUDED
 #pragma once
 
+#include <vector>
+
 #include "app/closed_docs.h"
 #include "app/context.h"
+#include "app/doc.h"
 #include "app/docs_observer.h"
-
-#include <vector>
+#include "doc/frame.h"
 
 namespace app {
 class DocView;

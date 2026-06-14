@@ -9,26 +9,33 @@
 #define APP_UI_SKIN_SKIN_THEME_H_INCLUDED
 #pragma once
 
+#include <array>
+#include <map>
+#include <string>
+#include <utility>
+
 #include "app/fonts/font_info.h"
 #include "app/fonts/fonts.h"
 #include "app/ui/skin/skin_part.h"
+#include "base/ref.h"
 #include "gfx/color.h"
 #include "gfx/fwd.h"
+#include "os/surface.h"
+#include "text/font.h"
+#include "text/fwd.h"
+#include "theme.xml.h"
 #include "ui/cursor.h"
 #include "ui/cursor_type.h"
 #include "ui/manager.h"
 #include "ui/scale.h"
 #include "ui/theme.h"
 
-#include "theme.xml.h"
-
-#include <array>
-#include <map>
-#include <string>
-
 namespace ui {
 class Entry;
 class Graphics;
+class Cursor;
+class Style;
+class Widget;
 } // namespace ui
 
 namespace app { namespace skin {

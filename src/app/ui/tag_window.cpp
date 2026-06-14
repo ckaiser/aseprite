@@ -4,24 +4,27 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/tag_window.h"
+#include <algorithm>
 
 #include "app/doc.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/layer_frame_comboboxes.h"
+#include "app/ui/tag_window.h"
 #include "app/ui/user_data_view.h"
 #include "base/convert_to.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
-#include "ui/manager.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
 #include "ui/message.h"
-
-#include <algorithm>
+#include "ui/message_type.h"
 
 namespace app {
 

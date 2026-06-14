@@ -3,25 +3,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/app.h"
-#include "app/commands/cmd_set_palette.h"
+#include "app/color.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/util/pal_ops.h"
+#include "base/debug.h"
 #include "doc/palette.h"
 #include "doc/palette_picks.h"
-#include "doc/remap.h"
 
 namespace app {
+class Command;
 
 using namespace ui;
 

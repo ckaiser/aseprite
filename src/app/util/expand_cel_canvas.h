@@ -9,6 +9,8 @@
 #define APP_UTIL_EXPAND_CEL_CANVAS_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/tilemap_mode.h"
 #include "app/tileset_mode.h"
 #include "doc/frame.h"
@@ -19,7 +21,12 @@
 #include "gfx/point.h"
 #include "gfx/rect.h"
 #include "gfx/region.h"
+#include "gfx/region_skia.h"
 #include "gfx/size.h"
+
+namespace filters {
+enum class TiledMode;
+} // namespace filters
 
 namespace doc {
 class Cel;
@@ -33,6 +40,8 @@ namespace app {
 class CmdSequence;
 class Doc;
 class Site;
+enum class TilemapMode;
+enum class TilesetMode;
 
 using namespace filters;
 using namespace doc;

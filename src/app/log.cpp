@@ -4,14 +4,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/log.h"
-
-#include "app/app.h"
 #include "app/resource_finder.h"
 #include "base/log.h"
 #include "fmt/format.h"

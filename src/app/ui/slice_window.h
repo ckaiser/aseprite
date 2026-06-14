@@ -9,17 +9,25 @@
 #define APP_UI_SLICE_WINDOW_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/user_data_view.h"
 #include "doc/anidir.h"
 #include "doc/frame.h"
 #include "doc/selected_objects.h"
 #include "doc/user_data.h"
-
+#include "gfx/fwd.h"
 #include "slice_properties.xml.h"
+
+namespace ui {
+class Entry;
+} // namespace ui
 
 namespace doc {
 class Slice;
 class Sprite;
+class SelectedObjects;
+class UserData;
 } // namespace doc
 
 namespace app {

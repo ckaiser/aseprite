@@ -4,20 +4,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/file/file_formats_manager.h"
-
-#include "app/file/file_format.h"
-#include "app/file/format_options.h"
-#include "base/string.h"
-#include "dio/detect_format.h"
-
 #include <algorithm>
 #include <cstring>
+#include <iterator>
+#include <string>
+
+#include "app/file/file_format.h"
+#include "app/file/file_formats_manager.h"
+#include "base/string.h"
+#include "dio/file_format.h"
 
 namespace app {
 

@@ -3,16 +3,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/tools/symmetry.h"
-
+#include "app/tools/dynamics.h"
 #include "app/tools/point_shape.h"
+#include "app/tools/symmetry.h"
 #include "app/tools/tool_loop.h"
+#include "base/debug.h"
 #include "doc/brush.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 
 namespace app { namespace tools {
 

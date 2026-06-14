@@ -9,8 +9,15 @@
 #pragma once
 
 #include "app/ui/editor/select_box_state.h"
+#include "gfx/fwd.h"
+#include "ui/mouse_button.h"
+
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace app {
+class Editor;
 
 class SelectTextBoxState : public SelectBoxState,
                            public SelectBoxDelegate {

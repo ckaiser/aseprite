@@ -4,35 +4,33 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/util/render_text.h"
-
 #include "app/fonts/font_info.h"
 #include "app/fonts/fonts.h"
-#include "base/fs.h"
-#include "doc/blend_funcs.h"
-#include "doc/blend_internals.h"
-#include "doc/color.h"
+#include "base/debug.h"
+#include "base/ref.h"
 #include "doc/image.h"
-#include "doc/primitives.h"
-#include "os/paint.h"
+#include "doc/pixel_format.h"
+#include "gfx/point.h"
+#include "include/core/SkRefCnt.h"
+#include "include/core/SkSurface.h"
+#include "os/surface.h"
 #include "text/draw_text.h"
-#include "text/font_metrics.h"
+#include "text/font.h"
+#include "text/font_mgr.h"
+#include "text/shaper_features.h"
 #include "text/text_blob.h"
+
+namespace os {
+class Paint;
+} // namespace os
 
 #ifdef LAF_SKIA
   #include "app/util/shader_helpers.h"
-  #include "os/skia/skia_helpers.h"
   #include "os/skia/skia_surface.h"
 #endif
 
 #include <cmath>
-#include <memory>
-#include <stdexcept>
 
 namespace app {
 

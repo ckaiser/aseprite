@@ -4,27 +4,31 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/play_state.h"
+#include <string>
 
 #include "app/commands/command.h"
-#include "app/commands/commands.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
 #include "app/loop_tag.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/tools/ink.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
-#include "app/ui/editor/scrolling_state.h"
+#include "app/ui/editor/editor_state.h"
+#include "app/ui/editor/play_state.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
+#include "base/debug.h"
+#include "doc/anidir.h"
+#include "doc/sprite.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
+#include "obs/signal.h"
+#include "ui/cursor_type.h"
 #include "ui/manager.h"
 #include "ui/message.h"
-#include "ui/system.h"
+#include "ui/mouse_button.h"
 
 namespace app {
 

@@ -3,22 +3,35 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/extensions.h"
-#include "app/modules/gui.h"
-#include "app/ui/main_window.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/ui/alpha_slider.h"
+#include "app/ui/button_set.h"
+#include "app/ui/expr_entry.h"
+#include "app/ui/filename_field.h"
+#include "app/ui/font_entry.h"
+#include "app/ui/search_entry.h"
 #include "app/ui/skin/skin_theme.h"
-#include "base/fs.h"
 #include "fmt/format.h"
+#include "gfx/point.h"
+#include "obs/signal.h"
+#include "ui/button.h"
+#include "ui/entry.h"
+#include "ui/grid.h"
 #include "ui/menu.h"
-#include "ver/info.h"
-
+#include "ui/scale.h"
+#include "ui/slider.h"
+#include "ui/textedit.h"
+#include "ui/theme.h"
 #include "zoo.xml.h"
 
 namespace app {

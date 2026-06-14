@@ -3,14 +3,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
+#include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/context.h"
-#include "app/ui/editor/editor.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
 
 namespace app {
 

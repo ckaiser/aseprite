@@ -4,19 +4,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/context_flags.h"
-
 #include "app/context.h"
 #include "app/doc.h"
 #include "app/site.h"
 #include "app/ui/editor/editor.h"
 #include "doc/cel.h"
+#include "doc/frame.h"
 #include "doc/layer.h"
+#include "doc/palette_picks.h"
 #include "doc/sprite.h"
 
 namespace app {

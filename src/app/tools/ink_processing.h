@@ -6,20 +6,20 @@
 // the End-User License Agreement for Aseprite.
 
 #include "app/color_utils.h"
+#include "app/tools/point_shape.h"
 #include "app/tools/symmetry.h"
 #include "app/util/wrap_point.h"
-#include "app/util/wrap_value.h"
 #include "doc/blend_funcs.h"
 #include "doc/blend_internals.h"
 #include "doc/image.h"
 #include "doc/layer.h"
+#include "doc/mask.h"
 #include "doc/palette.h"
 #include "doc/remap.h"
 #include "doc/rgbmap.h"
 #include "doc/sprite.h"
 #include "filters/neighboring_pixels.h"
 #include "gfx/hsv.h"
-#include "gfx/rgb.h"
 #include "render/dithering.h"
 #include "render/gradient.h"
 

@@ -4,18 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <string>
 
 #include "app/cmd/layer_from_background.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc_access.h"
 #include "app/modules/gui.h"
 #include "app/tx.h"
 
 namespace app {
+class Doc;
 
 class LayerFromBackgroundCommand : public Command {
 public:

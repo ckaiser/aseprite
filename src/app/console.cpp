@@ -4,28 +4,39 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/console.h"
-
-#include "app/app.h"
-#include "app/context.h"
-#include "app/i18n/strings.h"
-#include "app/modules/gui.h"
-#include "app/ui/main_window.h"
-#include "app/ui/status_bar.h"
-#include "base/memory.h"
-#include "base/string.h"
-#include "fmt/format.h"
-#include "ui/system.h"
-#include "ui/ui.h"
-
 #include <cstdarg>
 #include <cstdio>
-#include <memory>
+#include <functional>
+#include <new>
+#include <typeinfo>
+
+#include "app/app.h"
+#include "app/console.h"
+#include "app/i18n/strings.h"
+#include "app/ui/main_window.h"
+#include "base/log.h"
+#include "base/string.h"
+#include "fmt/format.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/connection.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "ui/base.h"
+#include "ui/button.h"
+#include "ui/display.h"
+#include "ui/fit_bounds.h"
+#include "ui/grid.h"
+#include "ui/keys.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/scale.h"
+#include "ui/system.h"
+#include "ui/textbox.h"
+#include "ui/view.h"
+#include "ui/window.h"
 
 #define TRACE_CON(...) // TRACEARGS(__VA_ARGS__)
 

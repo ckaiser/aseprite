@@ -8,20 +8,25 @@
 #define APP_UI_LAYOUT_SELECTOR_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "app/ui/dockable.h"
 #include "app/ui/icon_button.h"
 #include "app/ui/layout.h"
 #include "app/ui/layouts.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
 #include "ui/animated_widget.h"
+#include "ui/base.h"
 #include "ui/box.h"
 #include "ui/combobox.h"
 
-#include <memory>
-#include <vector>
-
 namespace ui {
 class TooltipManager;
-}
+class Widget;
+} // namespace ui
 
 namespace app {
 

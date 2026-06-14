@@ -11,6 +11,7 @@
 
 #include "app/ui/dockable.h"
 #include "obs/connection.h"
+#include "ui/base.h"
 #include "ui/menu.h"
 
 namespace app {

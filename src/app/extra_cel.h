@@ -9,6 +9,8 @@
 #define APP_EXTRA_CEL_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/tilemap_mode.h"
 #include "base/disable_copying.h"
 #include "doc/blend_mode.h"
@@ -17,15 +19,21 @@
 #include "doc/image_buffer.h"
 #include "doc/image_ref.h"
 #include "gfx/rect.h"
+#include "gfx/size.h"
 #include "render/extra_type.h"
 
-#include <memory>
+namespace render {
+enum class ExtraType;
+} // namespace render
 
 namespace doc {
 class Sprite;
-}
+class Image;
+enum class BlendMode;
+} // namespace doc
 
 namespace app {
+enum class TilemapMode;
 
 class ExtraCel {
 public:

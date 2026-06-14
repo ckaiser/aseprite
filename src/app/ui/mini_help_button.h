@@ -8,6 +8,8 @@
 #define APP_UI_MINI_HELP_BUTTON_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "ui/button.h"
 
 namespace app {

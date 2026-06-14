@@ -26,6 +26,9 @@ class Palette;
 class RgbMap;
 class Sprite;
 class Tileset;
+class Cel;
+class SelectedFrames;
+class SelectedLayers;
 } // namespace doc
 
 namespace app {

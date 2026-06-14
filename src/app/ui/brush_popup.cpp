@@ -4,49 +4,66 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/brush_popup.h"
+#include <algorithm>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
+#include "app/app_brushes.h"
 #include "app/brush_slot.h"
 #include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
+#include "app/commands/params.h"
 #include "app/i18n/strings.h"
-#include "app/modules/gui.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "app/tools/tool.h"
 #include "app/ui/app_menuitem.h"
+#include "app/ui/brush_popup.h"
 #include "app/ui/button_set.h"
 #include "app/ui/context_bar.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
-#include "app/ui/main_window.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui_context.h"
 #include "app/util/conversion_to_surface.h"
 #include "base/convert_to.h"
+#include "base/debug.h"
+#include "brush_slot_params.xml.h"
 #include "doc/brush.h"
+#include "doc/brush_type.h"
+#include "doc/color.h"
+#include "doc/frame.h"
 #include "doc/image.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
 #include "gfx/border.h"
-#include "gfx/region.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "obs/connection.h"
+#include "obs/signal.h"
 #include "os/surface.h"
 #include "os/system.h"
-#include "ui/button.h"
+#include "os/window.h"
+#include "ui/base.h"
+#include "ui/display.h"
 #include "ui/fit_bounds.h"
-#include "ui/link_label.h"
-#include "ui/listitem.h"
+#include "ui/label.h"
+#include "ui/manager.h"
 #include "ui/menu.h"
-#include "ui/message.h"
+#include "ui/scale.h"
 #include "ui/separator.h"
-
-#include "brush_slot_params.xml.h"
+#include "ui/widget.h"
 
 namespace app {
+namespace tools {
+class Tool;
+} // namespace tools
 
 using namespace app::skin;
 using namespace doc;

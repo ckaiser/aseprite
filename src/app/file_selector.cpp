@@ -4,16 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <vector>
 
 #include "app/file_selector.h"
-
-#include "app/app.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "app/ui/app_menuitem.h"
 #include "app/ui/file_selector.h"
 #include "base/fs.h"
 #include "dlgs/file_dialog.h"

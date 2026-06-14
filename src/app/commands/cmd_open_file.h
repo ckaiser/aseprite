@@ -9,14 +9,17 @@
 #define APP_COMMANDS_CMD_OPEN_FILE_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/commands/command.h"
 #include "app/commands/params.h"
 #include "app/pref/preferences.h"
 #include "base/paths.h"
 
-#include <string>
-
 namespace app {
+namespace gen {
+enum class SequenceDecision;
+} // namespace gen
 
 class OpenFileCommand : public Command {
 public:

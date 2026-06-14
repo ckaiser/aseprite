@@ -4,34 +4,38 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/thumbnail_generator.h"
+#include <algorithm>
+#include <atomic>
+#include <exception>
+#include <memory>
+#include <string>
+#include <thread>
 
 #include "app/app.h"
 #include "app/cmd/convert_color_profile.h"
 #include "app/doc.h"
 #include "app/file/file.h"
 #include "app/file_system.h"
+#include "app/thumbnail_generator.h"
 #include "app/util/conversion_to_surface.h"
+#include "base/debug.h"
 #include "base/thread.h"
-#include "doc/algorithm/rotate.h"
+#include "doc/color.h"
+#include "doc/color_mode.h"
+#include "doc/frame.h"
 #include "doc/image.h"
 #include "doc/palette.h"
-#include "doc/primitives.h"
 #include "doc/sprite.h"
+#include "gfx/clip.h"
+#include "gfx/color_space.h"
+#include "obs/signal.h"
+#include "os/surface.h"
 #include "os/system.h"
+#include "render/bg_options.h"
 #include "render/projection.h"
 #include "render/render.h"
+#include "render/zoom.h"
 #include "ui/system.h"
-
-#include <algorithm>
-#include <atomic>
-#include <memory>
-#include <thread>
 
 #define MAX_THUMBNAIL_SIZE 128
 #define THUMB_TRACE(...)

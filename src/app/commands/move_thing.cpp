@@ -4,20 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
 
 #include "app/commands/move_thing.h"
-
 #include "app/commands/params.h"
+#include "app/doc.h"
 #include "app/i18n/strings.h"
 #include "app/ui/doc_view.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui_context.h"
-
-#include <algorithm>
+#include "doc/sprite.h"
+#include "fmt/base.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
+#include "render/zoom.h"
+#include "ui/view.h"
 
 namespace app {
 

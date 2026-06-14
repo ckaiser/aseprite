@@ -10,9 +10,16 @@
 #pragma once
 
 #include "app/ui/button_set.h"
+#include "doc/brush.h"
 #include "doc/brushes.h"
+#include "gfx/fwd.h"
+#include "os/surface.h"
 #include "ui/box.h"
 #include "ui/popup_window.h"
+
+namespace ui {
+class Display;
+} // namespace ui
 
 namespace app {
 

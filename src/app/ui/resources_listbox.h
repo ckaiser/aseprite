@@ -9,13 +9,19 @@
 #define APP_UI_RESOURCES_LISTBOX_H_INCLUDED
 #pragma once
 
+#include <memory>
+
+#include "app/res/resource.h"
 #include "app/res/resources_loader.h"
+#include "gfx/fwd.h"
 #include "obs/signal.h"
 #include "ui/listbox.h"
 #include "ui/listitem.h"
 #include "ui/timer.h"
 
-#include <memory>
+namespace ui {
+class Graphics;
+} // namespace ui
 
 namespace app {
 class ResourceListItem;
@@ -71,6 +77,7 @@ private:
   bool m_reloadOnOpen = false;
 
   class LoadingItem;
+
   LoadingItem* m_loadingItem = nullptr;
 };
 

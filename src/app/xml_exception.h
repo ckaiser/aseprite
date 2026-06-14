@@ -9,6 +9,8 @@
 #define APP_XML_EXCEPTION_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "base/exception.h"
 
 namespace tinyxml2 {

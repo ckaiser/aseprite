@@ -10,7 +10,9 @@
 #pragma once
 
 #include "filters/color_curve.h"
+#include "gfx/fwd.h"
 #include "gfx/point.h"
+#include "gfx/rect.h"
 #include "obs/signal.h"
 #include "ui/widget.h"
 

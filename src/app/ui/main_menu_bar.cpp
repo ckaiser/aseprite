@@ -4,18 +4,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/main_menu_bar.h"
+#include <functional>
 
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/extensions.h"
+#include "app/ui/main_menu_bar.h"
+#include "obs/signal.h"
 #include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/widget.h"
 
 namespace app {
 

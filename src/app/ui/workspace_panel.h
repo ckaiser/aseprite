@@ -9,16 +9,19 @@
 #define APP_UI_WORKSPACE_PANEL_H_INCLUDED
 #pragma once
 
-#include "app/ui/workspace_views.h"
-#include "ui/animated_widget.h"
-#include "ui/widget.h"
-
 #include <map>
 #include <vector>
+
+#include "app/ui/workspace_views.h"
+#include "gfx/fwd.h"
+#include "ui/animated_widget.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
 
 namespace app {
 class Workspace;
 class WorkspaceTabs;
+class WorkspaceView;
 
 enum class DropViewAtResult {
   NOTHING,

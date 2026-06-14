@@ -8,6 +8,9 @@
 #define APP_UI_EXPR_ENTRY_H_INCLUDED
 #pragma once
 
+#include <string>
+
+#include "obs/signal.h"
 #include "ui/entry.h"
 
 namespace app {

@@ -8,15 +8,20 @@
 #define APP_UI_EDITOR_WRITING_TEXT_STATE_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/ui/editor/delayed_mouse_move.h"
 #include "app/ui/editor/standby_state.h"
 #include "app/ui/font_entry.h"
-
-#include <memory>
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "obs/connection.h"
 
 namespace app {
 class CommandExecutionEvent;
 class FontInfo;
+class Editor;
 
 class WritingTextState : public StandbyState,
                          DelayedMouseMoveDelegate {

@@ -4,42 +4,33 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/tools/tool_box.h"
+#include <algorithm>
+#include <cstdlib>
+#include <string.h>
+#include <utility>
 
 #include "app/gui_xml.h"
 #include "app/i18n/strings.h"
-#include "app/tools/controller.h"
-#include "app/tools/ink.h"
-#include "app/tools/intertwine.h"
-#include "app/tools/point_shape.h"
-#include "app/tools/stroke.h"
-#include "app/tools/tool_group.h"
-#include "app/tools/tool_loop.h"
-#include "base/exception.h"
-#include "doc/algo.h"
-#include "doc/algorithm/floodfill.h"
-#include "doc/algorithm/polygon.h"
-#include "doc/brush.h"
-#include "doc/compressed_image.h"
-#include "doc/image.h"
-#include "doc/mask.h"
-
-#include "tinyxml2.h"
-
-#include <algorithm>
-#include <cstdlib>
-
 #include "app/tools/controllers.h"
+#include "app/tools/fill.h"
 #include "app/tools/inks.h"
 #include "app/tools/intertwiners.h"
+#include "app/tools/pick_ink.h"
 #include "app/tools/point_shapes.h"
+#include "app/tools/tool_box.h"
+#include "app/tools/tool_group.h"
+#include "app/tools/trace_policy.h"
+#include "base/exception.h"
+#include "base/log.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "tinyxml2.h"
 
 namespace app { namespace tools {
+class Controller;
+class Ink;
+class Intertwine;
+class PointShape;
 
 using namespace gfx;
 using namespace tinyxml2;

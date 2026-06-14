@@ -3,17 +3,20 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
+#include "app/commands/params.h"
+#include "app/context.h"
 #include "app/i18n/strings.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui_context.h"
+#include "fmt/base.h"
 
 namespace app {
+class Command;
 
 struct SetPlaybackSpeedParams : public NewParams {
   Param<double> multiplier{ this, 1.0, "multiplier" };

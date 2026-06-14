@@ -9,10 +9,11 @@
 #define APP_UI_SKIN_SKIN_SLIDER_PROPERTY_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/ui/skin/skin_property.h"
 #include "gfx/rect.h"
-
-#include <memory>
+#include "ui/property.h"
 
 namespace ui {
 class Slider;

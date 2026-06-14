@@ -4,21 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/main_window.h"
-
-#include "app/app.h"
 #include "app/app_menus.h"
-#include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
-#include "app/crash/data_recovery.h"
+#include "app/commands/params.h"
+#include "app/context.h"
+#include "app/doc.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/notification_delegate.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/app_tooltips.h"
 #include "app/ui/browser_view.h"
@@ -29,30 +26,47 @@
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_view.h"
 #include "app/ui/home_view.h"
+#include "app/ui/layout.h"
 #include "app/ui/layout_selector.h"
 #include "app/ui/main_menu_bar.h"
+#include "app/ui/main_window.h"
 #include "app/ui/notifications.h"
 #include "app/ui/preview_editor.h"
-#include "app/ui/skin/skin_property.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui/toolbar.h"
 #include "app/ui/workspace.h"
+#include "app/ui/workspace_panel.h"
 #include "app/ui/workspace_tabs.h"
+#include "app/ui/workspace_view.h"
 #include "app/ui_context.h"
-#include "base/fs.h"
+#include "base/debug.h"
+#include "base/log.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
 #include "os/event.h"
 #include "os/event_queue.h"
+#include "os/screen.h"
+#include "os/surface.h"
 #include "os/system.h"
+#include "os/window.h"
+#include "pref.xml.h"
 #include "ui/app_state.h"
+#include "ui/base.h"
+#include "ui/display.h"
 #include "ui/drag_event.h"
+#include "ui/manager.h"
 #include "ui/message.h"
-#include "ui/splitter.h"
-#include "ui/system.h"
-#include "ui/view.h"
+#include "ui/message_type.h"
+#include "ui/scale.h"
+#include "ui/theme.h"
+#include "ui/tooltips.h"
+#include "ui/widget.h"
 
 namespace app {
+class Command;
 
 using namespace ui;
 

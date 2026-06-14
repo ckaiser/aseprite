@@ -4,23 +4,33 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <stdlib.h>
+#include <string>
 
 #include "app/app.h"
 #include "app/cmd/add_tag.h"
 #include "app/cmd/remove_tag.h"
 #include "app/cmd/set_tag_range.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
 #include "app/loop_tag.h"
 #include "app/tx.h"
 #include "app/ui/timeline/timeline.h"
+#include "doc/frame.h"
+#include "doc/selected_frames.h"
 #include "doc/tag.h"
+#include "view/range.h"
+
+namespace doc {
+class Sprite;
+} // namespace doc
 
 namespace app {
 

@@ -9,7 +9,10 @@
 #define APP_UI_COLSEL_TINT_SHADE_TONE_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/ui/colsel/color_selector.h"
+#include "gfx/fwd.h"
 #include "obs/connection.h"
 
 namespace app::colsel {

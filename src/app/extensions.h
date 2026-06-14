@@ -9,14 +9,16 @@
 #define APP_EXTENSIONS_H_INCLUDED
 #pragma once
 
+#include <map>
+#include <memory>
+#include <optional>
+#include <stdint.h>
+#include <string>
+#include <vector>
+
 #include "app/i18n/lang_info.h"
 #include "obs/signal.h"
 #include "render/dithering_matrix.h"
-
-#include <map>
-#include <optional>
-#include <string>
-#include <vector>
 
 namespace ui {
 class Widget;

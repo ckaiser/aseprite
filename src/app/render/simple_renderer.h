@@ -9,6 +9,10 @@
 #pragma once
 
 #include "app/render/renderer.h"
+#include "doc/frame.h"
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "render/render.h"
 
 namespace app {
 

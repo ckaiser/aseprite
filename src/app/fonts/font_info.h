@@ -8,6 +8,9 @@
 #define APP_FONTS_FONT_INFO_H_INCLUDED
 #pragma once
 
+#include <cmath>
+#include <string>
+
 #include "base/convert_to.h"
 #include "base/enum_flags.h"
 #include "text/font_hinting.h"
@@ -15,9 +18,6 @@
 #include "text/font_type.h"
 #include "text/fwd.h"
 #include "text/typeface.h"
-
-#include <cmath>
-#include <string>
 
 namespace app {
 

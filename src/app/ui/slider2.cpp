@@ -4,16 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/slider2.h"
+#include <algorithm>
+#include <string>
 
 #include "app/ui/skin/skin_property.h"
+#include "app/ui/slider2.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
+#include "os/keys.h"
+#include "ui/keys.h"
 #include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 
 namespace app {
 

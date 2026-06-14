@@ -6,81 +6,95 @@
 // the End-User License Agreement for Aseprite.
 
 #define COLOR_BAR_TRACE(...) // TRACE(__VA_ARGS__)
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/color_bar.h"
+#include <algorithm>
+#include <cstring>
+#include <exception>
+#include <functional>
+#include <initializer_list>
+#include <limits>
+#include <memory>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
+#include "app/cmd.h"
+#include "app/cmd/add_tile.h"
 #include "app/cmd/remap_colors.h"
 #include "app/cmd/remap_tilemaps.h"
-#include "app/cmd/remap_tileset.h"
 #include "app/cmd/remove_tile.h"
 #include "app/cmd/replace_image.h"
 #include "app/cmd/set_palette.h"
 #include "app/cmd/set_transparent_color.h"
 #include "app/cmd_sequence.h"
+#include "app/cmd_transaction.h"
 #include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/commands/quick_command.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
 #include "app/doc_undo.h"
 #include "app/i18n/strings.h"
-#include "app/ini_file.h"
 #include "app/inline_command_execution.h"
 #include "app/modules/gui.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/site.h"
+#include "app/transaction.h"
 #include "app/tx.h"
-#include "app/ui/colsel/spectrum.h"
-#include "app/ui/colsel/tint_shade_tone.h"
-#include "app/ui/colsel/wheel.h"
+#include "app/ui/color_bar.h"
+#include "app/ui/color_button_options.h"
 #include "app/ui/editor/editor.h"
-#include "app/ui/hex_color_entry.h"
 #include "app/ui/input_chain.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/palette_popup.h"
 #include "app/ui/skin/skin_theme.h"
-#include "app/ui/status_bar.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
 #include "app/util/cel_ops.h"
 #include "app/util/clipboard.h"
+#include "base/debug.h"
+#include "base/exception.h"
 #include "base/scoped_value.h"
-#include "doc/cel.h"
-#include "doc/cels_range.h"
+#include "doc/color.h"
+#include "doc/frame.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
+#include "doc/image_iterator.h"
+#include "doc/image_ref.h"
+#include "doc/image_traits.h"
+#include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/palette.h"
 #include "doc/palette_gradient_type.h"
+#include "doc/palette_picks.h"
 #include "doc/primitives.h"
 #include "doc/remap.h"
-#include "doc/rgbmap.h"
 #include "doc/sort_palette.h"
 #include "doc/sprite.h"
 #include "doc/tileset.h"
-#include "os/surface.h"
+#include "gfx/border.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "ui/alert.h"
-#include "ui/graphics.h"
+#include "ui/manager.h"
 #include "ui/menu.h"
 #include "ui/message.h"
-#include "ui/paint_event.h"
 #include "ui/resize_event.h"
-#include "ui/separator.h"
+#include "ui/scale.h"
+#include "ui/scroll_bar.h"
 #include "ui/splitter.h"
 #include "ui/system.h"
 #include "ui/tooltips.h"
-
-#include <cstring>
-#include <limits>
-#include <memory>
+#include "ui/widget.h"
 
 namespace app {
 

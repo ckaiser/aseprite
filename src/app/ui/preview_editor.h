@@ -18,6 +18,7 @@
 namespace app {
 class MiniCenterButton;
 class MiniPlayButton;
+class Editor;
 
 class PreviewEditorWindow : public ui::Window,
                             public EditorObserver,

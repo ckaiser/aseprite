@@ -4,24 +4,33 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <string>
 
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/context.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
 #include "app/site.h"
 #include "app/util/new_image_from_mask.h"
 #include "base/fs.h"
 #include "doc/cel.h"
-#include "doc/document.h"
+#include "doc/frame.h"
+#include "doc/image.h"
+#include "doc/image_ref.h"
+#include "doc/image_spec.h"
 #include "doc/layer.h"
 #include "doc/mask.h"
 #include "doc/palette.h"
+#include "doc/primitives.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"
+
+namespace doc {
+enum class ColorMode;
+} // namespace doc
 
 namespace app {
 

@@ -4,39 +4,52 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/state_with_wheel_behavior.h"
+#include <algorithm>
+#include <cmath>
+#include <list>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/modules/palettes.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
+#include "app/tilemap_mode.h"
 #include "app/tools/active_tool.h"
+#include "app/tools/ink.h"
+#include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 #include "app/ui/color_bar.h"
 #include "app/ui/context_bar.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/editor/state_with_wheel_behavior.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/palette_view.h"
+#include "app/ui/skin/skin_theme.h"
 #include "app/ui/toolbar.h"
 #include "app/ui_context.h"
-#include "base/string.h"
+#include "base/convert_to.h"
 #include "doc/brush.h"
+#include "doc/cel.h"
 #include "doc/layer.h"
 #include "doc/palette.h"
+#include "doc/sprite.h"
+#include "doc/tileset.h"
+#include "gfx/rect.h"
+#include "render/zoom.h"
+#include "ui/cursor_type.h"
 #include "ui/message.h"
-#include "ui/system.h"
-#include "ui/theme.h"
-
-#include "app/tools/ink.h"
-#include "app/ui/skin/skin_theme.h"
+#include "ui/view.h"
 
 namespace app {
+class Command;
 
 using namespace ui;
 using PreciseWheel = StateWithWheelBehavior::PreciseWheel;

@@ -4,10 +4,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <exception>
+#include <string>
+#include <vector>
 
 #include "app/app.h"
 #include "app/cmd/set_layer_blend_mode.h"
@@ -18,14 +17,27 @@
 #include "app/cmd/set_tileset_match_flags.h"
 #include "app/cmd/set_tileset_name.h"
 #include "app/cmd/set_user_data.h"
+#include "app/color.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/context_observer.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_event.h"
+#include "app/doc_observer.h"
 #include "app/i18n/strings.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
+#include "app/site.h"
 #include "app/tx.h"
+#include "app/ui/alpha_slider.h"
+#include "app/ui/color_button.h"
 #include "app/ui/main_window.h"
 #include "app/ui/separator_in_view.h"
 #include "app/ui/tileset_selector.h"
@@ -34,16 +46,36 @@
 #include "app/ui_context.h"
 #include "base/convert_to.h"
 #include "base/scoped_value.h"
+#include "doc/blend_mode.h"
+#include "doc/color.h"
+#include "doc/grid.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
 #include "doc/tileset.h"
 #include "doc/tilesets.h"
 #include "doc/user_data.h"
-#include "ui/ui.h"
-
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "layer_properties.xml.h"
+#include "obs/signal.h"
+#include "os/keys.h"
 #include "tileset_selector_window.xml.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/keys.h"
+#include "ui/label.h"
+#include "ui/listitem.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/textedit.h"
+#include "ui/timer.h"
+#include "ui/widget.h"
+#include "ui/window.h"
+#include "view/range.h"
 
 namespace app {
 
@@ -59,6 +91,7 @@ protected:
 };
 
 class LayerPropertiesWindow;
+
 static LayerPropertiesWindow* g_window = nullptr;
 
 class LayerPropertiesWindow : public app::gen::LayerProperties,

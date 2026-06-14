@@ -8,11 +8,26 @@
 #define APP_RENDER_SHADER_RENDERER_H_INCLUDED
 #pragma once
 
+#include "doc/blend_mode.h"
+#include "doc/frame.h"
+#include "doc/pixel_format.h"
+#include "gfx/clip.h"
+#include "gfx/point.h"
+#include "render/bg_options.h"
+#include "render/projection.h"
+
+namespace doc {
+class Cel;
+class Image;
+class Layer;
+class LayerImage;
+class Sprite;
+class Tileset;
+} // namespace doc
 #if SK_ENABLE_SKSL
 
   #include "app/render/renderer.h"
   #include "doc/palette.h"
-
   #include "include/core/SkRefCnt.h"
 
 class SkCanvas;

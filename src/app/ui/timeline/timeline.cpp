@@ -4,35 +4,46 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/timeline/timeline.h"
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <exception>
+#include <functional>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
+#include "app/cmd.h"
 #include "app/cmd/set_tag_range.h"
 #include "app/cmd_transaction.h"
 #include "app/color_utils.h"
-#include "app/commands/command.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/commands.h"
 #include "app/commands/params.h"
 #include "app/console.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
 #include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/doc_api.h"
+#include "app/doc_api_dnd_helper.h"
 #include "app/doc_event.h"
+#include "app/doc_range.h"
 #include "app/doc_range_ops.h"
 #include "app/doc_undo.h"
+#include "app/docs.h"
 #include "app/i18n/strings.h"
 #include "app/inline_command_execution.h"
 #include "app/loop_tag.h"
 #include "app/modules/gfx.h"
 #include "app/modules/gui.h"
+#include "app/pref/option.h"
+#include "app/site.h"
+#include "app/tags_handling.h"
 #include "app/thumbnails.h"
-#include "app/transaction.h"
 #include "app/tx.h"
 #include "app/ui/app_menuitem.h"
 #include "app/ui/configure_timeline_popup.h"
@@ -42,33 +53,73 @@
 #include "app/ui/skin/skin_theme.h"
 #include "app/ui/status_bar.h"
 #include "app/ui/timeline/doc_providers.h"
+#include "app/ui/timeline/timeline.h"
+#include "app/ui/timeline/timeline_observer.h"
 #include "app/ui/workspace.h"
 #include "app/ui_context.h"
 #include "app/util/clipboard.h"
+#include "app/util/conversion_to_image.h"
 #include "app/util/layer_boundaries.h"
 #include "app/util/readable_time.h"
 #include "base/convert_to.h"
-#include "base/memory.h"
+#include "base/debug.h"
+#include "base/exception.h"
+#include "base/log.h"
+#include "base/paths.h"
 #include "base/scoped_value.h"
-#include "doc/doc.h"
+#include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/cel_list.h"
+#include "doc/color.h"
+#include "doc/frames_iterators.h"
 #include "doc/image_ref.h"
+#include "doc/layer.h"
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
+#include "doc/sprite.h"
+#include "doc/tags.h"
+#include "doc/user_data.h"
 #include "fmt/format.h"
+#include "gfx/border.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/keys.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
 #include "text/font.h"
 #include "text/font_metrics.h"
-#include "ui/ui.h"
+#include "ui/cursor_type.h"
+#include "ui/drag_event.h"
+#include "ui/fit_bounds.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
+#include "ui/menu.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint.h"
+#include "ui/paint_event.h"
+#include "ui/resize_event.h"
+#include "ui/scale.h"
+#include "ui/scroll_helper.h"
+#include "ui/size_hint_event.h"
+#include "ui/style.h"
+#include "ui/system.h"
+#include "ui/theme.h"
+#include "ui/widget_type.h"
 #include "view/layers.h"
 #include "view/timeline_adapter.h"
 #include "view/utils.h"
 
-#include <algorithm>
-#include <cstdio>
-#include <vector>
+namespace doc {
+class Image;
+} // namespace doc
 
 namespace app {
+class Command;
 
 using namespace app::skin;
 using namespace gfx;

@@ -3,19 +3,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <limits>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/task_widget.h"
-
-#include "app/i18n/strings.h"
 #include "app/modules/gui.h"
 #include "app/ui/skin/skin_theme.h"
-#include "ui/scale.h"
-
-#include <limits>
+#include "app/ui/task_widget.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "ui/base.h"
 
 namespace app {
 

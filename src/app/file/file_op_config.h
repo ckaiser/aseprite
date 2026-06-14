@@ -10,8 +10,10 @@
 
 #include "app/color.h"
 #include "app/pref/preferences.h"
+#include "doc/fit_criteria.h"
 #include "doc/rgbmap_algorithm.h"
 #include "gfx/color_space.h"
+#include "pref.xml.h"
 
 namespace app {
 

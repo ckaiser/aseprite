@@ -8,11 +8,10 @@
 #define APP_UI_INCOMPAT_FILE_WINDOW_H_INCLUDED
 #pragma once
 
-#include "gfx/size.h"
-
-#include "incompat_file.xml.h"
-
 #include <string>
+
+#include "gfx/size.h"
+#include "incompat_file.xml.h"
 
 namespace app {
 

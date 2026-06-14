@@ -4,33 +4,32 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
+#include <vector>
 
 #include "app/commands/filters/color_curve_editor.h"
-
+#include "app/ui/expr_entry.h"
+#include "color_curve_point.xml.h"
 #include "filters/color_curve.h"
-#include "ui/alert.h"
-#include "ui/entry.h"
-#include "ui/manager.h"
+#include "gfx/border.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/size.h"
+#include "os/keys.h"
+#include "ui/button.h"
+#include "ui/cursor_type.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
 #include "ui/scale.h"
 #include "ui/size_hint_event.h"
 #include "ui/system.h"
-#include "ui/theme.h"
-#include "ui/view.h"
 #include "ui/widget.h"
-#include "ui/window.h"
-
-#include "color_curve_point.xml.h"
-
-#include <cmath>
-#include <cstdio>
-#include <cstdlib>
-#include <vector>
+#include "ui/widget_type.h"
 
 namespace app {
 

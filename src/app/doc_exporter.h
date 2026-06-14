@@ -9,6 +9,12 @@
 #define APP_DOC_EXPORTER_H_INCLUDED
 #pragma once
 
+#include <iosfwd>
+#include <memory>
+#include <string>
+#include <utility>
+#include <vector>
+
 #include "app/sprite_sheet_data_format.h"
 #include "app/sprite_sheet_type.h"
 #include "base/disable_copying.h"
@@ -20,12 +26,11 @@
 #include "doc/object_version.h"
 #include "gfx/fwd.h"
 #include "gfx/rect.h"
+#include "gfx/size.h"
 
-#include <iosfwd>
-#include <memory>
-#include <string>
-#include <utility>
-#include <vector>
+namespace base {
+class task_token;
+} // namespace base
 
 namespace doc {
 class Image;
@@ -39,6 +44,8 @@ namespace app {
 
 class Context;
 class Doc;
+enum class SpriteSheetDataFormat;
+enum class SpriteSheetType;
 
 class DocExporter {
 public:

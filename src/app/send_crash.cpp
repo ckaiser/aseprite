@@ -4,26 +4,20 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <exception>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/send_crash.h"
-
-#include "app/app.h"
 #include "app/console.h"
 #include "app/i18n/strings.h"
-#include "app/resource_finder.h"
+#include "app/send_crash.h"
 #include "app/task.h"
 #include "base/fs.h"
 #include "base/launcher.h"
-#include "fmt/format.h"
-#include "ui/alert.h"
-#include "ui/system.h"
-#include "ver/info.h"
-
+#include "obs/signal.h"
 #include "send_crash.xml.h"
+#include "ui/alert.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/link_label.h"
 
 namespace app {
 

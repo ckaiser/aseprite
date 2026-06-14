@@ -3,18 +3,24 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/tileset_selector.h"
-
-#include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
+#include "app/ui/button_set.h"
+#include "app/ui/expr_entry.h"
+#include "app/ui/tileset_selector.h"
 #include "doc/sprite.h"
+#include "doc/tileset.h"
 #include "doc/tilesets.h"
 #include "fmt/format.h"
+#include "obs/signal.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
+#include "ui/label.h"
 #include "ui/listitem.h"
 #include "ui/window.h"
 

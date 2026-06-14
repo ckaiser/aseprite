@@ -9,11 +9,11 @@
 #define APP_THUMBNAIL_GENERATOR_H_INCLUDED
 #pragma once
 
-#include "base/concurrent_queue.h"
-
 #include <memory>
 #include <mutex>
 #include <vector>
+
+#include "base/concurrent_queue.h"
 
 namespace base {
 class thread;
@@ -48,6 +48,7 @@ private:
   void startWorker();
 
   class Worker;
+
   using WorkerPtr = std::unique_ptr<Worker>;
   using WorkerList = std::vector<WorkerPtr>;
 

@@ -4,25 +4,32 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <stdlib.h>
+#include <string>
+#include <vector>
 
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
 #include "app/loop_tag.h"
 #include "app/match_words.h"
-#include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_customization_delegate.h"
-#include "app/ui/search_entry.h"
+#include "base/convert_to.h"
+#include "base/debug.h"
+#include "doc/frame.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
-#include "ui/combobox.h"
-#include "ui/window.h"
-
+#include "doc/tags.h"
 #include "goto_frame.xml.h"
+#include "obs/signal.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/entry.h"
 
 namespace app {
 

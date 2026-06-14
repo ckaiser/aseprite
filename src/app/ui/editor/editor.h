@@ -9,6 +9,10 @@
 #define APP_UI_EDITOR_H_INCLUDED
 #pragma once
 
+#include <exception>
+#include <memory>
+#include <set>
+
 #include "app/color.h"
 #include "app/doc.h"
 #include "app/doc_observer.h"
@@ -27,8 +31,13 @@
 #include "doc/frame.h"
 #include "doc/image_buffer.h"
 #include "doc/selected_objects.h"
+#include "doc/tile.h"
 #include "filters/tiled_mode.h"
+#include "gfx/color.h"
 #include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
 #include "obs/connection.h"
 #include "os/color_space.h"
 #include "render/projection.h"
@@ -38,14 +47,20 @@
 #include "ui/pointer_type.h"
 #include "ui/timer.h"
 #include "ui/widget.h"
+#include "ui/widget_type.h"
 
-#include <memory>
-#include <set>
+namespace render {
+class Zoom;
+} // namespace render
 
 namespace doc {
 class Layer;
 class MaskBoundaries;
 class Sprite;
+class Cel;
+class Image;
+class Mask;
+class Slice;
 } // namespace doc
 namespace gfx {
 class Region;
@@ -54,6 +69,8 @@ namespace ui {
 class Cursor;
 class Graphics;
 class View;
+class Message;
+class MouseMessage;
 } // namespace ui
 
 namespace app {
@@ -64,11 +81,15 @@ class EditorRender;
 class PixelsMovement;
 class Site;
 class Transformation;
+class Doc;
+class EditorDecorator;
+class EditorObserver;
 
 namespace tools {
 class Ink;
 class Pointer;
 class Tool;
+enum class ToolLoopModifiers;
 } // namespace tools
 
 enum class AutoScroll {

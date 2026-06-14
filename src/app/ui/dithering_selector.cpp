@@ -4,23 +4,34 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/dithering_selector.h"
+#include <algorithm>
+#include <exception>
+#include <vector>
 
 #include "app/app.h"
 #include "app/console.h"
 #include "app/extensions.h"
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
+#include "app/ui/dithering_selector.h"
 #include "app/ui/skin/skin_theme.h"
 #include "app/util/conversion_to_surface.h"
+#include "base/debug.h"
+#include "base/log.h"
+#include "doc/color.h"
 #include "doc/image.h"
 #include "doc/image_ref.h"
+#include "doc/object_id.h"
+#include "doc/palette.h"
+#include "doc/pixel_format.h"
 #include "doc/primitives.h"
+#include "gfx/color.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "os/paint.h"
+#include "os/sampling.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
 #include "render/dithering.h"
@@ -28,10 +39,11 @@
 #include "render/quantization.h"
 #include "ui/graphics.h"
 #include "ui/listitem.h"
+#include "ui/paint.h"
 #include "ui/paint_event.h"
+#include "ui/scale.h"
 #include "ui/size_hint_event.h"
-
-#include <algorithm>
+#include "ui/widget.h"
 
 namespace app {
 

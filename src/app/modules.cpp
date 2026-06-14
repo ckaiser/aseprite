@@ -3,15 +3,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/modules.h"
-
 #include "app/modules/gui.h"
 #include "app/modules/palettes.h"
+#include "base/exception.h"
+#include "base/log.h"
 
 namespace app {
 

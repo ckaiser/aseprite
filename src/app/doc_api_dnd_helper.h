@@ -8,6 +8,8 @@
 #define APP_DOC_API_DND_HELPER_H_INCLUDED
 #pragma once
 
+#include <memory>
+
 #include "app/doc.h"
 
 namespace app { namespace docapi {

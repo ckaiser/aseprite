@@ -4,24 +4,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <algorithm>
+#include <stdexcept>
+#include <utility>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/i18n/strings.h"
-
-#include "app/app.h"
 #include "app/extensions.h"
+#include "app/i18n/strings.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/resource_finder.h"
-#include "app/xml_document.h"
-#include "app/xml_exception.h"
 #include "base/debug.h"
 #include "base/fs.h"
+#include "base/log.h"
 #include "cfg/cfg.h"
-
-#include <algorithm>
+#include "fmt/format.h"
 
 namespace app {
 

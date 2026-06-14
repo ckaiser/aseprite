@@ -4,18 +4,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <stddef.h>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/app.h"
 #include "app/commands/command.h"
-#include "app/context_access.h"
-#include "app/modules/gui.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/site.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/status_bar.h"
-#include "app/ui/timeline/timeline.h"
 #include "doc/layer.h"
 #include "doc/sprite.h"
 #include "fmt/format.h"

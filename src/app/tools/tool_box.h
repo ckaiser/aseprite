@@ -15,12 +15,17 @@
 
 #include "app/i18n/xml_translator.h"
 #include "app/tools/tool.h"
+#include "app/tools/tool_group.h"
 
 namespace tinyxml2 {
 class XMLElement;
 }
 
 namespace app { namespace tools {
+class Controller;
+class Ink;
+class Intertwine;
+class PointShape;
 
 namespace WellKnownTools {
 extern const char* RectangularMarquee;

@@ -4,14 +4,23 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <cmath>
+#include <functional>
+#include <list>
+#include <map>
+#include <memory>
+#include <stddef.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/params.h"
 #include "app/context.h"
 #include "app/file_selector.h"
 #include "app/i18n/strings.h"
@@ -21,28 +30,57 @@
 #include "app/tools/tool.h"
 #include "app/tools/tool_box.h"
 #include "app/ui/app_menuitem.h"
+#include "app/ui/button_set.h"
+#include "app/ui/key.h"
+#include "app/ui/key_context.h"
 #include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/pref_widget.h"
 #include "app/ui/search_entry.h"
 #include "app/ui/select_shortcut.h"
 #include "app/ui/separator_in_view.h"
 #include "app/ui/skin/skin_theme.h"
+#include "base/debug.h"
+#include "base/paths.h"
 #include "base/pi.h"
 #include "base/scoped_value.h"
+#include "base/string.h"
+#include "fmt/base.h"
+#include "gfx/border.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "keyboard_shortcuts.xml.h"
+#include "obs/connection.h"
+#include "obs/signal.h"
+#include "text/font.h"
 #include "ui/alert.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/display.h"
 #include "ui/fit_bounds.h"
 #include "ui/graphics.h"
+#include "ui/label.h"
+#include "ui/listbox.h"
 #include "ui/listitem.h"
+#include "ui/manager.h"
+#include "ui/menu.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/paint_event.h"
+#include "ui/register_message.h"
+#include "ui/scale.h"
 #include "ui/separator.h"
+#include "ui/shortcut.h"
 #include "ui/size_hint_event.h"
+#include "ui/slider.h"
 #include "ui/splitter.h"
-
-#include "keyboard_shortcuts.xml.h"
-
-#include <algorithm>
-#include <map>
-#include <memory>
+#include "ui/view.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
+#include "ui/window.h"
 
 #define KEYBOARD_FILENAME_EXTENSION "aseprite-keys"
 

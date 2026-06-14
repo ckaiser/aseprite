@@ -4,21 +4,25 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/doc_access.h"
 #include "app/file_selector.h"
 #include "app/i18n/strings.h"
 #include "app/util/msk_file.h"
-#include "base/fs.h"
+#include "base/paths.h"
+#include "fmt/base.h"
 #include "ui/alert.h"
 
 namespace app {
+class Command;
 
 struct SaveMaskParams : public NewParams {
   Param<bool> ui{ this, true, "ui" };

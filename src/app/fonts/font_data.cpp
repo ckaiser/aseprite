@@ -4,21 +4,17 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <utility>
 
 #include "app/fonts/font_data.h"
-
+#include "base/debug.h"
+#include "base/ref.h"
 #include "text/font.h"
 #include "text/font_mgr.h"
+#include "text/font_type.h"
 #include "text/sprite_sheet_font.h"
 #include "text/typeface.h"
-#include "ui/manager.h"
 #include "ui/scale.h"
-
-#include <set>
 
 #define USE_CACHE 1
 

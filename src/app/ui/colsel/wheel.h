@@ -9,7 +9,12 @@
 #define APP_UI_COLSEL_WHEEL_H_INCLUDED
 #pragma once
 
+#include <string>
+
+#include "app/color.h"
 #include "app/ui/colsel/color_selector.h"
+#include "gfx/fwd.h"
+#include "gfx/rect.h"
 
 namespace app::colsel {
 

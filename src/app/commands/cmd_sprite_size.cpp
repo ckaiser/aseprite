@@ -4,41 +4,56 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <memory>
+#include <vector>
 
 #include "app/cmd/replace_tileset.h"
 #include "app/cmd/set_cel_bounds.h"
 #include "app/cmd/set_slice_key.h"
-#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
-#include "app/commands/params.h"
+#include "app/context.h"
+#include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
 #include "app/doc_api.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/modules/gui.h"
-#include "app/modules/palettes.h"
+#include "app/site.h"
 #include "app/sprite_job.h"
+#include "app/tx.h"
+#include "app/ui/expr_entry.h"
 #include "app/util/resize_image.h"
-#include "base/convert_to.h"
 #include "doc/algorithm/resize_image.h"
 #include "doc/cel.h"
 #include "doc/cels_range.h"
+#include "doc/grid.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/mask.h"
 #include "doc/primitives.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
+#include "doc/tileset.h"
 #include "doc/tilesets.h"
-#include "ui/ui.h"
-
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
 #include "sprite_size.xml.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
 
-#include <algorithm>
+namespace app {
+class Command;
+} // namespace app
 
 #define PERC_FORMAT "%.4g"
 

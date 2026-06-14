@@ -3,28 +3,16 @@
 //
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/pref/preferences.h"
-#include "app/ui/alpha_entry.h"
-#include "base/scoped_value.h"
-#include "gfx/rect.h"
-#include "gfx/region.h"
-#include "ui/fit_bounds.h"
-#include "ui/manager.h"
-#include "ui/message.h"
-#include "ui/popup_window.h"
-#include "ui/scale.h"
-#include "ui/size_hint_event.h"
-#include "ui/slider.h"
-#include "ui/system.h"
-#include "ui/theme.h"
-
 #include <algorithm>
 #include <cmath>
+#include <memory>
+#include <string>
+
+#include "app/ui/alpha_entry.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
+#include "pref.xml.h"
+#include "ui/slider.h"
 
 namespace app {
 

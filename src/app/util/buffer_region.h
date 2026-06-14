@@ -11,6 +11,10 @@
 #include "base/buffer.h"
 #include "gfx/fwd.h"
 
+namespace gfx {
+class Region;
+} // namespace gfx
+
 namespace doc {
 class Image;
 }

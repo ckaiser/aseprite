@@ -4,36 +4,36 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/configure_timeline_popup.h"
+#include <string>
 
 #include "app/app.h"
-#include "app/commands/commands.h"
-#include "app/context.h"
-#include "app/context_access.h"
-#include "app/doc.h"
-#include "app/find_widget.h"
-#include "app/load_widget.h"
-#include "app/loop_tag.h"
-#include "app/transaction.h"
+#include "app/pref/option.h"
+#include "app/ui/alpha_slider.h"
+#include "app/ui/button_set.h"
+#include "app/ui/configure_timeline_popup.h"
 #include "app/ui/dock.h"
+#include "app/ui/expr_entry.h"
 #include "app/ui/main_window.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/ui_context.h"
 #include "base/scoped_value.h"
-#include "ui/box.h"
+#include "gfx/border.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "pref.xml.h"
+#include "render/onionskin_position.h"
+#include "timeline_conf.xml.h"
+#include "ui/base.h"
 #include "ui/button.h"
+#include "ui/grid.h"
 #include "ui/manager.h"
 #include "ui/message.h"
+#include "ui/message_type.h"
 #include "ui/scale.h"
+#include "ui/separator.h"
 #include "ui/slider.h"
-#include "ui/theme.h"
-
-#include "timeline_conf.xml.h"
 
 namespace app {
 

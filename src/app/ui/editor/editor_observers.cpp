@@ -4,14 +4,11 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/editor/editor_observers.h"
+#include <utility>
+#include <vector>
 
 #include "app/ui/editor/editor_observer.h"
+#include "app/ui/editor/editor_observers.h"
 
 namespace app {
 

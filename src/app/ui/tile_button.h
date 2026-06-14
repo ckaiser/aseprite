@@ -12,6 +12,8 @@
 #include "app/context_observer.h"
 #include "app/ui/tile_source.h"
 #include "doc/tile.h"
+#include "gfx/fwd.h"
+#include "obs/signal.h"
 #include "ui/button.h"
 
 namespace app {

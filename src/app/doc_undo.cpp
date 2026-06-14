@@ -4,27 +4,20 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc_undo.h"
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/cmd.h"
 #include "app/cmd_transaction.h"
-#include "app/console.h"
-#include "app/context.h"
+#include "app/doc_undo.h"
 #include "app/doc_undo_observer.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
-#include "base/mem_utils.h"
+#include "base/debug.h"
 #include "base/scoped_value.h"
 #include "undo/undo_history.h"
 #include "undo/undo_state.h"
-
-#include <cassert>
-#include <stdexcept>
 
 #define UNDO_TRACE(...)
 #define STATE_CMD(state) (static_cast<CmdTransaction*>(state->cmd()))

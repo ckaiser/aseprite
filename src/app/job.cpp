@@ -4,22 +4,18 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/job.h"
+#include <atomic>
+#include <stddef.h>
 
 #include "app/app.h"
 #include "app/console.h"
-#include "app/context.h"
 #include "app/i18n/strings.h"
+#include "app/job.h"
+#include "base/debug.h"
+#include "fmt/base.h"
+#include "obs/signal.h"
 #include "ui/alert.h"
-#include "ui/widget.h"
-#include "ui/window.h"
-
-#include <atomic>
+#include "ui/timer.h"
 
 static const int kMonitoringPeriod = 100;
 static std::atomic<int> g_runningJobs(0);

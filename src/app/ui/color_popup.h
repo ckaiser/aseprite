@@ -20,13 +20,21 @@
 #include "app/ui/popup_window_pin.h"
 #include "obs/connection.h"
 #include "obs/signal.h"
+#include "ui/box.h"
 #include "ui/grid.h"
 #include "ui/label.h"
+#include "ui/mouse_button.h"
 #include "ui/tooltips.h"
 #include "ui/view.h"
 
+namespace ui {
+class View;
+class Widget;
+} // namespace ui
+
 namespace app {
 class PaletteIndexChangeEvent;
+struct ColorButtonOptions;
 
 class ColorPopup : public PopupWindowPin,
                    public PaletteViewDelegate {
@@ -64,6 +72,7 @@ private:
   bool inEditMode();
 
   class SimpleColors;
+
   class CustomButtonSet : public ButtonSet {
   public:
     CustomButtonSet();

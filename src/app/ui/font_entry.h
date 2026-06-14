@@ -8,18 +8,28 @@
 #define APP_UI_FONT_ENTRY_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+#include <vector>
+
 #include "app/fonts/font_info.h"
 #include "app/ui/button_set.h"
+#include "app/ui/font_popup.h"
 #include "app/ui/search_entry.h"
+#include "obs/signal.h"
+#include "text/font_style.h"
 #include "ui/box.h"
 #include "ui/button.h"
 #include "ui/combobox.h"
+#include "ui/entry.h"
 #include "ui/int_entry.h"
 #include "ui/paint.h"
+#include "ui/slider.h"
 #include "ui/tooltips.h"
 
-#include <memory>
-#include <string>
+namespace os {
+class Paint;
+} // namespace os
 
 namespace app {
 class FontPopup;

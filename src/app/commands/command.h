@@ -9,11 +9,11 @@
 #define APP_COMMANDS_COMMAND_H_INCLUDED
 #pragma once
 
+#include <string>
+
 #include "app/commands/command_factory.h"
 #include "app/commands/command_ids.h"
 #include "app/ui/key_context.h"
-
-#include <string>
 
 namespace app {
 

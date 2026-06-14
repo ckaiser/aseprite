@@ -4,43 +4,52 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc.h"
+#include <limits>
+#include <map>
+#include <stddef.h>
+#include <string>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
+#include "app/color.h"
 #include "app/color_target.h"
 #include "app/color_utils.h"
 #include "app/context.h"
+#include "app/doc.h"
 #include "app/doc_api.h"
 #include "app/doc_event.h"
 #include "app/doc_observer.h"
 #include "app/doc_undo.h"
+#include "app/docs.h"
 #include "app/file/format_options.h"
 #include "app/flatten.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/util/cel_ops.h"
-#include "base/memory.h"
+#include "base/debug.h"
+#include "base/log.h"
 #include "doc/cel.h"
+#include "doc/cel_data.h"
+#include "doc/cel_list.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/mask.h"
 #include "doc/mask_boundaries.h"
+#include "doc/object_id.h"
 #include "doc/palette.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
+#include "doc/sprites.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
 #include "doc/tileset.h"
 #include "doc/tilesets.h"
+#include "gfx/rect.h"
+#include "obs/signal.h"
 #include "os/system.h"
 #include "os/window.h"
-#include "ui/system.h"
-
-#include <limits>
-#include <map>
 
 #define DOC_TRACE(...) // TRACEARGS(__VA_ARGS__)
 

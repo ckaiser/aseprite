@@ -3,26 +3,40 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <limits>
+#include <string>
 
 #include "app/app.h"
-#include "app/commands/cmd_set_palette.h"
-#include "app/commands/commands.h"
+#include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
 #include "app/context.h"
+#include "app/context_flags.h"
 #include "app/i18n/strings.h"
 #include "app/modules/palettes.h"
 #include "app/site.h"
+#include "base/debug.h"
 #include "doc/cel.h"
+#include "doc/color.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
 #include "doc/image.h"
+#include "doc/image_bits.h"
+#include "doc/image_iterator.h"
+#include "doc/image_traits.h"
 #include "doc/layer.h"
 #include "doc/layer_tilemap.h"
 #include "doc/octree_map.h"
 #include "doc/palette.h"
+#include "doc/palette_picks.h"
+#include "doc/pixel_format.h"
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
+#include "doc/tile.h"
+#include "doc/tileset.h"
+#include "view/range.h"
 
 namespace app {
 

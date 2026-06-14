@@ -8,8 +8,12 @@
 #define APP_UI_DITHERING_SELECTOR_H_INCLUDED
 #pragma once
 
+#include <string>
+
+#include "gfx/size.h"
 #include "obs/connection.h"
 #include "render/dithering_algorithm.h"
+#include "render/dithering_matrix.h"
 #include "render/ordered_dither.h"
 #include "ui/box.h"
 #include "ui/combobox.h"

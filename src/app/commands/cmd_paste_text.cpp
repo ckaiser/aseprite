@@ -4,38 +4,57 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <exception>
+#include <stddef.h>
+#include <string>
 
 #include "app/app.h"
 #include "app/cmd/copy_region.h"
-#include "app/cmd/patch_cel.h"
+#include "app/color.h"
 #include "app/color_utils.h"
-#include "app/commands/command.h"
-#include "app/commands/commands.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/new_params.h"
 #include "app/console.h"
 #include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/fonts/font_info.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
 #include "app/tx.h"
+#include "app/ui/color_button.h"
 #include "app/ui/editor/editor.h"
+#include "app/ui/font_entry.h"
 #include "app/ui/timeline/timeline.h"
 #include "app/util/render_text.h"
+#include "base/debug.h"
+#include "doc/blend_mode.h"
+#include "doc/cel.h"
 #include "doc/image.h"
 #include "doc/image_ref.h"
+#include "doc/primitives.h"
+#include "doc/sprite.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/region_skia.h"
+#include "os/skia/paint.h"
+#include "paste_text.xml.h"
+#include "render/bg_options.h"
 #include "render/dithering.h"
 #include "render/quantization.h"
-#include "render/rasterize.h"
 #include "render/render.h"
-#include "ui/manager.h"
+#include "ui/button.h"
+#include "ui/entry.h"
+#include "ui/paint.h"
 
-#include "paste_text.xml.h"
+namespace doc {
+class RgbMap;
+} // namespace doc
 
 namespace app {
+class Command;
 
 static std::string last_text_used;
 

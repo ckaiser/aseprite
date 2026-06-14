@@ -4,12 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/skin/skin_theme.h"
+#include <algorithm>
+#include <cstdlib>
+#include <cstring>
+#include <exception>
+#include <memory>
+#include <stdint.h>
+#include <vector>
 
 #include "app/app.h"
 #include "app/console.h"
@@ -17,41 +18,62 @@
 #include "app/fonts/font_data.h"
 #include "app/fonts/font_info.h"
 #include "app/fonts/font_path.h"
-#include "app/modules/gui.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/resource_finder.h"
 #include "app/ui/app_menuitem.h"
-#include "app/ui/keyboard_shortcuts.h"
+#include "app/ui/key.h"
 #include "app/ui/skin/skin_property.h"
 #include "app/ui/skin/skin_slider_property.h"
-#include "app/util/render_text.h"
+#include "app/ui/skin/skin_theme.h"
 #include "app/xml_document.h"
-#include "app/xml_exception.h"
+#include "base/codepoint.h"
+#include "base/debug.h"
+#include "base/exception.h"
 #include "base/fs.h"
 #include "base/log.h"
-#include "base/string.h"
 #include "base/utf8_decode.h"
 #include "fmt/format.h"
 #include "gfx/border.h"
 #include "gfx/point.h"
 #include "gfx/rect.h"
+#include "gfx/region_skia.h"
 #include "gfx/size.h"
+#include "os/skia/paint.h"
 #include "os/surface.h"
 #include "os/system.h"
 #include "text/draw_text.h"
 #include "text/font.h"
+#include "text/font_hinting.h"
 #include "text/font_metrics.h"
+#include "text/font_mgr.h"
+#include "text/font_style.h"
 #include "text/font_style_set.h"
+#include "text/font_type.h"
 #include "text/text_blob.h"
-#include "ui/intern.h"
-#include "ui/ui.h"
-
+#include "text/typeface.h"
 #include "tinyxml2.h"
-
-#include <algorithm>
-#include <cstdlib>
-#include <cstring>
-#include <memory>
+#include "ui/base.h"
+#include "ui/button.h"
+#include "ui/combobox.h"
+#include "ui/cursor.h"
+#include "ui/entry.h"
+#include "ui/graphics.h"
+#include "ui/grid.h"
+#include "ui/manager.h"
+#include "ui/menu.h"
+#include "ui/paint.h"
+#include "ui/paint_event.h"
+#include "ui/popup_window.h"
+#include "ui/scroll_bar.h"
+#include "ui/slider.h"
+#include "ui/style.h"
+#include "ui/textbox.h"
+#include "ui/tooltips.h"
+#include "ui/viewport.h"
+#include "ui/widget.h"
+#include "ui/widget_type.h"
+#include "ui/window.h"
 
 #define BGCOLOR (getWidgetBgColor(widget))
 

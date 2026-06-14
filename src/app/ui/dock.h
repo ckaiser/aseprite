@@ -8,15 +8,21 @@
 #define APP_UI_DOCK_H_INCLUDED
 #pragma once
 
-#include "app/ui/dockable.h"
-#include "gfx/rect.h"
-#include "gfx/size.h"
-#include "ui/widget.h"
-
 #include <array>
 #include <functional>
+#include <memory>
 #include <string>
 #include <vector>
+
+#include "app/ui/dockable.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "ui/base.h"
+#include "ui/layer.h"
+#include "ui/widget.h"
 
 namespace app {
 

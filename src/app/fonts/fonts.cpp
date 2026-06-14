@@ -3,16 +3,15 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/fonts/fonts.h"
+#include <utility>
 
 #include "app/fonts/font_data.h"
 #include "app/fonts/font_info.h"
+#include "app/fonts/fonts.h"
+#include "base/debug.h"
+#include "text/font.h"
 #include "text/font_mgr.h"
+#include "text/typeface.h"
 
 namespace app {
 

@@ -7,29 +7,36 @@
 
 // Uncomment this in case you want to debug range ops
 // #define TRACE_RANGE_OPS
+#include <algorithm>
+#include <stddef.h>
+#include <stdexcept>
+#include <string>
+#include <vector>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/doc_range_ops.h"
-
-#include "app/app.h"
 #include "app/context_access.h"
+#include "app/doc.h"
 #include "app/doc_api.h"
 #include "app/doc_range.h"
+#include "app/doc_range_ops.h"
+#include "app/drop_frame_place.h"
 #include "app/transaction.h"
 #include "app/tx.h"
+#include "base/debug.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
+#include "doc/selected_frames.h"
+#include "doc/selected_layers.h"
 #include "doc/sprite.h"
-
-#include <stdexcept>
+#include "doc/tags.h"
 
 #ifdef TRACE_RANGE_OPS
   #include <iostream>
 #endif
 
 namespace app {
+class Context;
 
 enum Op { Move, Copy };
 

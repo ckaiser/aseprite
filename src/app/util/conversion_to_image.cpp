@@ -3,17 +3,16 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <stdint.h>
 
 #include "app/util/conversion_to_image.h"
-
+#include "doc/color.h"
+#include "doc/image.h"
 #include "doc/pixel_format.h"
+#include "gfx/color.h"
+#include "gfx/rect.h"
 #include "os/surface.h"
-
-#include <memory>
+#include "os/surface_format.h"
 
 namespace app {
 

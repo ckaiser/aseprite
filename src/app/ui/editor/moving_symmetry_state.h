@@ -10,9 +10,20 @@
 
 #include "app/pref/preferences.h"
 #include "app/ui/editor/standby_state.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+
+namespace ui {
+class MouseMessage;
+} // namespace ui
 
 namespace app {
 class Editor;
+namespace gen {
+enum class SymmetryMode;
+} // namespace gen
+template<typename T>
+class Option;
 
 class MovingSymmetryState : public StandbyState {
 public:

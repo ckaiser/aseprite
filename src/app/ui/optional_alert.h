@@ -8,11 +8,13 @@
 #define APP_UI_OPTIONAL_ALERT_H_INCLUDED
 #pragma once
 
-#include "app/pref/option.h"
-
 #include <string>
 
+#include "app/pref/option.h"
+
 namespace app {
+template<typename T>
+class Option;
 
 class OptionalAlert {
 public:

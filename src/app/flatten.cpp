@@ -4,20 +4,19 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <memory>
+#include <vector>
 
 #include "doc/cel.h"
 #include "doc/frame.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/layer.h"
+#include "doc/object_type.h"
 #include "doc/sprite.h"
+#include "gfx/clip.h"
 #include "gfx/rect.h"
 #include "render/render.h"
-
-#include <memory>
 
 namespace app {
 

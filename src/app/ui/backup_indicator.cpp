@@ -4,15 +4,9 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
 #include "app/ui/backup_indicator.h"
-
 #include "app/ui/status_bar.h"
-#include "ui/manager.h"
+#include "obs/signal.h"
 
 namespace app {
 

@@ -4,29 +4,32 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/layer_frame_comboboxes.h"
+#include <algorithm>
+#include <assert.h>
 
 #include "app/doc.h"
 #include "app/i18n/strings.h"
 #include "app/match_words.h"
 #include "app/restore_visible_layers.h"
 #include "app/site.h"
+#include "app/ui/layer_frame_comboboxes.h"
 #include "base/fs.h"
 #include "doc/anidir.h"
+#include "doc/frame.h"
+#include "doc/frames_iterators.h"
 #include "doc/frames_sequence.h"
 #include "doc/layer.h"
+#include "doc/layer_list.h"
 #include "doc/playback.h"
 #include "doc/selected_frames.h"
 #include "doc/selected_layers.h"
 #include "doc/slice.h"
+#include "doc/slices.h"
 #include "doc/sprite.h"
 #include "doc/tag.h"
+#include "doc/tags.h"
 #include "ui/combobox.h"
+#include "ui/widget.h"
 
 namespace app {
 

@@ -4,30 +4,56 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "ui/ui.h"
-
 #include "app/app.h"
 #include "app/commands/command.h"
-#include "app/commands/commands.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
+#include "app/commands/params.h"
 #include "app/context.h"
-#include "app/modules/gfx.h"
+#include "app/context_flags.h"
+#include "app/doc.h"
+#include "app/extra_cel.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/editor/editor_render.h"
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/main_window.h"
 #include "app/ui/preview_editor.h"
-#include "app/ui/status_bar.h"
+#include "base/base.h"
+#include "base/debug.h"
+#include "doc/color.h"
 #include "doc/palette.h"
+#include "doc/pixel_format.h"
 #include "doc/sprite.h"
-#include "gfx/matrix.h"
+#include "filters/tiled_mode.h"
+#include "gfx/border.h"
+#include "gfx/clip.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/matrix_skia.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "include/core/SkAlphaType.h"
+#include "include/core/SkBitmap.h"
+#include "os/keys.h"
 #include "os/surface.h"
 #include "os/system.h"
+#include "os/window.h"
+#include "render/projection.h"
+#include "ui/base.h"
+#include "ui/cursor_type.h"
+#include "ui/display.h"
+#include "ui/graphics.h"
+#include "ui/keys.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint_event.h"
+#include "ui/scale.h"
+#include "ui/system.h"
+#include "ui/view.h"
+#include "ui/window.h"
 
 #if LAF_SKIA
   #include "os/skia/skia_surface.h"
@@ -35,6 +61,7 @@
 
 #include <cmath>
 #include <cstring>
+#include <string>
 
 #define PREVIEW_TILED         1
 #define PREVIEW_FIT_ON_SCREEN 2

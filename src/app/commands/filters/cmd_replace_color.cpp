@@ -4,39 +4,44 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
+#include <memory>
+#include <string>
 
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include <stdio.h>
-
-#include "app/app.h"
 #include "app/color.h"
 #include "app/color_utils.h"
-#include "app/commands/command.h"
-#include "app/commands/commands.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/filters/filter_manager_impl.h"
 #include "app/commands/filters/filter_window.h"
 #include "app/commands/new_params.h"
 #include "app/context.h"
+#include "app/context_flags.h"
 #include "app/find_widget.h"
 #include "app/i18n/strings.h"
 #include "app/ini_file.h"
 #include "app/load_widget.h"
+#include "app/pref/option.h"
 #include "app/pref/preferences.h"
 #include "app/site.h"
-#include "app/ui/color_bar.h"
 #include "app/ui/color_button.h"
+#include "app/ui/key.h"
 #include "app/ui/keyboard_shortcuts.h"
-#include "app/ui_context.h"
-#include "doc/image.h"
-#include "doc/mask.h"
+#include "doc/pixel_format.h"
 #include "doc/sprite.h"
 #include "filters/replace_color_filter.h"
-#include "ui/ui.h"
+#include "filters/target.h"
+#include "obs/signal.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/slider.h"
+#include "ui/widget.h"
+
+namespace doc {
+class Layer;
+} // namespace doc
 
 namespace app {
+class Command;
 
 struct ReplaceColorParams : public NewParams {
   Param<bool> ui{ this, true, "ui" };

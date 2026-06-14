@@ -4,12 +4,13 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/keyboard_shortcuts.h"
+#include <algorithm>
+#include <cstdlib>
+#include <list>
+#include <memory>
+#include <set>
+#include <utility>
+#include <vector>
 
 #include "app/app.h"
 #include "app/app_menus.h"
@@ -24,20 +25,23 @@
 #include "app/tools/tool_box.h"
 #include "app/ui/editor/editor.h"
 #include "app/ui/key.h"
-#include "app/ui/timeline/timeline.h"
+#include "app/ui/keyboard_shortcuts.h"
 #include "app/ui_context.h"
 #include "app/xml_document.h"
-#include "app/xml_exception.h"
+#include "base/debug.h"
 #include "base/fs.h"
+#include "base/log.h"
+#include "doc/selected_frames.h"
 #include "fmt/format.h"
-#include "ui/message.h"
-#include "ui/shortcut.h"
-
+#include "os/keys.h"
 #include "tinyxml2.h"
+#include "ui/keys.h"
+#include "ui/shortcut.h"
+#include "view/range.h"
 
-#include <algorithm>
-#include <set>
-#include <vector>
+namespace ui {
+class Message;
+} // namespace ui
 
 #define XML_KEYBOARD_FILE_VERSION "1"
 

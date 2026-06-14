@@ -9,6 +9,9 @@
 #define APP_UI_COLOR_BAR_H_INCLUDED
 #pragma once
 
+#include <memory>
+#include <string>
+
 #include "app/color.h"
 #include "app/context_observer.h"
 #include "app/doc_observer.h"
@@ -26,17 +29,30 @@
 #include "doc/palette_gradient_type.h"
 #include "doc/pixel_format.h"
 #include "doc/sort_palette.h"
+#include "doc/tile.h"
 #include "doc/tileset.h"
+#include "gfx/fwd.h"
 #include "obs/connection.h"
 #include "obs/signal.h"
+#include "ui/base.h"
 #include "ui/box.h"
 #include "ui/button.h"
+#include "ui/mouse_button.h"
 #include "ui/splitter.h"
+#include "ui/timer.h"
 #include "ui/view.h"
+
+namespace doc {
+class Palette;
+class Tileset;
+enum class GradientType;
+enum class SortPaletteBy;
+} // namespace doc
 
 namespace ui {
 class TooltipManager;
-}
+class Message;
+} // namespace ui
 
 namespace app {
 class ColorButton;
@@ -44,6 +60,7 @@ class CommandExecutionEvent;
 class PaletteIndexChangeEvent;
 class PalettePopup;
 class PalettesLoader;
+class Doc;
 
 class ColorBar : public ui::Box,
                  public PaletteViewDelegate,

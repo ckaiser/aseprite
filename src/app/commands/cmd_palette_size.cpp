@@ -4,21 +4,26 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
+#include <algorithm>
+#include <limits>
+#include <string>
 
 #include "app/cmd/set_palette.h"
 #include "app/commands/command.h"
+#include "app/commands/command_factory.h"
+#include "app/commands/command_ids.h"
 #include "app/commands/params.h"
+#include "app/context.h"
 #include "app/context_access.h"
+#include "app/context_flags.h"
+#include "app/transaction.h"
 #include "app/tx.h"
+#include "app/ui/expr_entry.h"
+#include "base/debug.h"
+#include "doc/frame.h"
 #include "doc/palette.h"
-
 #include "palette_size.xml.h"
-
-#include <limits>
+#include "ui/button.h"
 
 namespace app {
 

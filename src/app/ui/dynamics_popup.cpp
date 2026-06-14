@@ -3,31 +3,51 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/dynamics_popup.h"
+#include <algorithm>
+#include <memory>
 
 #include "app/app.h"
-#include "app/i18n/strings.h"
-#include "app/tools/tool_box.h"
+#include "app/pref/option.h"
+#include "app/pref/preferences.h"
 #include "app/ui/dithering_selector.h"
+#include "app/ui/dynamics_popup.h"
+#include "app/ui/skin/skin_part.h"
 #include "app/ui/skin/skin_theme.h"
-#include "os/surface.h"
-#include "ui/fit_bounds.h"
-#include "ui/message.h"
-#include "ui/paint_event.h"
-#include "ui/scale.h"
-#include "ui/size_hint_event.h"
-#include "ui/widget.h"
-
+#include "base/base.h"
 #include "dynamics.xml.h"
-
-#include <algorithm>
+#include "gfx/border.h"
+#include "gfx/color.h"
+#include "gfx/fwd.h"
+#include "gfx/point.h"
+#include "gfx/rect.h"
+#include "gfx/size.h"
+#include "obs/signal.h"
+#include "os/pointer_type.h"
+#include "os/surface.h"
+#include "render/dithering_matrix.h"
+#include "ui/base.h"
+#include "ui/box.h"
+#include "ui/button.h"
+#include "ui/graphics.h"
+#include "ui/grid.h"
+#include "ui/label.h"
+#include "ui/link_label.h"
+#include "ui/manager.h"
+#include "ui/message.h"
+#include "ui/message_type.h"
+#include "ui/paint_event.h"
+#include "ui/pointer_type.h"
+#include "ui/scale.h"
+#include "ui/separator.h"
+#include "ui/size_hint_event.h"
+#include "ui/slider.h"
+#include "ui/widget.h"
+#include "ui/window.h"
 
 namespace app {
+namespace tools {
+class Tool;
+} // namespace tools
 
 using namespace ui;
 using namespace skin;

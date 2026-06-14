@@ -3,24 +3,21 @@
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
-
-#ifdef HAVE_CONFIG_H
-  #include "config.h"
-#endif
-
-#include "app/ui/user_data_view.h"
+#include <string>
+#include <vector>
 
 #include "app/color.h"
 #include "app/color_utils.h"
-#include "app/pref/preferences.h"
 #include "app/ui/color_button.h"
+#include "app/ui/user_data_view.h"
 #include "base/scoped_value.h"
+#include "doc/pixel_format.h"
 #include "doc/user_data.h"
 #include "ui/base.h"
-#include "ui/entry.h"
 #include "ui/grid.h"
 #include "ui/label.h"
-#include "ui/widget.h"
+#include "ui/textedit.h"
+#include "ui/view.h"
 
 namespace app {
 
