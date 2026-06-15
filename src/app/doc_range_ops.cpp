@@ -18,6 +18,7 @@
 #include "app/context_access.h"
 #include "app/doc_api.h"
 #include "app/doc_range.h"
+#include "app/i18n/strings.h"
 #include "app/transaction.h"
 #include "app/tx.h"
 #include "doc/layer.h"
@@ -460,7 +461,7 @@ void reverse_frames(Doc* doc, const DocRange& range)
   const app::Context* context = static_cast<app::Context*>(doc->context());
   const ContextReader reader(context);
   ContextWriter writer(reader);
-  Tx tx(writer, "Reverse Frames");
+  Tx tx(writer, Strings::commands_ReverseFrames());
   DocApi api = doc->getApi(tx);
   Sprite* sprite = doc->sprite();
   LayerList layers;
