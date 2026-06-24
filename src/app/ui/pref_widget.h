@@ -47,6 +47,7 @@ public:
 
       // Load option value
       this->setSelected((*m_option)());
+      m_modifiedByUser = false;
     }
   }
 
@@ -73,6 +74,12 @@ protected:
   void onClick() override
   {
     Base::onClick();
+    m_modifiedByUser = true;
+  }
+
+  void onSelect(bool selected) override
+  {
+    Base::onSelect(selected);
     m_modifiedByUser = true;
   }
 
