@@ -1,5 +1,5 @@
 // Aseprite Document Library
-// Copyright (c) 2019-2025  Igara Studio S.A.
+// Copyright (c) 2019-present  Igara Studio S.A.
 // Copyright (c) 2001-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -13,6 +13,7 @@
 
 #include "doc/algorithm/rotsprite.h"
 #include "doc/image.h"
+#include "doc/image_ref.h"
 #include "doc/palette.h"
 #include "doc/primitives_fast.h"
 #include "doc/rgbmap.h"
@@ -41,17 +42,22 @@ void resize_image_nearest(const Image* src, Image* dst)
   }
 }
 
-void resize_image(Image* src,
-                  Image* dst,
-                  const ResizeMethod method,
-                  const Palette* pal,
-                  const RgbMap* rgbmap,
-                  const color_t maskColor)
+void ResizeImage::operator()(Image* src, Image* dst) const
 {
+  // Just to release the "src" temporal copy automatically if we create one.
+  ImageRef srcCopy;
+
   // For resize methods that will merge neighbor pixels, we have to
-  // call fixup_image_transparent_colors().
-  if (method != RESIZE_METHOD_NEAREST_NEIGHBOR)
-    fixup_image_transparent_colors(src);
+  // call prepareTransparentPixels().
+  if (method != RESIZE_METHOD_NEAREST_NEIGHBOR) {
+    // Create a copy of "src" image if it's required.
+    if (copySrc) {
+      srcCopy.reset(Image::createCopy(src, srcTmpBuffer));
+      src = srcCopy.get();
+    }
+
+    prepareTransparentPixels(src);
+  }
 
   switch (method) {
     // TODO optimize this
@@ -77,8 +83,11 @@ void resize_image(Image* src,
 
       // We cannot do interpolations between RGB values on indexed
       // images without a palette/rgbmap.
-      if (dst->pixelFormat() == IMAGE_INDEXED && (!pal || !rgbmap)) {
-        resize_image(src, dst, RESIZE_METHOD_NEAREST_NEIGHBOR, pal, rgbmap, maskColor);
+      if (dst->pixelFormat() == IMAGE_INDEXED && (!palette || !rgbMap)) {
+        ResizeImage resize2 = *this;
+        resize2.method = RESIZE_METHOD_NEAREST_NEIGHBOR;
+        resize2.copySrc = false;
+        resize2(src, dst);
         return;
       }
 
@@ -145,9 +154,9 @@ void resize_image(Image* src,
               // Convert index to RGBA values
               for (int i = 0; i < 4; ++i) {
                 if (color[i] == maskColor)
-                  color[i] = pal->getEntry(color[i]) & rgba_rgb_mask; // Set alpha = 0
+                  color[i] = palette->getEntry(color[i]) & rgba_rgb_mask; // Set alpha = 0
                 else
-                  color[i] = pal->getEntry(color[i]);
+                  color[i] = palette->getEntry(color[i]);
               }
 
               int r = int((rgba_getr(color[0]) * u2 + rgba_getr(color[1]) * u1) * v2 +
@@ -158,7 +167,7 @@ void resize_image(Image* src,
                           (rgba_getb(color[2]) * u2 + rgba_getb(color[3]) * u1) * v1);
               int a = int((rgba_geta(color[0]) * u2 + rgba_geta(color[1]) * u1) * v2 +
                           (rgba_geta(color[2]) * u2 + rgba_geta(color[3]) * u1) * v1);
-              dst_color = rgbmap->mapColor(r, g, b, a);
+              dst_color = rgbMap->mapColor(r, g, b, a);
               break;
             }
           }
@@ -188,12 +197,17 @@ void resize_image(Image* src,
     }
   }
   if (method != RESIZE_METHOD_NEAREST_NEIGHBOR) {
-    remove_fake_transparent_colors(src);
-    remove_fake_transparent_colors(dst);
+    // Restoring "src" pixels makes sense only if we didn't make a
+    // copy of the "src" (in other case the copy is disposable).
+    if (!srcCopy)
+      flattenTransparentPixels(src);
+
+    flattenTransparentPixels(dst);
   }
 }
 
-void fixup_image_transparent_colors(Image* image)
+// static
+void ResizeImage::prepareTransparentPixels(Image* image)
 {
   int x, y;
 
@@ -276,7 +290,8 @@ void fixup_image_transparent_colors(Image* image)
   }
 }
 
-void remove_fake_transparent_colors(Image* image)
+// static
+void ResizeImage::flattenTransparentPixels(Image* image)
 {
   switch (image->pixelFormat()) {
     case IMAGE_RGB: {

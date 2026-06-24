@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (c) 2019-2025  Igara Studio S.A.
+// Copyright (c) 2019-present  Igara Studio S.A.
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
@@ -28,9 +28,7 @@ namespace app {
 
 doc::Image* resize_image(doc::Image* image,
                          const gfx::SizeF& scale,
-                         const doc::algorithm::ResizeMethod method,
-                         const Palette* pal,
-                         const RgbMap* rgbmap)
+                         const doc::algorithm::ResizeImage& resize)
 {
   doc::ImageSpec spec = image->spec();
   spec.setWidth(std::max(1, int(std::round(scale.w * image->width()))));
@@ -38,7 +36,7 @@ doc::Image* resize_image(doc::Image* image,
   std::unique_ptr<doc::Image> newImage(doc::Image::create(spec));
   newImage->setMaskColor(image->maskColor());
 
-  doc::algorithm::resize_image(image, newImage.get(), method, pal, rgbmap, newImage->maskColor());
+  resize(image, newImage.get());
 
   return newImage.release();
 }
@@ -46,8 +44,8 @@ doc::Image* resize_image(doc::Image* image,
 void resize_cel_image(Tx& tx,
                       doc::Cel* cel,
                       const gfx::SizeF& scale,
-                      const doc::algorithm::ResizeMethod method,
-                      const gfx::PointF& pivot)
+                      const gfx::PointF& pivot,
+                      const doc::algorithm::ResizeImage& resize)
 {
   // Get cel's image
   doc::Image* image = cel->image();
@@ -76,13 +74,11 @@ void resize_cel_image(Tx& tx,
         doc::Image::create(image->pixelFormat(), std::max(1, w), std::max(1, h)));
       newImage->setMaskColor(image->maskColor());
 
-      doc::algorithm::resize_image(
-        image,
-        newImage.get(),
-        method,
-        sprite->palette(cel->frame()),
-        sprite->rgbMap(cel->frame()),
-        (cel->layer()->isBackground() ? -1 : sprite->transparentColor()));
+      doc::algorithm::ResizeImage resize2 = resize;
+      resize2.palette = sprite->palette(cel->frame());
+      resize2.rgbMap = sprite->rgbMap(cel->frame());
+      resize2.maskColor = (cel->layer()->isBackground() ? -1 : sprite->transparentColor());
+      resize2(image, newImage.get());
 
       tx(new cmd::ReplaceImage(sprite, cel->imageRef(), newImage));
     }

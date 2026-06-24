@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2015-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -581,7 +581,11 @@ int Image_resize(lua_State* L)
   // the source image without undo information.
   if (cel) {
     Tx tx(cel->sprite());
-    resize_cel_image(tx, cel, scale, method, gfx::PointF(pivot));
+
+    doc::algorithm::ResizeImage resize;
+    resize.method = method;
+    resize_cel_image(tx, cel, scale, gfx::PointF(pivot), resize);
+
     tx.commit();
     obj->imageId = cel->image()->id();
   }
@@ -589,10 +593,14 @@ int Image_resize(lua_State* L)
     Context* ctx = App::instance()->context();
     ASSERT(ctx);
     Site site = ctx->activeSite();
-    const doc::Palette* pal = site.palette();
-    const doc::RgbMap* rgbmap = site.rgbMap();
 
-    std::unique_ptr<doc::Image> newImg(resize_image(img, scale, method, pal, rgbmap));
+    doc::algorithm::ResizeImage resize;
+    resize.method = method;
+    resize.palette = site.palette();
+    resize.rgbMap = site.rgbMap();
+    resize.maskColor = img->maskColor();
+
+    std::unique_ptr<doc::Image> newImg(resize_image(img, scale, resize));
     // Delete old image, and we put the same ID of the old image into
     // the new image so this userdata references the resized image.
     delete img;

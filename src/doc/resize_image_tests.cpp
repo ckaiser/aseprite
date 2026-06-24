@@ -1,5 +1,5 @@
 // Aseprite Document Library
-// Copyright (c) 2022 Igara Studio S.A.
+// Copyright (c) 2022-present Igara Studio S.A.
 // Copyright (c) 2001-2016 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -65,24 +65,16 @@ TEST(ResizeImage, NearestNeighborInterp)
 {
   ImageRef src(create_image_from_data(IMAGE_RGB, test_image_base_3x3, 3, 3));
   ImageRef dst_expected(create_image_from_data(IMAGE_RGB, test_image_scaled_9x9_nearest, 9, 9));
-
   ImageRef dst(Image::create(IMAGE_RGB, 9, 9));
-  algorithm::resize_image(src.get(),
-                          dst.get(),
-                          algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR,
-                          nullptr,
-                          nullptr,
-                          -1);
+
+  algorithm::ResizeImage resize;
+  resize.method = algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR;
+  resize(src.get(), dst.get());
 
   ASSERT_EQ(0, count_diff_between_images(dst.get(), dst_expected.get()));
 
   ImageRef dst2(Image::create(IMAGE_RGB, 3, 3));
-  algorithm::resize_image(dst.get(),
-                          dst2.get(),
-                          algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR,
-                          nullptr,
-                          nullptr,
-                          -1);
+  resize(dst.get(), dst2.get());
   ASSERT_EQ(0, count_diff_between_images(src.get(), dst2.get()));
 }
 
@@ -91,11 +83,11 @@ TEST(ResizeImage, BilinearInterpRGBType)
 {
   ImageRef src(create_image_from_data(IMAGE_RGB, test_image_base_3x3, 3, 3));
   ImageRef dst_expected(create_image_from_data(IMAGE_RGB, test_image_scaled_9x9_bilinear, 9, 9));
-
   ImageRef dst(Image::create(IMAGE_RGB, 9, 9));
-  algorithm::resize_image(src.get(), dst.get(),
-                          algorithm::RESIZE_METHOD_BILINEAR,
-                          nullptr, nullptr, -1);
+
+  algorithm::ResizeImage resize;
+  resize.method = algorithm::RESIZE_METHOD_BILINEAR;
+  resize(src.get(), dst.get());
 
   ASSERT_EQ(0, count_diff_between_images(dst.get(), dst_expected.get()));
 }

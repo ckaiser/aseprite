@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (c) 2023-2024  Igara Studio S.A.
+// Copyright (c) 2023-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This program is distributed under the terms of
@@ -146,19 +146,13 @@ void ChangeBrushCommand::onExecute(Context* context)
         newImg->clear(bg);
         newMsk->clear(0);
 
-        resize_image(brush->image(),
-                     newImg.get(),
-                     RESIZE_METHOD_NEAREST_NEIGHBOR,
-                     nullptr,
-                     nullptr,
-                     bg);
+        ResizeImage resize;
+        resize.method = RESIZE_METHOD_NEAREST_NEIGHBOR;
+        resize.maskColor = bg;
+        resize(brush->image(), newImg.get());
 
-        resize_image(brush->maskBitmap(),
-                     newMsk.get(),
-                     RESIZE_METHOD_NEAREST_NEIGHBOR,
-                     nullptr,
-                     nullptr,
-                     0);
+        resize.maskColor = 0;
+        resize(brush->maskBitmap(), newMsk.get());
 
         // Create a copy of the brush (to avoid modifying the original
         // brush from the AppBrushes stock)

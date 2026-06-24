@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2026  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -469,12 +469,11 @@ Cel* create_cel_copy(CmdSequence* cmds,
       dstFrame,
       ImageRef(
         Image::create(dstSprite->pixelFormat(), std::ceil(srcBounds.w), std::ceil(srcBounds.h)))));
-    algorithm::resize_image(dstCel->image(),
-                            dstCel2->image(),
-                            algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR,
-                            nullptr,
-                            nullptr,
-                            0);
+
+    algorithm::ResizeImage resize;
+    resize.method = algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR;
+    resize.maskColor = 0;
+    resize(dstCel->image(), dstCel2->image());
 
     dstCel.reset(dstCel2.release());
     dstCel->setPosition(gfx::Point(srcBounds.origin()));

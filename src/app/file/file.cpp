@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2024  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -83,7 +83,7 @@ public:
   {
     // If we don't need to rescale the input "image", we can just
     // reference the same exact image to encode (as we don't need to
-    // call resize_image()).
+    // call ResizeImage()).
     if (!needResize()) {
       m_tmpScaledImage = image;
     }
@@ -94,12 +94,17 @@ public:
         m_tmpScaledImage.reset(doc::Image::create(m_spec));
       }
 
-      doc::algorithm::resize_image(image.get(),
-                                   m_tmpScaledImage.get(),
-                                   doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR,
-                                   palette(frame),
-                                   m_sprite->rgbMap(frame),
-                                   image->maskColor());
+      if (!m_resizeTmpBuffer)
+        m_resizeTmpBuffer = std::make_shared<doc::ImageBuffer>();
+
+      doc::algorithm::ResizeImage resize;
+      resize.method = doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR;
+      resize.palette = palette(frame);
+      resize.rgbMap = m_sprite->rgbMap(frame);
+      resize.maskColor = image->maskColor();
+      resize.copySrc = true;
+      resize.srcTmpBuffer = m_resizeTmpBuffer;
+      resize(image.get(), m_tmpScaledImage.get());
     }
   }
 
@@ -157,12 +162,12 @@ public:
                         gfx::Clip(gfx::Point(0, 0), frameBounds));
 
     if (needResize) {
-      doc::algorithm::resize_image(m_tmpUnscaledRender.get(),
-                                   dst,
-                                   doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR,
-                                   palette(frame),
-                                   m_sprite->rgbMap(frame),
-                                   m_tmpUnscaledRender->maskColor());
+      doc::algorithm::ResizeImage resize;
+      resize.method = doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR;
+      resize.palette = palette(frame);
+      resize.rgbMap = m_sprite->rgbMap(frame);
+      resize.maskColor = m_tmpUnscaledRender->maskColor();
+      resize(m_tmpUnscaledRender.get(), dst);
     }
   }
 
@@ -184,6 +189,7 @@ private:
   doc::ImageRef m_tmpScaledImage = nullptr;
   mutable doc::ImageRef m_tmpUnscaledRender = nullptr;
   gfx::PointF m_scale = gfx::PointF(1.0, 1.0);
+  doc::ImageBufferPtr m_resizeTmpBuffer = nullptr;
 };
 
 base::paths get_readable_extensions()

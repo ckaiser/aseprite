@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (c) 2019-2025  Igara Studio S.A.
+// Copyright (c) 2019-present  Igara Studio S.A.
 //
 // This program is distributed under the terms of
 // the End-User License Agreement for Aseprite.
@@ -16,27 +16,23 @@
 namespace doc {
 class Cel;
 class Image;
-class Palette;
-class RgbMap;
 } // namespace doc
 
 namespace app {
 class Tx;
 
-// The "image" parameter can be modified with
-// doc::algorithm::fixup_image_transparent_colors() function if
-// it's needed.
+// The "image" parameter could be modified by
+// ResizeImage::prepare/flattenTransparentPixels()
+// functions if "resize.copySrc == false".
 doc::Image* resize_image(doc::Image* image,
                          const gfx::SizeF& scale,
-                         const doc::algorithm::ResizeMethod method,
-                         const doc::Palette* pal,
-                         const doc::RgbMap* rgbmap);
+                         const doc::algorithm::ResizeImage& resize);
 
 void resize_cel_image(Tx& tx,
                       doc::Cel* cel,
                       const gfx::SizeF& scale,
-                      const doc::algorithm::ResizeMethod method,
-                      const gfx::PointF& pivot);
+                      const gfx::PointF& pivot,
+                      const doc::algorithm::ResizeImage& resize);
 
 } // namespace app
 

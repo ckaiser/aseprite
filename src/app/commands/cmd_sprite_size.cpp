@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2024  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -128,6 +128,11 @@ protected:
     const gfx::SizeF scale(double(m_new_width) / double(sprite()->width()),
                            double(m_new_height) / double(sprite()->height()));
 
+    doc::algorithm::ResizeImage resize;
+    resize.method = m_resize_method;
+    resize.copySrc = true;
+    resize.srcTmpBuffer = std::make_shared<doc::ImageBuffer>();
+
     // Resize tilesets
     if (tilesets) {
       for (tileset_index tsi = 0; tsi < tilesets->size(); ++tsi) {
@@ -150,11 +155,11 @@ protected:
         newTileset->setUserData(tileset->userData());
         for (auto& tile : *tileset) {
           if (idx != 0) {
-            doc::ImageRef newTileImg(resize_image(tile.image.get(),
-                                                  scale,
-                                                  m_resize_method,
-                                                  sprite()->palette(0),
-                                                  sprite()->rgbMap(0))); // TODO first frame?
+            resize.palette = sprite()->palette(0); // TODO first frame?
+            resize.rgbMap = sprite()->rgbMap(0);
+            resize.maskColor = tile.image->maskColor();
+
+            doc::ImageRef newTileImg(resize_image(tile.image.get(), scale, resize));
 
             newTileset->set(idx, newTileImg);
             newTileset->setTileData(idx, tileset->getTileData(idx));
@@ -188,9 +193,9 @@ protected:
         resize_cel_image(tx,
                          cel,
                          scale,
-                         m_resize_method,
                          cel->layer()->isReference() ? -cel->boundsF().origin() :
-                                                       gfx::PointF(-cel->bounds().origin()));
+                                                       gfx::PointF(-cel->bounds().origin()),
+                         resize);
       }
 
       jobProgress((float)progress / img_count);
@@ -220,12 +225,9 @@ protected:
 
       // Always use the nearest-neighbor method to resize the bitmap
       // mask.
-      algorithm::resize_image(old_bitmap.get(),
-                              new_mask->bitmap(),
-                              doc::algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR,
-                              sprite()->palette(0), // Ignored
-                              sprite()->rgbMap(0),  // Ignored
-                              -1);                  // Ignored
+      algorithm::ResizeImage resize;
+      resize.method = algorithm::RESIZE_METHOD_NEAREST_NEIGHBOR;
+      resize(old_bitmap.get(), new_mask->bitmap());
 
       // Reshrink
       new_mask->intersect(new_mask->bounds());
