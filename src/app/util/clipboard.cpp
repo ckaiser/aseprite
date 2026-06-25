@@ -362,7 +362,7 @@ void Clipboard::cut(ContextWriter& writer)
   else {
     // TODO This code is similar to DocView::onClear()
     {
-      Tx tx(writer, "Cut");
+      Tx tx(writer, Strings::commands_Cut());
       Site site = writer.context()->activeSite();
       CelList cels = site.selectedUniqueCelsToEditPixels();
       clearMaskFromCels(tx, writer.document(), site, cels,
@@ -570,7 +570,7 @@ void Clipboard::paste(Context* ctx, const bool interactive, const gfx::Point* po
         }
 
         ContextWriter writer(ctx);
-        Tx tx(writer, "Paste Image");
+        Tx tx(writer, Strings::tx_paste_image());
         DocApi api = dstDoc->getApi(tx);
         Cel* dstCel;
         if (isAnImageOnDstCel)
@@ -659,7 +659,7 @@ void Clipboard::paste(Context* ctx, const bool interactive, const gfx::Point* po
           }
 
           ContextWriter writer(ctx);
-          Tx tx(writer, "Paste Cels");
+          Tx tx(writer, Strings::tx_paste_cels());
           DocApi api = dstDoc->getApi(tx);
 
           // Add extra frames if needed
@@ -717,7 +717,7 @@ void Clipboard::paste(Context* ctx, const bool interactive, const gfx::Point* po
           }
 
           ContextWriter writer(ctx);
-          Tx tx(writer, "Paste Frames");
+          Tx tx(writer, Strings::tx_paste_frames());
           DocApi api = dstDoc->getApi(tx);
 
           auto srcLayers = srcSpr->allBrowsableLayers();
@@ -758,7 +758,7 @@ void Clipboard::paste(Context* ctx, const bool interactive, const gfx::Point* po
               "You cannot copy layers of document with different color modes");
 
           ContextWriter writer(ctx);
-          Tx tx(writer, "Paste Layers");
+          Tx tx(writer, Strings::tx_paste_layers());
           DocApi api = dstDoc->getApi(tx);
 
           // Remove children if their parent is selected so we only
@@ -815,7 +815,7 @@ void Clipboard::paste(Context* ctx, const bool interactive, const gfx::Point* po
         return;
 
       ContextWriter writer(ctx);
-      Tx tx(writer, "Paste Slices");
+      Tx tx(writer, Strings::tx_paste_slices());
       editor->clearSlicesSelection();
       for (auto& s : slices) {
         Slice* slice = new Slice(s);

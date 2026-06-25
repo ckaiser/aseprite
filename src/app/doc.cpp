@@ -362,6 +362,12 @@ void Doc::notifySliceDuplicated(Slice* slice)
   notify_observers<DocEvent&>(&DocObserver::onSliceDuplicated, ev);
 }
 
+void Doc::notifyBeforeCommitTransaction()
+{
+  DocEvent ev(this);
+  notify_observers<DocEvent&>(&DocObserver::onBeforeCommitTransaction, ev);
+}
+
 bool Doc::isModified() const
 {
   return !m_undo->isInSavedStateOrSimilar();

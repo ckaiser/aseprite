@@ -91,8 +91,16 @@ bool show_file_selector(const std::string& title,
         if (res == dlgs::FileDialog::Result::OK) {
           if (type == FileSelectorType::OpenMultiple)
             dlg->getMultipleFileNames(output);
-          else
-            output.push_back(dlg->fileName());
+          else {
+            std::string fn = dlg->fileName();
+
+            // Use the default extension if there is no extension
+            // TODO I think this should be in laf too
+            if (base::get_file_extension(fn).empty())
+              fn = base::replace_extension(fn, defExtension);
+
+            output.push_back(fn);
+          }
 
 #if LAF_LINUX // Save the path in the configuration file
           if (!output.empty()) {

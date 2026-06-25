@@ -52,7 +52,7 @@ void MoveThing::onLoadParams(const Params& params)
     units = ViewportHeight;
 
   int q = params.get_as<int>("quantity");
-  quantity = std::max<int>(1, q);
+  quantity = std::max<int>(0, q);
 }
 
 std::string MoveThing::getFriendlyString() const

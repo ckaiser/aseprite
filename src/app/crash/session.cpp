@@ -19,6 +19,7 @@
 #include "app/crash/write_document.h"
 #include "app/doc.h"
 #include "app/doc_access.h"
+#include "app/ui/editor/scoped_tool_loop_fix.h"
 #include "app/ui_context.h"
 #include "base/convert_to.h"
 #include "base/fs.h"
@@ -260,6 +261,9 @@ bool Session::saveDocumentChanges(Doc* doc)
         of << "open";
     }
   }
+
+  // Fix cel position if we're just making the backup in a ToolLoop
+  ScopedToolLoopFix fix(doc->sprite());
 
   // Save document information
   return write_document(dir, doc, &reader);
