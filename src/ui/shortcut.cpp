@@ -1,5 +1,5 @@
 // Aseprite UI Library
-// Copyright (C) 2020-2025  Igara Studio S.A.
+// Copyright (C) 2020-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -360,15 +360,16 @@ bool Shortcut::isPressed() const
 
   KeyModifiers pressedModifiers = sys->keyModifiers();
 
-  // Check if this shortcut is only
+  // If this shortcut is only about modifiers
   if (m_scancode == kKeyNil && m_unicodeChar == 0 && m_mouseButton == kButtonNone)
     return (m_modifiers == pressedModifiers);
 
   // Compare with all pressed scancodes
   for (int s = int(kKeyNil); s < int(kKeyFirstModifierScancode); ++s) {
     if (sys->isKeyPressed(KeyScancode(s)) &&
-        isPressed(pressedModifiers, KeyScancode(s), sys->getUnicodeFromScancode(KeyScancode(s))))
+        isPressed(pressedModifiers, KeyScancode(s), sys->getUnicodeFromScancode(KeyScancode(s)))) {
       return true;
+    }
   }
 
   return false;
@@ -385,7 +386,7 @@ bool Shortcut::isLooselyPressed() const
   if ((m_modifiers & pressedModifiers) != m_modifiers)
     return false;
 
-  // Check if this shortcut is only
+  // If this shortcut is only about modifiers
   if (m_scancode == kKeyNil && m_unicodeChar == 0 && m_mouseButton == kButtonNone)
     return true;
 
