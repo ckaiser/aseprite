@@ -649,6 +649,12 @@ public:
     }
 #endif
 
+    // Developer mode
+    if (!App::instance()->isDevMode()) {
+      sectionListboxDeveloperItem()->setVisible(false);
+      sectionDeveloper()->setVisible(false);
+    }
+
     // Reset checkboxes
 
     // Prevent the user from clicking "Reset" if they don't have anything selected.

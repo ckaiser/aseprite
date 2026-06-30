@@ -30,6 +30,7 @@
             <listitem text="@.section_tablet" value="section_tablet" />
             <listitem text="@.section_file_explorer" value="section_file_explorer" />
             <separator horizontal="true" style="separator_in_view" />
+            <listitem text="@.section_developer" value="section_developer" id="section_listbox_developer_item" />
             <listitem text="@general.reset" value="section_reset" />
           </listbox>
         </view>
@@ -715,6 +716,17 @@
               <button text="@.associate_file_type" id="win_associate_file_type" />
             </hbox>
           </hbox>
+        </vbox>
+
+        <!-- Developer -->
+        <vbox id="section_developer" i18nwarnings="false">
+          <separator text="@.section_developer" horizontal="true" />
+          <check text="Debug paint messages"
+                 id="devmode_debug_paint_messages"
+                 pref="developer.debug_paint_messages" />
+          <check text="Paint widgets baseline"
+                 id="devmode_paint_widget_baseline"
+                 pref="developer.paint_widget_baseline" />
         </vbox>
 
         <!-- Reset -->

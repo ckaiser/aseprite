@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2026  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This program is distributed under the terms of
@@ -22,6 +22,7 @@ AppOptions::AppOptions(int argc, const char* argv[])
   , m_startUI(true)
   , m_startShell(false)
   , m_previewCLI(false)
+  , m_devMode(false)
   , m_showHelp(false)
   , m_showVersion(false)
   , m_verboseLevel(kNoVerbose)
@@ -175,6 +176,7 @@ AppOptions::AppOptions(int argc, const char* argv[])
 #ifdef _WIN32
   , m_disableWintab(m_po.add("disable-wintab").description("Don't load wintab32.dll library"))
 #endif
+  , m_dev(m_po.add("dev").description("Enable Edit > Preferences > Developer options"))
   , m_help(m_po.add("help").mnemonic('?').description("Display this help and exits"))
   , m_version(m_po.add("version").description("Output version information and exit"))
 {
@@ -190,6 +192,7 @@ AppOptions::AppOptions(int argc, const char* argv[])
     m_startShell = m_po.enabled(m_shell);
 #endif
     m_previewCLI = m_po.enabled(m_preview);
+    m_devMode = m_po.enabled(m_dev);
     m_showHelp = m_po.enabled(m_help);
     m_showVersion = m_po.enabled(m_version);
 

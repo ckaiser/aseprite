@@ -1,5 +1,5 @@
 # Aseprite UI Library
-# Copyright (C) 2019-2025  Igara Studio S.A.
+# Copyright (C) 2019-present  Igara Studio S.A.
 # Copyright (C) 2001-2018  David Capello
 
 if(WIN32)
@@ -14,6 +14,7 @@ add_library(ui-lib
   combobox.cpp
   component.cpp
   cursor.cpp
+  devmode.cpp
   display.cpp
   entry.cpp
   event.cpp

@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2026  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2017  David Capello
 //
 // This program is distributed under the terms of
@@ -37,6 +37,7 @@ public:
   bool startUI() const { return m_startUI; }
   bool startShell() const { return m_startShell; }
   bool previewCLI() const { return m_previewCLI; }
+  bool devMode() const { return m_devMode; }
   bool showHelp() const { return m_showHelp; }
   bool showVersion() const { return m_showVersion; }
   VerboseLevel verboseLevel() const { return m_verboseLevel; }
@@ -111,6 +112,7 @@ private:
   bool m_startUI;
   bool m_startShell;
   bool m_previewCLI;
+  bool m_devMode;
   bool m_showHelp;
   bool m_showVersion;
   VerboseLevel m_verboseLevel;
@@ -179,6 +181,7 @@ private:
 #ifdef _WIN32
   Option& m_disableWintab;
 #endif
+  Option& m_dev;
   Option& m_help;
   Option& m_version;
 };

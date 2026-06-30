@@ -219,8 +219,6 @@ App::App(AppMod* mod)
   , m_coreModules(nullptr)
   , m_modules(nullptr)
   , m_legacy(nullptr)
-  , m_isGui(false)
-  , m_isShell(false)
   , m_backupIndicator(nullptr)
 {
   ASSERT(m_instance == nullptr);
@@ -244,6 +242,7 @@ int App::initialize(const AppOptions& options)
 #endif
 
   m_isShell = options.startShell();
+  m_isDevMode = options.devMode();
   m_coreModules = std::make_unique<CoreModules>();
 
   auto& pref = preferences();
@@ -310,6 +309,10 @@ int App::initialize(const AppOptions& options)
   m_legacy = std::make_unique<LegacyModules>(isGui() ? REQUIRE_INTERFACE : 0);
   m_appMenus = std::make_unique<AppMenus>(recentFiles());
   m_brushes = std::make_unique<AppBrushes>();
+
+  // Developer flags
+  if (m_isDevMode)
+    initializeDevMode();
 
   // Data recovery is enabled only in GUI mode
   if (isGui() && pref.general.dataRecovery())
@@ -772,6 +775,36 @@ void App::updateDisplayTitleBar()
 InputChain& App::inputChain()
 {
   return m_modules->m_inputChain;
+}
+
+void App::initializeDevMode()
+{
+  auto& pref = preferences();
+  {
+    auto flags = ui::get_devmode_flags();
+    if (pref.developer.debugPaintMessages())
+      flags |= DevModeFlags::DebugPaint;
+    if (pref.developer.paintWidgetBaseline())
+      flags |= DevModeFlags::PaintBaseline;
+    ui::set_devmode_flags(flags);
+  }
+
+  pref.developer.debugPaintMessages.AfterChange.connect([this] {
+    auto flags = ui::get_devmode_flags();
+    if (preferences().developer.debugPaintMessages())
+      flags |= DevModeFlags::DebugPaint;
+    else
+      flags &= ~DevModeFlags::DebugPaint;
+    ui::set_devmode_flags(flags);
+  });
+  pref.developer.paintWidgetBaseline.AfterChange.connect([this] {
+    auto flags = ui::get_devmode_flags();
+    if (preferences().developer.paintWidgetBaseline())
+      flags |= DevModeFlags::PaintBaseline;
+    else
+      flags &= ~DevModeFlags::PaintBaseline;
+    ui::set_devmode_flags(flags);
+  });
 }
 
 // Updates palette and redraw the screen.

@@ -261,6 +261,10 @@
       <option id="nonactive_layers_opacity_preview" type="int" default="255" />
       <option id="tooltip_delay" type="int" default="300" />
     </section>
+    <section id="developer">
+      <option id="debug_paint_messages" type="bool" default="false" />
+      <option id="paint_widget_baseline" type="bool" default="false" />
+    </section>
     <section id="news">
       <option id="cache_file" type="std::string" />
     </section>

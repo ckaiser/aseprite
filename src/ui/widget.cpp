@@ -5,8 +5,6 @@
 // This file is released under the terms of the MIT license.
 // Read LICENSE.txt for more information.
 
-// #define PAINT_BASELINE 1
-
 #ifdef HAVE_CONFIG_H
   #include "config.h"
 #endif
@@ -24,6 +22,7 @@
 #include "text/font_metrics.h"
 #include "text/font_mgr.h"
 #include "ui/app_state.h"
+#include "ui/devmode.h"
 #include "ui/drag_event.h"
 #include "ui/init_theme_event.h"
 #include "ui/intern.h"
@@ -41,7 +40,7 @@
 #include "ui/view.h"
 #include "ui/window.h"
 
-#if LAF_SKIA && PAINT_BASELINE
+#if LAF_SKIA
   #include "include/core/SkPathEffect.h"
   #include "include/effects/SkDashPathEffect.h"
 #endif
@@ -1286,8 +1285,8 @@ bool Widget::paintEvent(Graphics* graphics, const bool isBg)
   ev.setTransparentBg(isBg);
   onPaint(ev); // Fire onPaint event
 
-#if LAF_SKIA && PAINT_BASELINE
-  if (hasText()) {
+#if LAF_SKIA
+  if (hasText() && has_devmode_flags(DevModeFlags::PaintBaseline)) {
     // Paint baseline
     float baseline = textBaseline();
     Paint paint;

@@ -2035,8 +2035,7 @@ bool Manager::sendMessageToWidget(Message* msg, Widget* widget)
     surface->saveClip();
 
     if (surface->clipRect(paintMsg->rect())) {
-#if DEBUG_PAINT_MESSAGES
-      if (!paintMsg->delayed()) {
+      if (has_devmode_flags(ui::DevModeFlags::DebugPaint) && !paintMsg->delayed()) {
         // Paint a blue rectangle where the widget will be finally
         // painted.
         GraphicsPtr g = widget->getGraphics(widget->toClient(paintMsg->rect()));
@@ -2051,9 +2050,7 @@ bool Manager::sendMessageToWidget(Message* msg, Widget* widget)
         concurrent_msg_queue.push(delayedPaint);
       }
       // Call the message handler
-      else
-#endif
-      {
+      else {
         used = widget->sendMessage(msg);
       }
     }

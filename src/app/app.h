@@ -73,6 +73,9 @@ public:
   // Returns true if the application is running in portable mode.
   bool isPortable();
 
+  // Returns true if --dev parameter was specified.
+  bool isDevMode() const { return m_isDevMode; }
+
   // Runs the Aseprite application. In GUI mode it's the top-level
   // window, in console/scripting it just runs the specified
   // scripts.
@@ -115,6 +118,8 @@ public:
   obs::signal<void()> PalettePresetsChange;
 
 private:
+  void initializeDevMode();
+
   class CoreModules;
   class LoadLanguage;
   class Modules;
@@ -127,8 +132,9 @@ private:
   std::unique_ptr<Modules> m_modules;
   std::unique_ptr<LegacyModules> m_legacy;
   std::unique_ptr<AppMenus> m_appMenus;
-  bool m_isGui;
-  bool m_isShell;
+  bool m_isGui = false;
+  bool m_isShell = false;
+  bool m_isDevMode = false;
 #if !LAF_SKIA
   bool m_showCliOnlyWarning = false;
 #endif

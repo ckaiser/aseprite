@@ -1,5 +1,5 @@
 // Aseprite Code Generator
-// Copyright (c) 2021-2024 Igara Studio S.A.
+// Copyright (c) 2021-present Igara Studio S.A.
 // Copyright (c) 2016-2018 David Capello
 //
 // This file is released under the terms of the MIT license.
@@ -49,6 +49,10 @@ static std::string find_first_id(XMLElement* elem)
 
 static void collect_elements_with_strings(XMLElement* elem, XmlElements& elems)
 {
+  const char* warnings = elem->Attribute("i18nwarnings");
+  if (warnings && std::strcmp(warnings, "false") == 0)
+    return;
+
   XMLElement* child = elem->FirstChildElement();
   while (child) {
     const char* text = child->Attribute("text");
@@ -122,10 +126,6 @@ public:
 
       XMLHandle handle(doc.get());
       XmlElements widgets;
-
-      const char* warnings = doc->RootElement()->Attribute("i18nwarnings");
-      if (warnings && strcmp(warnings, "false") == 0)
-        continue;
 
       m_prefixId = find_first_id(doc->RootElement());
 
