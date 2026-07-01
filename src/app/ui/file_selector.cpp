@@ -255,7 +255,7 @@ protected:
         KeyMessage* keyMsg = static_cast<KeyMessage*>(msg);
         KeyScancode scancode = keyMsg->scancode();
 
-#ifdef __APPLE__
+#if LAF_MACOS
         int unicode = keyMsg->unicodeChar();
         bool up = (msg->cmdPressed() && scancode == kKeyUp);
         bool enter = (msg->cmdPressed() && scancode == kKeyDown);
@@ -537,13 +537,13 @@ again:
       const FileItemList& children = m_fileList->fileList();
 
       std::string fn2 = fn;
-#ifdef _WIN32
+#if LAF_WINDOWS
       fn2 = base::string_to_lower(fn2);
 #endif
 
       for (IFileItem* child : children) {
         std::string child_name = child->displayName();
-#ifdef _WIN32
+#if LAF_WINDOWS
         child_name = base::string_to_lower(child_name);
 #endif
         if (child_name == fn2) {
@@ -556,7 +556,7 @@ again:
       if (!enter_folder) {
         // does the file-name entry have separators?
         if (base::is_path_separator(*fn.begin())) { // absolute path (UNIX style)
-#ifdef _WIN32
+#if LAF_WINDOWS
           // get the drive of the current folder
           std::string drive = folder->fileName();
           if (drive.size() >= 2 && drive[1] == ':') {
@@ -570,7 +570,7 @@ again:
           buf = fn;
 #endif
         }
-#ifdef _WIN32
+#if LAF_WINDOWS
         // does the file-name entry have colon?
         else if (fn.find(':') != std::string::npos) { // absolute path on Windows
           if (fn.size() == 2 && fn[1] == ':') {
@@ -610,7 +610,7 @@ again:
     }
     // else file-name specified in the entry is really a file to open...
 
-#ifdef _WIN32
+#if LAF_WINDOWS
     // Check that the filename doesn't contain ilegal characters.
     // Linux allows all kind of characters, only '/' is disallowed,
     // but in that case we consider that a full path was entered in

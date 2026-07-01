@@ -30,7 +30,7 @@
 #include <utility>
 #include <vector>
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   #include "base/win/comptr.h"
 
   #include <windows.h>
@@ -66,7 +66,7 @@ FileItem* rootitem = nullptr;
 FileItemMap* fileitems_map = nullptr;
 unsigned int current_file_system_version = 0;
 
-#ifdef _WIN32
+#if LAF_WINDOWS
 base::ComPtr<IMalloc> shl_imalloc;
 base::ComPtr<IShellFolder> shl_idesktop;
 #endif
@@ -83,12 +83,12 @@ public:
   unsigned int m_version;
   bool m_removed;
   mutable bool m_is_folder;
-#ifdef _WIN32
+#if LAF_WINDOWS
   bool m_isHidden = false;
 #endif
   std::atomic<double> m_thumbnailProgress;
   std::atomic<os::Surface*> m_thumbnail;
-#ifdef _WIN32
+#if LAF_WINDOWS
   LPITEMIDLIST m_pidl;     // relative to parent
   LPITEMIDLIST m_fullpidl; // relative to the Desktop folder
                            // (like a full path-name, because the
@@ -168,7 +168,7 @@ public:
 } // anonymous namespace
 
 // A more easy PIDLs interface (without using the SH* & IL* routines of W2K)
-#ifdef _WIN32
+#if LAF_WINDOWS
 static SFGAOF get_pidl_attrib(FileItem* fileitem, SFGAOF attrib);
 static void update_by_pidl(FileItem* fileitem, SFGAOF attrib);
 static LPITEMIDLIST concat_pidl(LPITEMIDLIST pidlHead, LPITEMIDLIST pidlTail);
@@ -198,7 +198,7 @@ FileSystemModule::FileSystemModule()
 
   fileitems_map = new FileItemMap;
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   /* get the IMalloc interface */
   HRESULT hr = SHGetMalloc(&shl_imalloc);
   if (hr != S_OK)
@@ -229,7 +229,7 @@ FileSystemModule::~FileSystemModule()
   }
   fileitems_map->clear();
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   // Release interfaces
   shl_idesktop.reset();
   shl_imalloc.reset();
@@ -262,7 +262,7 @@ IFileItem* FileSystemModule::getRootFileItem()
 
   // LOG("FS: Creating root fileitem %p\n", rootitem);
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   {
     // get the desktop PIDL
     LPITEMIDLIST pidl = NULL;
@@ -301,7 +301,7 @@ IFileItem* FileSystemModule::getFileItemFromPath(const std::string& path)
 
   // LOG("FS: get_fileitem_from_path(%s)\n", path.c_str());
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   {
     ULONG cbEaten = 0UL;
     LPITEMIDLIST fullpidl = NULL;
@@ -365,7 +365,7 @@ bool FileItem::isHidden() const
 {
   ASSERT(m_displayname != NOTINITIALIZED);
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   return m_isHidden;
 #else
   return m_displayname[0] == '.';
@@ -376,7 +376,7 @@ bool FileItem::isExistent() const
 {
   const std::string& fn = fileName();
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   if (!fn.empty() && fn.front() == ':') { // It's a PIDL of a special location
     FS_TRACE("FS: isExistent() %s -> PIDL exists\n", fn.c_str());
     return true;
@@ -449,7 +449,7 @@ const FileItemList& FileItem::children()
     }
 
     // LOG("FS: Loading files for %p (%s)\n", fileitem, fileitem->displayname);
-#ifdef _WIN32
+#if LAF_WINDOWS
     {
       base::ComPtr<IShellFolder> pFolder;
       HRESULT hr;
@@ -626,7 +626,7 @@ FileItem::FileItem(FileItem* parent)
   m_is_folder = false;
   m_thumbnailProgress = 0.0;
   m_thumbnail = nullptr;
-#ifdef _WIN32
+#if LAF_WINDOWS
   m_pidl = NULL;
   m_fullpidl = NULL;
 #endif
@@ -638,7 +638,7 @@ FileItem::~FileItem()
 
   setThumbnail(nullptr);
 
-#ifdef _WIN32
+#if LAF_WINDOWS
   if (m_fullpidl && m_fullpidl != m_pidl) {
     free_pidl(m_fullpidl);
     m_fullpidl = NULL;
@@ -686,7 +686,7 @@ int FileItem::compare(const FileItem& that) const
 // PIDLS: Only for Win32
 //////////////////////////////////////////////////////////////////////
 
-#ifdef _WIN32
+#if LAF_WINDOWS
 
 static bool calc_is_folder(std::string filename, SFGAOF attrib)
 {
@@ -763,7 +763,7 @@ static void update_by_pidl(FileItem* fileitem, SFGAOF attrib)
   // Is it a folder?
 
   fileitem->m_is_folder = calc_is_folder(fileitem->m_filename, attrib);
-  #if _WIN32
+  #if LAF_WINDOWS
   fileitem->m_isHidden = (attrib & SFGAO_HIDDEN ? true : false);
   #endif
 

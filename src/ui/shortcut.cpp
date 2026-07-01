@@ -24,7 +24,7 @@
 
 namespace ui {
 
-#ifdef _WIN32
+#if LAF_WINDOWS
 const char* kWinKeyName = "Win";
 #else
 const char* kWinKeyName = "Super";
