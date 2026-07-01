@@ -246,9 +246,22 @@ Manager::~Manager()
 {
   ASSERT(manager_thread == std::this_thread::get_id());
 
-  // There are some messages in queue? Dispatch everything.
-  dispatchMessages();
-  collectGarbage();
+  // Here we try to do our best to send all pending messages, close
+  // all windows, and collect the garbage again. After that we should
+  // be able to delete the Manager as it must be the last widget to be
+  // freed (no other widget should use this manager after we exit this
+  // ~Manager() dtor).
+  for (int i = 0; i < 2; ++i) {
+    // There are some messages in queue? Dispatch everything.
+    dispatchMessages();
+    collectGarbage();
+
+    // We remove all children windows now so children's ~Widget() can
+    // access to this manager() while we are still alive as a fully
+    // working ui::Manager (this will not be true in this ~Widget()).
+    while (!children().empty())
+      delete children().front();
+  }
 
   // Finish the main manager.
   if (m_defaultManager == this) {

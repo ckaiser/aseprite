@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2018-2025  Igara Studio S.A.
+// Copyright (C) 2018-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -222,7 +222,9 @@ void Console::printf(const char* format, ...)
 
 void Console::print(const std::string& message)
 {
-  if (!isUIAvailable()) {
+  if (!isUIAvailable() ||
+      // We're closing the app, so no new console should be created.
+      (ui::get_app_state() != ui::AppState::kNormal)) {
     fputs(message.c_str(), stdout);
     fflush(stdout);
     return;
