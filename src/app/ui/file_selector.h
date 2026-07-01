@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2024  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -72,7 +72,7 @@ private:
   class CustomFileNameEntry;
   class CustomFileExtensionItem;
 
-  FileSelectorType m_type;
+  const FileSelectorType m_type;
   std::string m_defExtension;
   CustomFileNameEntry* m_fileName;
   FileList* m_fileList;

@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2022  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -9,6 +9,7 @@
 #define APP_UI_FILE_LIST_H_INCLUDED
 #pragma once
 
+#include "app/file_selector.h"
 #include "app/file_system.h"
 #include "base/paths.h"
 #include "base/time.h"
@@ -30,7 +31,7 @@ namespace app {
 class FileList : public ui::Widget,
                  private ui::AnimatedWidget {
 public:
-  FileList();
+  FileList(FileSelectorType type);
   virtual ~FileList();
 
   const base::paths& extensions() const { return m_exts; }
@@ -100,6 +101,7 @@ private:
   void onAnimationStop(int animation) override;
   void onAnimationFrame() override;
 
+  const FileSelectorType m_type;
   IFileItem* m_currentFolder;
   FileItemList m_list;
   std::vector<ItemInfo> m_info;

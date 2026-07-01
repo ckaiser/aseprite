@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2024  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -45,7 +45,7 @@
   #define MAX_PATH 4096 // TODO this is needed for Linux, is it correct?
 #endif
 
-#define FILESEL_TRACE(...) // TRACE
+#define FILESEL_TRACE(...) // TRACE(__VA_ARGS__)
 
 namespace app {
 
@@ -203,7 +203,9 @@ private:
 
 class FileSelector::CustomFileNameItem : public ListItem {
 public:
-  CustomFileNameItem(const char* text, IFileItem* fileItem) : ListItem(text), m_fileItem(fileItem)
+  CustomFileNameItem(const std::string& text, IFileItem* fileItem)
+    : ListItem(text)
+    , m_fileItem(fileItem)
   {
   }
 
@@ -215,7 +217,7 @@ private:
 
 class FileSelector::CustomFolderNameItem : public ListItem {
 public:
-  CustomFolderNameItem(const char* text) : ListItem(text) {}
+  CustomFolderNameItem(const std::string& text) : ListItem(text) {}
 };
 
 class FileSelector::CustomFileExtensionItem : public ListItem {
@@ -318,7 +320,7 @@ FileSelector::FileSelector(FileSelectorType type) : m_type(type), m_navigationLo
     child->setFocusStop(false);
 
   showHiddenCheck()->setSelected(Preferences::instance().fileSelector.showHidden());
-  m_fileList = new FileList();
+  m_fileList = new FileList(m_type);
   m_fileList->setId("fileview");
   m_fileName->setAssociatedFileList(m_fileList);
   m_fileList->setZoom(Preferences::instance().fileSelector.zoom());
@@ -396,8 +398,9 @@ bool FileSelector::show(const std::string& title,
   fs->refresh();
 
   // We have to find where the user should begin to browse files
-  std::string start_folder_path = base::get_file_path(
-    get_initial_path_to_select_filename(initialPath));
+  std::string start_folder_path = get_initial_path_to_select_filename(initialPath);
+  if (!base::is_directory(start_folder_path))
+    start_folder_path = base::get_file_path(start_folder_path);
 
   IFileItem* start_folder = fs->getFileItemFromPath(start_folder_path);
   if (!start_folder) {
@@ -487,14 +490,16 @@ bool FileSelector::show(const std::string& title,
         break;
       }
     }
+
+    // Fill the file name entry field with the initial path filename
+    // when we are selecting files. When we select a folder we don't
+    // need to fill this field by default.
+    m_fileName->setValue(base::get_file_name(initialPath));
+    m_fileName->getEntryWidget()->selectText(0, -1);
   }
 
-  // file name entry field
-  m_fileName->setValue(base::get_file_name(initialPath).c_str());
-  m_fileName->getEntryWidget()->selectText(0, -1);
-
   // setup the title of the window
-  setText(title.c_str());
+  setText(title);
 
   // get the ok-button
   Widget* ok = this->findChild("ok");
@@ -523,8 +528,14 @@ again:
     }
     else if (fn.empty()) {
       IFileItem* selected = m_fileList->selectedFileItem();
-      if (selected && selected->isBrowsable())
+      if (selected && selected->isBrowsable()) {
+        // If there is a folder, we enter in the selected folder
         enter_folder = selected;
+      }
+      else if (m_type == FileSelectorType::OpenFolder) {
+        // Select the current folder
+        buf = folder->fileName();
+      }
       else if (m_type != FileSelectorType::OpenMultiple ||
                m_fileList->selectedFileItems().empty()) {
         // Show the window again
@@ -592,17 +603,13 @@ again:
       }
     }
 
-    // Not the ideal way to do it but I'd rather leave the old logic alone
-    if (m_type == FileSelectorType::OpenFolder)
-      enter_folder = nullptr;
-
     // did we find a folder to enter?
     if (enter_folder && enter_folder->isFolder() && enter_folder->isBrowsable()) {
       // enter in the folder that was specified in the 'm_fileName'
       m_fileList->setCurrentFolder(enter_folder);
 
       // clear the text of the entry widget
-      m_fileName->setValue("");
+      m_fileName->setValue(std::string());
 
       // show the window again
       setVisible(true);
@@ -723,7 +730,7 @@ void FileSelector::updateLocation()
     buf += fileItem->displayName();
 
     // Add the new location to the combo-box
-    location()->addItem(new CustomFileNameItem(buf.c_str(), fileItem));
+    location()->addItem(new CustomFileNameItem(buf, fileItem));
 
     if (fileItem == currentFolder)
       selected_index = level;
@@ -738,20 +745,20 @@ void FileSelector::updateLocation()
     sep->setMinSize(gfx::Size(0, sep->sizeHint().h * 2));
     location()->addItem(sep);
     for (const auto& fn : recent->pinnedFolders())
-      location()->addItem(new CustomFolderNameItem(fn.c_str()));
+      location()->addItem(new CustomFolderNameItem(fn));
   }
   if (!recent->recentFolders().empty()) {
     auto sep = new SeparatorInView(Strings::file_selector_recent_folders(), HORIZONTAL);
     sep->setMinSize(gfx::Size(0, sep->sizeHint().h * 2));
     location()->addItem(sep);
     for (const auto& fn : recent->recentFolders())
-      location()->addItem(new CustomFolderNameItem(fn.c_str()));
+      location()->addItem(new CustomFolderNameItem(fn));
   }
 
   // Select the location
   {
     location()->setSelectedItemIndex(selected_index);
-    location()->getEntryWidget()->setText(currentFolder->displayName().c_str());
+    location()->getEntryWidget()->setText(currentFolder->displayName());
     location()->getEntryWidget()->deselectText();
   }
 }
@@ -961,8 +968,8 @@ void FileSelector::onFileTypeChange()
     std::string currentExtension = base::get_file_extension(fileName);
 
     if (!currentExtension.empty())
-      m_fileName->setValue(
-        (fileName.substr(0, fileName.size() - currentExtension.size()) + newExtension).c_str());
+      m_fileName->setValue(fileName.substr(0, fileName.size() - currentExtension.size()) +
+                           newExtension);
   }
 }
 
@@ -971,17 +978,10 @@ void FileSelector::onFileListFileSelected()
   const IFileItem* fileitem = m_fileList->selectedFileItem();
 
   if (m_type == FileSelectorType::OpenFolder) {
-    if (!fileitem) {
-      m_fileName->setValue(m_fileList->currentFolder() ?
-                             base::get_file_name(m_fileList->currentFolder()->fileName()) :
-                             "");
-    }
-    else {
-      if (fileitem->isFolder())
-        m_fileName->setValue(base::get_file_name(fileitem->fileName()));
-      else
-        m_fileName->setValue(std::string());
-    }
+    if (fileitem && fileitem->isFolder())
+      m_fileName->setValue(base::get_file_name(fileitem->fileName()));
+    else
+      m_fileName->setValue(std::string());
   }
   else if (fileitem && !fileitem->isFolder()) {
     const std::string filename = base::get_file_name(fileitem->fileName());
@@ -1007,6 +1007,9 @@ void FileSelector::onFileListCurrentFolderChanged()
 
   // Close the autocomplete popup just in case it's open.
   m_fileName->closeListBox();
+
+  if (m_type == FileSelectorType::OpenFolder)
+    m_fileName->setValue(std::string());
 }
 
 std::string FileSelector::getSelectedExtension() const

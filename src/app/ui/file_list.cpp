@@ -1,5 +1,5 @@
 // Aseprite
-// Copyright (C) 2019-2025  Igara Studio S.A.
+// Copyright (C) 2019-present  Igara Studio S.A.
 // Copyright (C) 2001-2018  David Capello
 //
 // This program is distributed under the terms of
@@ -33,8 +33,9 @@ using namespace app::skin;
 using namespace gfx;
 using namespace ui;
 
-FileList::FileList()
+FileList::FileList(const FileSelectorType type)
   : Widget(kGenericWidget)
+  , m_type(type)
   , m_currentFolder(FileSystemModule::instance()->getRootFileItem())
   , m_req_valid(false)
   , m_selected(nullptr)
@@ -91,9 +92,11 @@ void FileList::setCurrentFolder(IFileItem* folder)
   // thumbnails.
   ThumbnailGenerator::instance()->stopAllWorkers();
 
-  // select first folder
-  if (!m_list.empty() && m_list.front()->isBrowsable())
-    selectIndex(0);
+  if (m_type != FileSelectorType::OpenFolder) {
+    // Select first folder
+    if (!m_list.empty() && m_list.front()->isBrowsable())
+      selectIndex(0);
+  }
 
   // Emit "CurrentFolderChanged" event.
   onCurrentFolderChanged();
@@ -150,11 +153,16 @@ void FileList::goUp()
   if (parent) {
     setCurrentFolder(parent);
 
-    m_selected = folder;
-    deselectedFileItems();
+    if (m_type != FileSelectorType::OpenFolder) {
+      m_selected = folder;
+      deselectedFileItems();
 
-    // Make the selected item visible.
-    makeSelectedFileitemVisible();
+      // Make the selected item visible.
+      makeSelectedFileitemVisible();
+    }
+    else {
+      deselectedFileItems();
+    }
   }
 }
 
