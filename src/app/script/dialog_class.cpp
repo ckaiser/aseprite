@@ -1238,15 +1238,6 @@ int Dialog_folder(lua_State* L)
     }
     lua_pop(L, 1);
 
-    type = lua_getfield(L, 2, "onselect");
-    if (type == LUA_TFUNCTION) {
-      Dialog_connect_signal(L, 1, widget->Selected, [](lua_State* L, const std::string& selected) {
-        lua_pushstring(L, selected.c_str());
-        lua_setfield(L, -2, "value");
-      });
-    }
-    lua_pop(L, 1);
-
     type = lua_getfield(L, 2, "placeholder");
     if (type == LUA_TSTRING) {
       if (const auto* p = lua_tostring(L, -1))
