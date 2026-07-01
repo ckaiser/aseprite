@@ -54,6 +54,11 @@
 #include <queue>
 #include <sstream>
 
+// Uncomment this to debug/check which widget is setting properties
+// that could go to a ui::Style. Probably something to fix in a far
+// future, or probably something to keep in this way.
+#define TRACE_STYLE(...) // TRACE(__VA_ARGS__)
+
 namespace ui {
 
 using namespace gfx;
@@ -202,10 +207,9 @@ void Widget::setBgColor(gfx::Color color)
 
 #ifdef _DEBUG
   if (m_style) {
-    LOG(WARNING,
-        "UI: %s: Warning setting bgColor to a widget with style (%s)\n",
-        typeid(*this).name(),
-        m_style->id().c_str());
+    TRACE_STYLE("UI: %s: Warning setting bgColor to a widget with style (%s)\n",
+                typeid(*this).name(),
+                m_style->id().c_str());
   }
 #endif
 }
@@ -824,10 +828,9 @@ void Widget::setBorder(const Border& br)
 
 #ifdef _DEBUG
   if (m_style) {
-    LOG(WARNING,
-        "UI: %s: Warning setting border to a widget with style (%s)\n",
-        typeid(*this).name(),
-        m_style->id().c_str());
+    TRACE_STYLE("UI: %s: Warning setting border to a widget with style (%s)\n",
+                typeid(*this).name(),
+                m_style->id().c_str());
   }
 #endif
 }
@@ -838,10 +841,9 @@ void Widget::setChildSpacing(int childSpacing)
 
 #ifdef _DEBUG
   if (m_style) {
-    LOG(WARNING,
-        "UI: %s: Warning setting child spacing to a widget with style (%s)\n",
-        typeid(*this).name(),
-        m_style->id().c_str());
+    TRACE_STYLE("UI: %s: Warning setting child spacing to a widget with style (%s)\n",
+                typeid(*this).name(),
+                m_style->id().c_str());
   }
 #endif
 }
@@ -853,10 +855,9 @@ void Widget::noBorderNoChildSpacing()
 
 #ifdef _DEBUG
   if (m_style) {
-    LOG(WARNING,
-        "UI: %s: Warning setting no border to a widget with style (%s)\n",
-        typeid(*this).name(),
-        m_style->id().c_str());
+    TRACE_STYLE("UI: %s: Warning setting no border to a widget with style (%s)\n",
+                typeid(*this).name(),
+                m_style->id().c_str());
   }
 #endif
 }
