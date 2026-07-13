@@ -27,6 +27,7 @@
 #include "ui/system.h"
 #include "ui/theme.h"
 #include "ui/timer.h"
+#include "ui/utf8_range_builder.h"
 #include "ui/view.h"
 
 #include <algorithm>
@@ -801,19 +802,6 @@ void TextEdit::updateViewSize()
       view->updateView();
   }
 }
-
-struct Utf8RangeBuilder : public text::TextBlob::RunHandler {
-  explicit Utf8RangeBuilder(int minSize) { ranges.reserve(minSize); }
-
-  void commitRunBuffer(TextBlob::RunInfo& info) override
-  {
-    for (int i = 0; i < info.glyphCount; ++i) {
-      ranges.push_back(info.getGlyphUtf8Range(i));
-    }
-  }
-
-  std::vector<TextBlob::Utf8Range> ranges;
-};
 
 void TextEdit::Line::buildBlob(const Widget* forWidget)
 {
