@@ -273,7 +273,8 @@ void set_mouse_position(const gfx::Point& newPos, Display* display)
 
 void execute_from_ui_thread(std::function<void()>&& func)
 {
-  // Queue the event
+  // TODO: - ASSERT(Manager::getDefault());
+  //  Queue the event
   os::Event ev;
   ev.setType(os::Event::Callback);
   ev.setCallback(std::move(func));
@@ -282,7 +283,7 @@ void execute_from_ui_thread(std::function<void()>&& func)
 
 void execute_now_or_enqueue(std::function<void()>&& func)
 {
-  if (is_ui_thread())
+  if (is_ui_thread() || !Manager::getDefault())
     func();
   else
     execute_from_ui_thread(std::move(func));

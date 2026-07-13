@@ -28,6 +28,8 @@
 #include "app/pref/preferences.h"
 #include "app/recent_files.h"
 #include "app/resource_finder.h"
+#include "app/script/about_extension_window.h"
+#include "app/script/security.h"
 #include "app/tools/tool_box.h"
 #include "app/tx.h"
 #include "app/ui/best_fit_criteria_selector.h"
@@ -42,7 +44,6 @@
 #include "base/fs.h"
 #include "base/string.h"
 #include "base/version.h"
-#include "doc/image.h"
 #include "fmt/format.h"
 #include "os/system.h"
 #include "os/window.h"
@@ -58,7 +59,6 @@
   #include "app/sentry_wrapper.h"
 #endif
 
-#include "about_extension.xml.h"
 #include "options.xml.h"
 
 namespace app {
@@ -70,6 +70,7 @@ const char* kSectionBgId = "section_bg";
 const char* kSectionGridId = "section_grid";
 const char* kSectionThemeId = "section_theme";
 const char* kSectionExtensionsId = "section_extensions";
+const char* kSectionSecurityId = "section_security";
 const char* kSectionTabletId = "section_tablet";
 const char* kSectionFileExplorerId = "section_file_explorer";
 
@@ -224,81 +225,6 @@ class OptionsWindow : public app::gen::Options {
     LangInfo m_langInfo;
   };
 
-  class AboutExtensionWindow : public gen::AboutExtension {
-  public:
-    explicit AboutExtensionWindow(const Extension* ext)
-    {
-      const auto& about = ext->readAbout();
-
-      if (!ext->canBeUninstalled())
-        setText(Strings::about_extension_title_builtin());
-
-      name()->setText(about.name);
-      version()->setText(about.version);
-
-      if (about.description.empty())
-        description()->setVisible(false);
-      else {
-        auto* desc = description();
-        desc->setText(about.description);
-      }
-
-      if (about.url.empty()) {
-        urlContainer()->setVisible(false);
-      }
-      else {
-        url()->setText(about.url);
-        url()->setUrl(about.url);
-      }
-
-      openFolder()->Click.connect([ext] { launcher::open_folder(ext->path()); });
-
-      if (about.displayName.empty() || about.displayName == about.name) {
-        displayName()->setText(about.name);
-        name()->setVisible(false);
-        versionSeparator()->setVisible(false);
-      }
-      else {
-        displayName()->setText(about.displayName);
-      }
-
-      if (about.author.has_value()) {
-        const auto& contributor = about.author.value();
-        Widget* label;
-        if (contributor.url.empty()) {
-          label = new Label(contributor.toString());
-        }
-        else {
-          label = new LinkLabel(contributor.url, contributor.toString());
-          tooltipManager()->addTooltipFor(label, contributor.url, BOTTOM);
-        }
-        authorContainer()->addChild(label);
-      }
-      else {
-        authorContainer()->setVisible(false);
-      }
-
-      if (!about.contributors.empty()) {
-        for (const auto& contributor : about.contributors) {
-          Widget* label;
-          if (!contributor.url.empty()) {
-            label = new LinkLabel(contributor.url, contributor.toString());
-            tooltipManager()->addTooltipFor(label, contributor.url, BOTTOM);
-          }
-          else {
-            label = new Label(contributor.toString());
-          }
-          contributors()->addChild(label);
-        }
-      }
-      else {
-        contributorsContainer()->setVisible(false);
-      }
-
-      layout();
-    };
-  };
-
   class ExtensionItem : public ListItem {
   public:
     ExtensionItem(Extension* extension) : ListItem(extension->displayName()), m_extension(extension)
@@ -356,14 +282,7 @@ class OptionsWindow : public app::gen::Options {
     void openAbout() const
     {
       ASSERT(m_extension);
-      try {
-        AboutExtensionWindow about(m_extension);
-        about.openWindowInForeground();
-      }
-      catch (const std::exception&) {
-        if (Alert::show(Strings::alerts_cannot_read_extension()) == 1)
-          launcher::open_folder(m_extension->path());
-      }
+      AboutExtensionWindow::show(m_extension);
     }
 
   private:
@@ -1543,6 +1462,9 @@ private:
     // Load extension
     else if (item->getValue() == kSectionExtensionsId)
       loadExtensions();
+    // Load permissions
+    else if (item->getValue() == kSectionSecurityId)
+      loadPermissions();
 
     panel()->showChild(findChild(item->getValue().c_str()));
   }
@@ -1971,6 +1893,78 @@ private:
     extensionsList()->layout();
   }
 
+  // TODO: Heavy WIP
+  void loadPermissions()
+  {
+    ResourceFinder rf;
+    rf.includeUserDir("scripts");
+    std::string scriptsDir = rf.getFirstOrCreateDefault();
+
+    auto* theme = SkinTheme::get(this);
+    auto fileIcon = theme->parts.iconTreeFile();
+    try {
+      auto* root = new TreeNode("Permissions");
+      const auto* storage = script::PermissionStorage::instance();
+      for (const auto& script : storage->scripts()) {
+        auto name = script;
+        if (script.rfind(scriptsDir, 0) == 0)
+          name = script.substr(scriptsDir.size() + 1);
+
+        auto* scriptNode = new TreeNode(name, fileIcon);
+
+        if (storage->readFullAccess(script))
+          scriptNode->addChild(new TreeNode("Full Access!"));
+
+        for (const auto& permission : storage->stored(script)) {
+          const std::string& permName = Strings::instance()->translate(
+            fmt::format("script_access.permission_{}", script::permission_to_string(permission))
+              .c_str());
+          TreeNode* permNode;
+          if (script::permission_supports_url(permission)) {
+            auto* allowedNode = new TreeNode("Allowed:");
+            auto* deniedNode = new TreeNode("Denied:");
+            for (const auto& [url, allowed] : storage->urls(script, permission)) {
+              if (allowed) {
+                allowedNode->addChild(new TreeNode(url));
+              }
+              else {
+                deniedNode->addChild(new TreeNode(url));
+              }
+            }
+            permNode = new TreeNode(permName + ":");
+
+            if (allowedNode->hasChildren())
+              permNode->addChild(allowedNode);
+            else
+              delete allowedNode;
+
+            if (deniedNode->hasChildren())
+              permNode->addChild(deniedNode);
+            else
+              delete deniedNode;
+          }
+          else {
+            permNode = new TreeNode(permName +
+                                    (*storage->read(script, permission) ? "" : "(Denied)"));
+          }
+
+          scriptNode->addChild(permNode);
+        }
+
+        if (scriptNode->hasChildren())
+          root->addChild(scriptNode);
+        else
+          delete scriptNode;
+      }
+
+      permissionsTree()->setRoot(root);
+    }
+    catch (const std::exception& e) {
+      // TODO: Show a better error when we can't read preferences
+      permissionsTree()->setRoot(new TreeNode("ERROR"));
+    }
+  }
+
   void onThemeChange()
   {
     ThemeItem* item = dynamic_cast<ThemeItem*>(themeList()->getSelectedChild());
@@ -2277,6 +2271,7 @@ private:
       onChangeGridScope();
       loadThemes();
       loadExtensions();
+      loadPermissions();
       everythingPreloaded = true;
     }
 

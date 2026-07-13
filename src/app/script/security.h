@@ -13,39 +13,86 @@
   #error ENABLE_SCRIPTING must be defined
 #endif
 
-#include "app/script/engine.h"
-#include "lua.h"
+#include <string>
 
-namespace app { namespace script {
+#include "script_access.xml.h"
 
-enum class FileAccessMode {
-  Execute = 1,
-  Write = 2,
-  Read = 4,
-  OpenSocket = 8,
-  LoadLib = 16,
-  Full = Execute | Write | Read | OpenSocket | LoadLib,
+#include "nlohmann/json.hpp"
+
+namespace app::script {
+
+enum class Permission : uint8_t {
+  Network,
+  SpriteRead,
+  SpriteWrite,
+  IORead,
+  IOWrite,
+  ClipboardRead,
+  ClipboardWrite,
+  Debug,
+  Bytecode,
+  Execute,
+  LoadLib
 };
 
-enum class ResourceType {
-  File,
-  Command,
-  WebSocket,
-  Clipboard,
+class PermissionStorage {
+public:
+  PermissionStorage();
+  explicit PermissionStorage(const std::string& path);
+
+  static PermissionStorage* instance();
+
+  std::optional<bool> read(const std::string& script, Permission permission) const;
+  std::optional<bool> readForUrl(const std::string& script,
+                                 Permission permission,
+                                 const std::string& url);
+  bool readFullAccess(const std::string& script) const;
+
+  void write(const std::string& script, Permission permission, bool value);
+  void writeForUrl(const std::string& script,
+                   Permission permission,
+                   const std::string& url,
+                   bool value);
+  void writeFullAccess(const std::string& script, bool access);
+
+  bool passesIntegrityCheck(const std::string& script);
+  void reset(const std::string& script);
+
+  std::vector<std::string> scripts() const;
+  std::vector<Permission> stored(const std::string& script) const;
+  std::vector<std::pair<std::string, bool>> urls(const std::string& script,
+                                                 Permission permission) const;
+
+private:
+  void load();
+  void flush();
+
+  nlohmann::json m_json;
+  std::string m_path;
+  bool m_pendingFlush = false;
 };
 
-void overwrite_unsecure_functions(lua_State* L);
+class PermissionDialog : public app::gen::ScriptAccess {
+public:
+  enum class Remember : uint8_t { Nothing, Permission, URL, Directory, FullAccess };
+  PermissionDialog(const std::string& origin,
+                   const std::string& extensionName,
+                   Permission permission,
+                   const std::string& url);
 
-lua_CFunction get_original_io_open();
+  std::pair<bool, Remember> ask();
 
-bool ask_access(lua_State* L,
-                const char* filename,
-                const FileAccessMode mode,
-                const ResourceType resourceType,
-                // Generally =2 when the access is requested from a
-                // function, or =3 if it's requested from a property.
-                const int stackLevel = 2);
+private:
+  void showPopup();
+  bool m_isExtension;
+  ui::Timer m_timer;
+  base::tick_t m_scaryAllowCooldown;
+};
 
-}} // namespace app::script
+void set_permission_storage(PermissionStorage* storage);
+constexpr std::string_view permission_to_string(Permission p);
+constexpr bool permission_supports_url(Permission p);
+
+} // namespace app::script
 
 #endif

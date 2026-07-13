@@ -24,6 +24,7 @@
             <listitem text="@.section_undo" value="section_undo" />
             <listitem text="@.section_theme" value="section_theme" />
             <listitem text="@.section_extensions" value="section_extensions" />
+            <listitem text="@.section_security" value="section_security" />
             <listitem text="@.section_aseprite_format" value="section_aseprite_format" />
             <listitem text="@.section_experimental" value="section_experimental" />
             <separator text="@.section_windows_specific" horizontal="true" style="separator_in_view" id="section_windows_specific_separator" />
@@ -597,6 +598,17 @@
             <button id="disable_extension" text="@.disable_extension" minwidth="60" />
             <button id="uninstall_extension" text="@.uninstall_extension" minwidth="60" />
             <button id="open_extension_about" text="@.open_extension_about" minwidth="60" />
+          </hbox>
+        </vbox>
+
+        <!-- Security -->
+        <vbox id="section_security">
+          <view expansive="true" maxsize="true">
+            <tree id="permissions_tree" />
+          </view>
+          <hbox id="security_buttons">
+            <boxfiller />
+            <button id="revoke_all_permissions" text="@.revoke_all" minwidth="60" />
           </hbox>
         </vbox>
 

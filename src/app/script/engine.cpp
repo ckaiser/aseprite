@@ -15,6 +15,8 @@
 #include "app/doc_exporter.h"
 #include "app/doc_range.h"
 #include "app/file/file_format.h"
+#include "app/i18n/strings.h"
+#include "app/ini_file.h"
 #include "app/pref/preferences.h"
 #include "app/script/blend_mode.h"
 #include "app/script/debugger.h"
@@ -25,6 +27,7 @@
 #include "app/tilemap_mode.h"
 #include "app/tileset_mode.h"
 #include "app/tools/ink_type.h"
+#include "app/ui_context.h"
 #include "base/chrono.h"
 #include "base/file_handle.h"
 #include "base/fs.h"
@@ -59,15 +62,6 @@ FILE* lua_user_freopen(const char* fname, const char* mode, FILE* stream)
 
 namespace app::script {
 
-namespace {
-int dofilecont(lua_State* L, int d1, lua_KContext d2)
-{
-  (void)d1;
-  (void)d2;
-  return lua_gettop(L) - 1;
-}
-} // namespace
-
 Engine* get_engine(lua_State* L)
 {
   auto* ptr = lua_getextraspace(L);
@@ -79,64 +73,30 @@ void engine_print(lua_State* L, const std::string& message)
   get_engine(L)->ConsolePrint(message);
 }
 
-void register_app_object(lua_State* L);
-void register_app_pixel_color_object(lua_State* L);
-void register_app_fs_object(lua_State* L);
-void register_app_os_object(lua_State* L);
-void register_app_command_object(lua_State* L);
-void register_app_preferences_object(lua_State* L);
-void register_json_object(lua_State* L);
-
-void register_iterator_class(lua_State* L);
-void register_brush_class(lua_State* L);
-void register_cel_class(lua_State* L);
-void register_cels_class(lua_State* L);
-void register_color_class(lua_State* L);
-void register_color_space_class(lua_State* L);
-void register_dialog_class(lua_State* L);
-void register_editor_class(lua_State* L);
-void register_graphics_context_class(lua_State* L);
-void register_window_class(lua_State* L);
-void register_events_class(lua_State* L);
-void register_frame_class(lua_State* L);
-void register_frames_class(lua_State* L);
-void register_grid_class(lua_State* L);
-void register_image_class(lua_State* L);
-void register_image_iterator_class(lua_State* L);
-void register_image_spec_class(lua_State* L);
-void register_images_class(lua_State* L);
-void register_layer_class(lua_State* L);
-void register_layers_class(lua_State* L);
-void register_palette_class(lua_State* L);
-void register_palettes_class(lua_State* L);
-void register_plugin_class(lua_State* L);
-void register_point_class(lua_State* L);
-void register_properties_class(lua_State* L);
-void register_range_class(lua_State* L);
-void register_rect_class(lua_State* L);
-void register_selection_class(lua_State* L);
-void register_site_class(lua_State* L);
-void register_size_class(lua_State* L);
-void register_slice_class(lua_State* L);
-void register_slices_class(lua_State* L);
-void register_sprite_class(lua_State* L);
-void register_sprites_class(lua_State* L);
-void register_tag_class(lua_State* L);
-void register_tags_class(lua_State* L);
-void register_theme_classes(lua_State* L);
-void register_clipboard_classes(lua_State* L);
-void register_tile_class(lua_State* L);
-void register_tileset_class(lua_State* L);
-void register_tilesets_class(lua_State* L);
-void register_timer_class(lua_State* L);
-void register_tool_class(lua_State* L);
-void register_uuid_class(lua_State* L);
-void register_version_class(lua_State* L);
-void register_websocket_class(lua_State* L);
-
-void set_app_params(lua_State* L, const Params& params);
-
 namespace {
+int dofilecont(lua_State* L, int d1, lua_KContext d2)
+{
+  (void)d1;
+  (void)d2;
+  return lua_gettop(L) - 1;
+}
+
+// Helper function for file operations
+int file_result(lua_State* L, bool result, int errorNo = 0, const std::string& fileName = "")
+{
+  if (result) {
+    lua_pushboolean(L, 1);
+    return 1;
+  }
+
+  luaL_pushfail(L);
+  if (fileName.empty())
+    lua_pushstring(L, strerror(errorNo));
+  else
+    lua_pushfstring(L, "%s: %s", fileName.c_str(), strerror(errorNo));
+  lua_pushinteger(L, errorNo);
+  return 3;
+}
 
 // Wraps member functions to be registered directly to Lua.
 using member_function_t = int (Engine::*)();
@@ -147,11 +107,11 @@ int wrap(lua_State* L)
   return (ptr->*function)();
 }
 
-using member_hook_t = void (Engine::*)(lua_Debug*);
+using member_hook_t = void (Engine::*)(lua_Debug*) const;
 template<member_hook_t function>
 void wrap_hook(lua_State* L, lua_Debug* ar)
 {
-  Engine* ptr = *static_cast<Engine**>(lua_getextraspace(L));
+  const Engine* ptr = *static_cast<Engine**>(lua_getextraspace(L));
   (ptr->*function)(ar);
 }
 
@@ -181,6 +141,16 @@ void* tracking_allocator(void* ud, void* ptr, size_t osize, size_t nsize)
   if (ptr != nullptr)
     tracker->usage -= osize;
   return base_realloc(ptr, nsize);
+}
+
+int unsupported_error(lua_State* L)
+{
+  lua_Debug ar;
+  lua_getstack(L, 0, &ar);
+  lua_getinfo(L, "n", &ar);
+  if (ar.name)
+    return luaL_error(L, "unsupported function '%s'", ar.name);
+  return luaL_error(L, "unsupported function");
 }
 
 struct PackagePath {
@@ -218,9 +188,19 @@ struct PackagePath {
   }
 };
 
-lua_CFunction g_orig_loadfile = nullptr;
+// Stores the original C functions that we end up replacing
+struct {
+  lua_CFunction loadfile = nullptr;
+  lua_CFunction io_open = nullptr;
+  lua_CFunction io_popen = nullptr;
+  lua_CFunction io_lines = nullptr;
+  lua_CFunction io_input = nullptr;
+  lua_CFunction io_output = nullptr;
+  lua_CFunction os_execute = nullptr;
+  lua_CFunction package_loadlib = nullptr;
+} g_original;
 
-// Equivalent to what's declared  luaL_openlibs except without coroutines.
+// Equivalent to what's declared in luaL_openlibs except without coroutines.
 constexpr luaL_Reg lua_libraries[] = {
   { LUA_GNAME,       luaopen_base    },
   { LUA_LOADLIBNAME, luaopen_package },
@@ -232,65 +212,12 @@ constexpr luaL_Reg lua_libraries[] = {
   { LUA_UTF8LIBNAME, luaopen_utf8    },
   { LUA_DBLIBNAME,   luaopen_debug   }
 };
-
-constexpr auto registration_functions = {
-  register_iterator_class,
-  register_app_object,
-  register_app_pixel_color_object,
-  register_app_fs_object,
-  register_app_os_object,
-  register_app_command_object,
-  register_app_preferences_object,
-  register_json_object,
-  register_brush_class,
-  register_cel_class,
-  register_cels_class,
-  register_color_class,
-  register_color_space_class,
-  register_dialog_class,
-  register_editor_class,
-  register_graphics_context_class,
-  register_window_class,
-  register_events_class,
-  register_frame_class,
-  register_frames_class,
-  register_grid_class,
-  register_image_class,
-  register_image_iterator_class,
-  register_image_spec_class,
-  register_images_class,
-  register_layer_class,
-  register_layers_class,
-  register_palette_class,
-  register_palettes_class,
-  register_plugin_class,
-  register_point_class,
-  register_properties_class,
-  register_range_class,
-  register_rect_class,
-  register_selection_class,
-  register_site_class,
-  register_size_class,
-  register_slice_class,
-  register_slices_class,
-  register_sprite_class,
-  register_sprites_class,
-  register_tag_class,
-  register_tags_class,
-  register_theme_classes,
-  register_clipboard_classes,
-  register_tile_class,
-  register_tileset_class,
-  register_tilesets_class,
-  register_timer_class,
-  register_tool_class,
-  register_uuid_class,
-  register_version_class,
-#if ENABLE_WEBSOCKET
-  register_websocket_class,
-#endif
-};
 } // namespace
+
+lua_CFunction engine_io_open()
+{
+  return g_original.io_open;
+}
 
 Engine::Engine() : L(nullptr), m_printEvalResult(false), m_returnCode(0), m_objectTracker(0)
 {
@@ -309,23 +236,92 @@ Engine::Engine() : L(nullptr), m_printEvalResult(false), m_returnCode(0), m_obje
     lua_pop(L, 1); // remove lib
   }
 
-  // Secure Lua functions
-  overwrite_unsecure_functions(L);
+  // Security
+  lua_getglobal(L, "os");
+  // Remove the fully unsupported functions - TODO: provide our own tmpname
+  for (const char* name : { "exit", "tmpname" }) {
+    lua_pushcfunction(L, unsupported_error);
+    lua_setfield(L, -2, name);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_os_clock>);
+  lua_setfield(L, -2, "clock");
 
-  // Overwrite Lua functions with custom implementations
+  if (!g_original.os_execute) {
+    lua_getfield(L, -1, "execute");
+    g_original.os_execute = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_os_execute>);
+  lua_setfield(L, -2, "execute");
+  lua_pushcfunction(L, &wrap<&Engine::lua_os_remove>);
+  lua_setfield(L, -2, "remove");
+  lua_pushcfunction(L, &wrap<&Engine::lua_os_rename>);
+  lua_setfield(L, -2, "rename");
+  lua_pop(L, 1);
+
+  lua_getglobal(L, "io");
+  // io.open
+  if (!g_original.io_open) {
+    lua_getfield(L, -1, "open");
+    g_original.io_open = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_io_open>);
+  lua_setfield(L, -2, "open");
+  // io.popen
+  if (!g_original.io_popen) {
+    lua_getfield(L, -1, "popen");
+    g_original.io_popen = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_io_popen>);
+  lua_setfield(L, -2, "popen");
+  // io.lines
+  if (!g_original.io_lines) {
+    lua_getfield(L, -1, "lines");
+    g_original.io_lines = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_io_lines>);
+  lua_setfield(L, -2, "lines");
+  // io.input
+  if (!g_original.io_input) {
+    lua_getfield(L, -1, "input");
+    g_original.io_input = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_io_input>);
+  lua_setfield(L, -2, "input");
+  // io.output
+  if (!g_original.io_output) {
+    lua_getfield(L, -1, "output");
+    g_original.io_output = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_io_output>);
+  lua_setfield(L, -2, "output");
+  lua_pop(L, 1);
+
+  lua_getglobal(L, "package");
+  // package.loadlib
+  if (!g_original.package_loadlib) {
+    lua_getfield(L, -1, "loadlib");
+    g_original.package_loadlib = lua_tocfunction(L, -1);
+    lua_pop(L, 1);
+  }
+  lua_pushcfunction(L, &wrap<&Engine::lua_package_loadlib>);
+  lua_setfield(L, -2, "loadlib");
+  lua_pop(L, 1);
+
+  // Replacing global functions
   lua_register(L, "print", &wrap<&Engine::lua_print>);
   lua_register(L, "dofile", &wrap<&Engine::lua_dofile>);
-  if (!g_orig_loadfile) {
+  if (!g_original.loadfile) {
     lua_getglobal(L, "loadfile");
-    g_orig_loadfile = lua_tocfunction(L, -1);
+    g_original.loadfile = lua_tocfunction(L, -1);
     lua_pop(L, 1);
   }
   lua_register(L, "loadfile", &wrap<&Engine::lua_loadfile>);
-
-  lua_getglobal(L, "os");
-  lua_pushcfunction(L, &wrap<&Engine::lua_os_clock>);
-  lua_setfield(L, -2, "clock");
-  lua_pop(L, 1);
 
   // Register constants
   lua_createtable(L, 0, 5);
@@ -515,7 +511,7 @@ Engine::Engine() : L(nullptr), m_printEvalResult(false), m_returnCode(0), m_obje
   lua_setglobal(L, "FormatSupport");
 
   // Call all the registration functions
-  for (const auto fn : registration_functions) {
+  for (const auto fn : engine_registration_functions) {
     fn(L);
   }
 
@@ -548,31 +544,6 @@ Engine::~Engine()
 {
   lua_close(L);
   L = nullptr;
-}
-
-int Engine::lua_print()
-{
-  std::string output;
-  int n = lua_gettop(L); /* number of arguments */
-  lua_getglobal(L, "tostring");
-  for (int i = 1; i <= n; i++) {
-    lua_pushvalue(L, -1); // function to be called
-    lua_pushvalue(L, i);  // value to print
-    lua_call(L, 1, 1);
-    size_t l;
-    const char* s = lua_tolstring(L, -1, &l); // get result
-    if (s == nullptr)
-      return luaL_error(L, "'tostring' must return a string to 'print'");
-    if (i > 1)
-      output.push_back('\t');
-    output.insert(output.size(), s, l);
-    lua_pop(L, 1); // pop result
-  }
-
-  if (!output.empty())
-    ConsolePrint(output);
-
-  return 0;
 }
 
 int Engine::lua_dofile()
@@ -608,7 +579,42 @@ int Engine::lua_loadfile()
   if (app && app->isGui() && !lua_isstring(L, 1)) {
     return luaL_error(L, "loadfile() for stdin cannot be used running in GUI mode");
   }
-  return g_orig_loadfile(L);
+  return g_original.loadfile(L);
+}
+
+int Engine::lua_print()
+{
+  std::string output;
+  int n = lua_gettop(L); /* number of arguments */
+  lua_getglobal(L, "tostring");
+  for (int i = 1; i <= n; i++) {
+    lua_pushvalue(L, -1); // function to be called
+    lua_pushvalue(L, i);  // value to print
+    lua_call(L, 1, 1);
+    size_t l;
+    const char* s = lua_tolstring(L, -1, &l); // get result
+    if (s == nullptr)
+      return luaL_error(L, "'tostring' must return a string to 'print'");
+    if (i > 1)
+      output.push_back('\t');
+    output.insert(output.size(), s, l);
+    lua_pop(L, 1); // pop result
+  }
+
+  if (!output.empty())
+    ConsolePrint(output);
+
+  return 0;
+}
+
+int Engine::lua_io_input()
+{
+  return absoluteFilenameAccess(g_original.io_input);
+}
+
+int Engine::lua_io_lines()
+{
+  return absoluteFilenameAccess(g_original.io_lines);
 }
 
 int Engine::lua_os_clock()
@@ -617,11 +623,193 @@ int Engine::lua_os_clock()
   return 1;
 }
 
-void Engine::lua_hook(lua_Debug* ar)
+int Engine::lua_os_execute()
+{
+  const char* cmd = luaL_checkstring(L, 1);
+  accessGate(Permission::Execute, cmd);
+  return g_original.os_execute(L);
+}
+
+int Engine::lua_os_remove()
+{
+  const std::string& path = base::get_canonical_path(luaL_checkstring(L, 1));
+  if (path.empty())
+    return file_result(L, false, ENOENT, path);
+
+  if (!requestAccess(Permission::IOWrite, path))
+    return file_result(L, false, EACCES, path);
+
+  if (base::is_directory(path)) {
+    try {
+      base::remove_directory(path);
+      return file_result(L, true);
+    }
+    catch (const std::exception& e) {
+      LOG(WARNING, "Script failed to delete directory '%s': %s", path.c_str(), e.what());
+      return file_result(L, false, EIO, path);
+    }
+  }
+
+  try {
+    base::delete_file(path);
+  }
+  catch (const std::exception& e) {
+    LOG(WARNING, "Script failed to delete file '%s': %s", path.c_str(), e.what());
+    return file_result(L, false, EIO, path);
+  }
+
+  return file_result(L, true);
+}
+
+int Engine::lua_os_rename()
+{
+  const std::string& source = base::get_canonical_path(luaL_checkstring(L, 1));
+  const std::string& dest = base::get_absolute_path(luaL_checkstring(L, 2));
+  lua_pop(L, 2);
+
+  if (source.empty())
+    return file_result(L, false, ENOENT, source);
+
+  if (dest.empty())
+    return file_result(L, false, EINVAL, dest);
+
+  if (!requestAccess(Permission::IORead, source))
+    return file_result(L, false, EACCES, source);
+
+  try {
+    // If the destination file already exists, we should ask for permission to overwrite it.
+    if (!base::get_canonical_path(dest).empty() && !requestAccess(Permission::IOWrite, dest)) {
+      return file_result(L, false, EACCES, dest);
+    }
+
+    base::move_file(source, dest, true);
+    return file_result(L, true);
+  }
+  catch (const std::exception& e) {
+    LOG(WARNING,
+        "Script failed to rename file '%s' to '%s': %s",
+        source.c_str(),
+        dest.c_str(),
+        e.what());
+    return file_result(L, false, EIO, source);
+  }
+}
+
+int Engine::lua_package_loadlib()
+{
+  const char* file = luaL_checkstring(L, 1);
+  accessGate(Permission::LoadLib, file);
+  return g_original.package_loadlib(L);
+}
+
+int Engine::lua_io_open()
+{
+  const std::string& path = base::get_absolute_path(luaL_checkstring(L, 1));
+  const std::string_view mode = lua_tostring(L, 2);
+
+  auto permission = Permission::IORead; // Read is the default access
+  if (!mode.empty() && (mode[0] == 'w' || mode[0] == 'a' || mode.substr(0, 2) == "r+"))
+    permission = Permission::IOWrite;
+
+  accessGate(permission, path);
+
+  return g_original.io_open(L);
+}
+
+int Engine::lua_io_output()
+{
+  return absoluteFilenameAccess(g_original.io_output, false);
+}
+
+int Engine::lua_io_popen()
+{
+  const char* cmd = luaL_checkstring(L, 1);
+  accessGate(Permission::Execute, cmd);
+  return g_original.io_popen(L);
+}
+
+void Engine::lua_hook(lua_Debug* ar) const
 {
   ASSERT(m_debugger)
   if (m_debugger)
     m_debugger->onHook(L, ar);
+}
+
+int Engine::absoluteFilenameAccess(const lua_CFunction func, const bool readOnly)
+{
+  if (const auto* fn = lua_tostring(L, 1)) {
+    const std::string absFilename = base::get_absolute_path(fn);
+
+    const auto permission = readOnly ? Permission::IORead : Permission::IOWrite;
+    accessGate(permission, absFilename);
+  }
+
+  return func(L);
+}
+
+bool Engine::requestAccess(const Permission permission, const std::string& url)
+{
+  const auto& script = m_scriptStack.empty() ? m_baseScript : m_scriptStack.top();
+  if (script.empty()) // TODO: REPL/evalCode deserve permissions too!
+    return false;
+
+  auto* storage = PermissionStorage::instance();
+  if (script != m_baseScript && !storage->passesIntegrityCheck(script)) {
+    // We check integrity when we run the userScript initially but that doesn't include scripts
+    // that live in dofile or require, and those permissions belong to them individually and need
+    // to be integrity checked.
+    storage->reset(script);
+  }
+
+  std::optional<bool> opt;
+  try {
+    opt = permission_supports_url(permission) ? storage->readForUrl(script, permission, url) :
+                                                storage->read(script, permission);
+  }
+  catch (const std::exception& e) {
+    // Any parsing failure should reset our storage.
+    storage->reset(script);
+  }
+
+  if (!App::instance()->context()->isUIAvailable()) {
+    if (opt.has_value() && *opt)
+      return true;
+    return get_config_bool("general", "allow_cli_scripts_full_access", true);
+  }
+
+  if (opt.has_value())
+    return *opt;
+
+  PermissionDialog dialog(script, m_extensionName, permission, url);
+  auto [allow, remember] = dialog.ask();
+  switch (remember) {
+    default:                                     break;
+    case PermissionDialog::Remember::FullAccess: storage->writeFullAccess(script, true); break;
+    case PermissionDialog::Remember::Permission: storage->write(script, permission, allow); break;
+    case PermissionDialog::Remember::URL:
+      storage->writeForUrl(script, permission, url, allow);
+      break;
+    case PermissionDialog::Remember::Directory:
+      const std::string dirUrl = base::join_path(base::get_file_path(url), "*");
+      storage->writeForUrl(script, permission, dirUrl, allow);
+      break;
+  }
+
+  return allow;
+}
+
+void Engine::accessGate(const Permission permission, const std::string& url)
+{
+  if (!requestAccess(permission, url)) {
+    const auto& permissionString = permission_to_string(permission);
+    luaL_error(L,
+               Strings::VFormat(
+                 fmt::format("script_access.error_{}", permissionString).c_str(),
+                 fmt::make_format_args(m_extensionName.empty() ? Strings::script_access_script() :
+                                                                 Strings::script_access_extension(),
+                                       url))
+                 .c_str());
+  }
 }
 
 void Engine::setDebugger(Debugger* debugger)
@@ -679,6 +867,9 @@ bool Engine::evalCode(const std::string& code, const std::string& name)
 {
   bool ok = true;
   try {
+    if (code.substr(0, 4) == "\x1bLua" && !requestAccess(Permission::Bytecode))
+      return false;
+
     if (luaL_loadbuffer(L, code.c_str(), code.size(), name.c_str()) || lua_pcall(L, 0, 1, 0)) {
       const char* s = lua_tostring(L, -1);
       if (s)
@@ -742,7 +933,7 @@ bool Engine::evalFile(const std::string& filename, const Params& params)
 {
   std::stringstream buf;
   {
-    std::ifstream s(FSTREAM_PATH(filename));
+    const std::ifstream s(FSTREAM_PATH(filename));
     // Returns false if we cannot open the file
     if (!s)
       return false;
@@ -753,14 +944,25 @@ bool Engine::evalFile(const std::string& filename, const Params& params)
   const PackagePath path(L, absFilename, m_scriptStack);
   set_app_params(L, params);
 
-  bool result = evalCode(buf.str(), "@" + absFilename);
+  const bool result = evalCode(buf.str(), "@" + absFilename);
   return result;
 }
 
 bool Engine::evalUserFile(const std::string& filename, const Params& params)
 {
   m_baseScript = filename;
+
+  auto* storage = PermissionStorage::instance();
+  if (!storage->passesIntegrityCheck(filename))
+    storage->reset(filename);
+
   return evalFile(filename, params);
+}
+
+bool Engine::evalExtension(const std::string& entryPoint, const std::string& extensionName)
+{
+  m_extensionName = extensionName;
+  return evalUserFile(entryPoint);
 }
 
 } // namespace app::script

@@ -84,3 +84,6 @@
 [submodule "third_party/cppdap"]
 	path = third_party/cppdap
 	url = https://github.com/aseprite/cppdap
+[submodule "third_party/BLAKE3"]
+	path = third_party/BLAKE3
+	url = https://github.com/aseprite/BLAKE3

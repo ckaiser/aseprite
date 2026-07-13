@@ -1063,6 +1063,9 @@
             <text color="textbox_text" align="left"/>
             <text color="selected_text" align="left" state="selected"/>
         </style>
+        <style id="textedit_static" extends="textedit">
+            <background color="textbox_face" state="disabled" />
+        </style>
         <style id="mini_slider" extends="slider" font="mini">
             <background part="mini_slider_empty"/>
             <text color="slider_empty_text" align="center middle"/>
