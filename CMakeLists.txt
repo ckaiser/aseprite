@@ -1,5 +1,5 @@
 # Aseprite
-# Copyright (C) 2018-2025  Igara Studio S.A.
+# Copyright (C) 2018-present  Igara Studio S.A.
 # Copyright (C) 2001-2018  David Capello
 
 cmake_minimum_required(VERSION 3.20)
@@ -186,22 +186,11 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/lib")
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_PROFILE "${CMAKE_BINARY_DIR}/bin")
 
-set(SOURCE_DATA_DIR     ${CMAKE_CURRENT_SOURCE_DIR}/data)
-set(CMARK_DIR           ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cmark)
-set(CURL_DIR            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/curl)
-set(GIFLIB_DIR          ${CMAKE_CURRENT_SOURCE_DIR}/third_party/giflib)
-set(LIBPNG_DIR          ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libpng)
-set(LIBWEBP_DIR         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/libwebp)
-set(PIXMAN_DIR          ${CMAKE_CURRENT_SOURCE_DIR}/third_party/pixman)
-set(FREETYPE_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/freetype2)
-set(HARFBUZZ_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/harfbuzz)
-set(SIMPLEINI_DIR       ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simpleini)
-set(TINYEXIF_DIR        ${CMAKE_CURRENT_SOURCE_DIR}/third_party/TinyEXIF)
-set(TINYXML_DIR         ${CMAKE_CURRENT_SOURCE_DIR}/third_party/tinyxml2)
-set(ZLIB_DIR            ${CMAKE_CURRENT_SOURCE_DIR}/third_party/zlib)
+# "data/" directory
+set(SOURCE_DATA_DIR "${CMAKE_CURRENT_SOURCE_DIR}/data")
 
 # Search in the "cmake" directory for additional CMake modules.
-list(APPEND CMAKE_MODULE_PATH ${CMAKE_CURRENT_SOURCE_DIR}/cmake)
+list(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
 
 if(ENABLE_CCACHE)
   find_package(CCache)
@@ -211,150 +200,22 @@ if(ENABLE_CCACHE)
     set_property(GLOBAL PROPERTY RULE_LAUNCH_LINK    "${CCache_EXECUTABLE}")
   endif()
 endif()
+
 # Put libraries into "lib".
-set(LIBRARY_OUTPUT_PATH ${CMAKE_BINARY_DIR}/lib)
+set(LIBRARY_OUTPUT_PATH "${CMAKE_BINARY_DIR}/lib")
 
 ######################################################################
 # Common definitions to compile all sources (app code and third party)
 
 # Debug C/C++ flags
 if(CMAKE_BUILD_TYPE STREQUAL Debug)
-  add_definitions(-DDEBUGMODE -D_DEBUG)
+  add_definitions(-D_DEBUG)
 else()
   add_definitions(-DNDEBUG)
 endif()
 
-if(NOT USE_SHARED_CURL)
-  set(CURL_STATICLIB ON BOOL)
-endif()
-
-# zlib
-if(USE_SHARED_ZLIB)
-  find_package(ZLIB REQUIRED)
-else()
-  set(ZLIB_FOUND ON)
-  set(ZLIB_LIBRARY zlibstatic)
-  set(ZLIB_LIBRARIES ${ZLIB_LIBRARY})
-  set(ZLIB_INCLUDE_DIRS
-    ${ZLIB_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/third_party/zlib) # Zlib generated zconf.h file
-  set(ZLIB_INCLUDE_DIR ${ZLIB_INCLUDE_DIRS} CACHE PATH "")
-endif()
-include_directories(${ZLIB_INCLUDE_DIRS})
-
-# libpng
-if(USE_SHARED_LIBPNG)
-  find_package(PNG REQUIRED)
-  add_definitions(${PNG_DEFINITIONS})
-else()
-  set(PNG_FOUND ON)
-
-  # Skia on Linux includes libpng symbols
-  if(UNIX AND NOT APPLE AND LAF_BACKEND STREQUAL "skia")
-    set(PNG_LIBRARY skia)
-  else()
-    set(PNG_LIBRARY png_static)
-  endif()
-  set(PNG_LIBRARIES ${PNG_LIBRARY})
-  set(PNG_INCLUDE_DIRS
-    ${LIBPNG_DIR}
-    ${CMAKE_CURRENT_BINARY_DIR}/third_party/libpng) # Libpng generated pnglibconf.h file
-  set(PNG_INCLUDE_DIR ${PNG_INCLUDE_DIRS} CACHE PATH "")
-  set(PNG_PNG_INCLUDE_DIR ${PNG_INCLUDE_DIRS} CACHE PATH "")
-endif()
-include_directories(${PNG_INCLUDE_DIRS})
-add_definitions(-DPNG_NO_MMX_CODE) # Do not use MMX optimizations in PNG code
-
-# tinyxml2
-if(USE_SHARED_TINYXML)
-  find_library(TINYXML_LIBRARY NAMES tinyxml2)
-  find_path(TINYXML_INCLUDE_DIR NAMES tinyxml2.h)
-else()
-  set(TINYXML_LIBRARY tinyxml2)
-  set(TINYXML_INCLUDE_DIR ${TINYXML_DIR})
-endif()
-include_directories(${TINYXML_INCLUDE_DIR})
-
-# TinyEXIF
-if(USE_SHARED_TINYEXIF)
-  find_library(TINYEXIF_LIBRARY NAMES TinyEXIF)
-  find_path(TINYEXIF_INCLUDE_DIR NAMES TinyEXIF.h)
-else()
-  set(TINYEXIF_LIBRARY TinyEXIFstatic)
-  set(TINYEXIF_INCLUDE_DIR ${TINYEXIF_DIR})
-endif()
-include_directories(${TINYEXIF_INCLUDE_DIR})
-
-# pixman
-if(USE_SHARED_PIXMAN)
-  find_library(PIXMAN_LIBRARY NAMES pixman pixman-1)
-  find_path(PIXMAN_INCLUDE_DIR NAMES pixman.h PATH_SUFFIXES pixman-1)
-else()
-  set(PIXMAN_LIBRARY pixman)
-  set(PIXMAN_INCLUDE_DIR
-    ${PIXMAN_DIR}/pixman
-    ${CMAKE_BINARY_DIR}) # For pixman-version.h
-endif()
-include_directories(${PIXMAN_INCLUDE_DIR})
-
-# freetype
-if(USE_SHARED_FREETYPE)
-  find_package(Freetype REQUIRED)
-elseif(NOT LAF_BACKEND STREQUAL "skia")
-  set(FREETYPE_FOUND ON)
-  set(FREETYPE_LIBRARY freetype)
-  set(FREETYPE_LIBRARIES ${FREETYPE_LIBRARY})
-  set(FREETYPE_INCLUDE_DIRS ${FREETYPE_DIR}/include)
-endif()
-
-# harfbuzz
-if(USE_SHARED_HARFBUZZ)
-  find_package(HarfBuzz)
-elseif(NOT LAF_BACKEND STREQUAL "skia")
-  set(HARFBUZZ_FOUND ON)
-  set(HARFBUZZ_LIBRARIES harfbuzz)
-  set(HARFBUZZ_INCLUDE_DIRS ${HARFBUZZ_DIR}/src)
-endif()
-
-if(USE_SHARED_GIFLIB)
-  find_package(GIF REQUIRED)
-else()
-  set(GIF_LIBRARY giflib)
-  set(GIF_LIBRARIES ${GIF_LIBRARY})
-  set(GIF_INCLUDE_DIR ${GIFLIB_DIR})
-  set(GIF_INCLUDE_DIRS ${GIF_INCLUDE_DIR})
-endif()
-include_directories(${GIF_INCLUDE_DIRS})
-
-# libjpeg-turbo
-find_package(JpegTurbo)
-
-# cmark
-if(USE_SHARED_CMARK)
-  find_library(CMARK_LIBRARIES NAMES cmark)
-  find_path(CMARK_INCLUDE_DIRS NAMES cmark.h)
-else()
-  add_definitions(-DCMARK_STATIC_DEFINE)
-  set(CMARK_LIBRARIES cmark)
-endif()
-
-if(REQUIRE_CURL)
-  if(USE_SHARED_CURL)
-    find_package(CURL REQUIRED)
-  else()
-    set(CURL_FOUND 1)
-    set(CURL_LIBRARY libcurl)
-    set(CURL_LIBRARIES libcurl)
-    set(CURL_INCLUDE_DIRS ${CURL_DIR}/include)
-  endif()
-  include_directories(${CURL_INCLUDE_DIRS})
-endif()
-
-# simpleini
-include_directories(${SIMPLEINI_DIR})
-
-# Third parties
-add_subdirectory(third_party)
+######################################################################
+# Third-party dependencies and laf library
 
 if(ENABLE_MEMLEAK)
   add_definitions(-DLAF_MEMLEAK)
@@ -363,30 +224,14 @@ endif()
 set(LAF_WITH_TESTS ${ENABLE_TESTS} CACHE BOOL "Enable LAF tests")
 set(UNDO_TESTS     ${ENABLE_TESTS} CACHE BOOL "Enable undo tests")
 
+include(cmake/FindBaseDeps.cmake)
+
 if(ENABLE_DRM)
   add_subdirectory(drm)
 endif()
 add_subdirectory(laf)
 
-# libwebp
-if(ENABLE_WEBP)
-  # Use libwebp from Skia
-  if(LAF_BACKEND STREQUAL "skia")
-    find_library(WEBP_LIBRARIES webp
-      NAMES libwebp # required for Windows
-      PATHS "${SKIA_LIBRARY_DIR}" NO_DEFAULT_PATH)
-    set(WEBP_INCLUDE_DIR "${SKIA_DIR}/third_party/externals/libwebp/src")
-    if(WEBP_LIBRARIES)
-      set(WEBP_FOUND ON)
-    else()
-      set(WEBP_FOUND OFF)
-    endif()
-  else()
-    set(WEBP_FOUND ON)
-    set(WEBP_LIBRARIES webp webpdemux libwebpmux)
-    set(WEBP_INCLUDE_DIR ${LIBWEBP_DIR}/src)
-  endif()
-endif()
+include(cmake/FindDeps.cmake)
 
 # Print paths to used libraries
 message(STATUS "aseprite giflib: ${GIF_LIBRARY}")
@@ -396,6 +241,9 @@ message(STATUS "aseprite libjpeg-turbo: ${LIBJPEG_TURBO_LIBRARY}")
 # LAF libraries + Aseprite are compiled with config.h
 target_include_directories(laf-base PUBLIC src)
 target_compile_definitions(laf-base PUBLIC HAVE_CONFIG_H)
+
+######################################################################
+# Aseprite application
 
 add_subdirectory(src)
 
