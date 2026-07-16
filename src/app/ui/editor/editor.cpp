@@ -2729,8 +2729,11 @@ void Editor::onSliceDuplicated(DocEvent& ev)
 
 void Editor::onBeforeCommitTransaction(DocEvent& ev)
 {
-  if (ev.document() == m_document && isMovingPixels())
-    dropMovingPixels();
+  if (ev.document() == m_document && isMovingPixels()) {
+    auto movingPixels = static_cast<MovingPixelsState*>(m_state.get());
+    if (!movingPixels->ownsTransaction())
+      dropMovingPixels();
+  }
 }
 
 void Editor::setCursor(const gfx::Point& mouseDisplayPos)

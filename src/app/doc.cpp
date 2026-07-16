@@ -628,6 +628,7 @@ Doc* Doc::duplicate(DuplicateType type) const
   std::unique_ptr<Doc> documentCopy(new Doc(spriteCopyPtr.get()));
   Sprite* spriteCopy = spriteCopyPtr.release();
 
+  spriteCopy->setUserData(sourceSprite->userData());
   spriteCopy->setTotalFrames(sourceSprite->totalFrames());
   spriteCopy->setTileManagementPlugin(sourceSprite->tileManagementPlugin());
 

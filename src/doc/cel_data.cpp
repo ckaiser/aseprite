@@ -35,6 +35,7 @@ CelData::CelData(const CelData& celData)
   , m_bounds(celData.m_bounds)
   , m_boundsF(celData.m_boundsF ? std::make_unique<gfx::RectF>(*celData.m_boundsF) : nullptr)
 {
+  setUserData(celData.userData());
 }
 
 CelData::~CelData()

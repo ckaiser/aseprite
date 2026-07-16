@@ -532,7 +532,7 @@ void RunCommandCommand::loadDatabase()
         base::split_string(base::string_to_lower(key->triggerString()), labelWords, " ");
 
         const RunnerDB::Item item{
-          key->triggerString(), labelWords,     searchableStringStream.str(),
+          key->triggerString(), labelWords,     base::string_to_lower(searchableStringStream.str()),
           shortcutString,       key->command(), key->params()
         };
         items.try_emplace(itemKey, item);
