@@ -28,6 +28,7 @@
 #include "app/script/luacpp.h"
 #include "app/script/security.h"
 #include "app/site.h"
+#include "app/task.h"
 #include "app/tools/active_tool.h"
 #include "app/tools/ink.h"
 #include "app/tools/tool_box.h"
@@ -52,8 +53,6 @@
 #include "ui/scale.h"
 #include "ver/info.h"
 
-#include <cstring>
-#include <iostream>
 #include <vector>
 
 namespace app { namespace script {

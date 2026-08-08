@@ -17,4 +17,13 @@ void HttpHeaders::setHeader(const std::string& name, const std::string& value)
   m_map[name] = value;
 }
 
+std::string HttpHeaders::getHeader(const std::string& name) const
+{
+  const auto it = m_map.find(name);
+  if (it != m_map.end()) {
+    return it->second;
+  }
+  return "";
+}
+
 } // namespace net

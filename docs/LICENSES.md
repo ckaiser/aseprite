@@ -11,7 +11,6 @@ Aseprite uses the following open source projects:
 * [giflib](http://sourceforge.net/projects/giflib/)
 * [Google Test](https://github.com/google/googletest)
 * [harfbuzz](http://harfbuzz.org)
-* [IXWebSocket](https://github.com/machinezone/IXWebSocket)
 * [json](https://github.com/nlohmann/json/)
 * [libarchive](http://www.libarchive.org/)
 * [libjpeg-turbo](https://libjpeg-turbo.org/)
