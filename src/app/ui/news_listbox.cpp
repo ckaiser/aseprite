@@ -241,8 +241,9 @@ void NewsListBox::reload()
   if (m_loader || m_timer.isRunning())
     return;
 
-  while (auto child = lastChild())
-    removeChild(child);
+  removeAllChildren();
+
+  addChild(new NewsItem("", Strings::news_listbox_loading(), ""));
 
   View* view = View::getView(this);
   if (view)
@@ -287,6 +288,8 @@ void NewsListBox::onTick()
 void NewsListBox::parseFile(const std::string& filename)
 {
   View* view = View::getView(this);
+
+  removeAllChildren();
 
   XMLDocumentRef doc;
   try {

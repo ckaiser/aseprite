@@ -692,14 +692,12 @@ DataRecoveryView::DataRecoveryView(crash::DataRecovery* dataRecovery)
   m_listBox.DoubleClickItem.connect([this] { onOpen(); });
   m_waitToEnableRefreshTimer.Tick.connect([this] { onCheckIfWeCanEnableRefreshButton(); });
 
+  m_connRefresh =
+    m_dataRecovery->SessionsListIsReady.connect(&DataRecoveryView::refreshListNotification, this);
   m_connFullPath = Preferences::instance().general.showFullPath.AfterChange.connect(
     [this](const bool&) { invalidate(); });
   m_connBackup = dataRecovery->BackupDone.connect(
     [this](const doc::ObjectId docId) { m_runningSession->notifyDocBackupDone(docId); });
-}
-
-DataRecoveryView::~DataRecoveryView()
-{
 }
 
 void DataRecoveryView::refreshListNotification()
