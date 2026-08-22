@@ -252,7 +252,7 @@ void Theme::paintViewViewport(PaintEvent& ev)
 void Theme::paintWidgetPart(Graphics* g,
                             const Style* style,
                             const gfx::Rect& bounds,
-                            const PaintWidgetPartInfo& info)
+                            const PaintWidgetPartInfo& info) const
 {
   ASSERT(g);
   ASSERT(style);
@@ -392,7 +392,7 @@ void Theme::paintLayer(Graphics* g,
                        const int mnemonic,
                        os::Surface* providedIcon,
                        gfx::Rect& rc,
-                       gfx::Color& bgColor)
+                       gfx::Color& bgColor) const
 {
   ASSERT(style);
   if (!style)

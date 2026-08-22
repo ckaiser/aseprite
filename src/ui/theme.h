@@ -102,7 +102,7 @@ public:
   virtual void paintWidgetPart(Graphics* g,
                                const Style* style,
                                const gfx::Rect& bounds,
-                               const PaintWidgetPartInfo& info);
+                               const PaintWidgetPartInfo& info) const;
 
   // Default implementation to draw widgets with new ui::Styles
   virtual void paintWidget(Graphics* g,
@@ -183,7 +183,7 @@ private:
                   const int mnemonic,
                   os::Surface* icon,
                   gfx::Rect& rc,
-                  gfx::Color& bgColor);
+                  gfx::Color& bgColor) const;
   void measureLayer(const Widget* widget,
                     const Style* style,
                     const Style::Layer& layer,

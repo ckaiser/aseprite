@@ -28,7 +28,7 @@ public:
   TooltipManager();
   ~TooltipManager();
 
-  void addTooltipFor(Widget* widget, const std::string& text, int arrowAlign = 0);
+  void addTooltipFor(Widget* widget, const std::string& text, int arrowAlign);
   void removeTooltipFor(Widget* widget);
   void setDelay(int delay);
   std::string getTooltipFor(Widget* widget);
