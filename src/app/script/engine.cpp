@@ -1037,6 +1037,11 @@ bool Engine::hasLingeringObjects()
   return (m_appEvents && !m_appEvents->empty()) || (m_windowEvents && !m_windowEvents->empty());
 }
 
+bool Engine::isTemporaryFile(const std::string& filename)
+{
+  return m_temporaryFiles.find(filename) != m_temporaryFiles.end();
+}
+
 void Engine::handleException(const std::exception& ex)
 {
   luaL_where(L, 1);
