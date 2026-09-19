@@ -13,6 +13,7 @@
 
 #include "sentry.h"
 
+#include <functional>
 #include <map>
 #include <string>
 
@@ -34,10 +35,20 @@ public:
   // the "give consent" check box for first time.
   static bool areThereCrashesToReport();
 
+  static bool isInitialized();
+
+  struct Feedback {
+    std::string email;
+    std::string comments;
+    std::string type = "neutral";
+    bool attachExtras = false;
+  };
   static void addBreadcrumb(const char* message);
   static void addBreadcrumb(const std::string& message);
   static void addBreadcrumb(const std::string& message,
                             const std::map<std::string, std::string>& data);
+  static bool sendFeedback(const Feedback& feedback);
+  static void sendFeedbackAsync(const Feedback& feedback, std::function<void(bool)> callback);
 
 private:
   void setupDirs(sentry_options_t* options);
