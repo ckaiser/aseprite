@@ -249,8 +249,8 @@ void View::onInitTheme(InitThemeEvent& ev)
   if (!m_scrollbar_h.parent())
     m_scrollbar_h.initTheme();
 
-  if (!m_scrollbar_h.parent())
-    m_scrollbar_h.initTheme();
+  if (!m_scrollbar_v.parent())
+    m_scrollbar_v.initTheme();
 
   Widget::onInitTheme(ev);
 }
