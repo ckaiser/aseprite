@@ -230,11 +230,13 @@ ButtonSet::Item* ButtonSet::addItem(const skin::SkinPartPtr& icon,
                                     int vspan,
                                     ui::Style* style)
 {
+  // This part cannot be stored in here anymore either GG
   Item* item = new Item();
   item->setIcon(icon);
   addItem(item, hspan, vspan, style);
   return item;
 }
+
 ButtonSet::Item* ButtonSet::addItem(Item* item, ui::Style* style)
 {
   return addItem(item, 1, 1, style);
@@ -242,15 +244,19 @@ ButtonSet::Item* ButtonSet::addItem(Item* item, ui::Style* style)
 
 ButtonSet::Item* ButtonSet::addItem(Item* item, int hspan, int vspan, ui::Style* style)
 {
-  item->InitTheme.connect([item, style] {
-    ui::Style* s = style;
-    if (!s) {
-      auto* theme = SkinTheme::get(item);
+  const std::string& styleId = style ? style->id() : std::string();
+  item->InitTheme.connect([item, styleId] {
+    auto* theme = SkinTheme::get(item);
+    ui::Style* s;
+    if (styleId.empty()) {
       s = theme->styles.buttonsetItemIcon();
       if (!item->text().empty()) {
         s = (item->icon() ? theme->styles.buttonsetItemTextTopIconBottom() :
                             theme->styles.buttonsetItemText());
       }
+    }
+    else {
+      s = theme->getStyleById(styleId);
     }
     item->setStyle(s);
   });

@@ -192,6 +192,8 @@ bool ScrollBar::onProcessMessage(Message* msg)
 
 void ScrollBar::onInitTheme(InitThemeEvent& ev)
 {
+  TRACEARGS(id(), this, "Clearing scrollbar thumbStyle");
+  m_thumbStyle = nullptr; // TODO: Necessary?
   Widget::onInitTheme(ev);
   m_barWidth = theme()->getScrollbarSize();
 }
