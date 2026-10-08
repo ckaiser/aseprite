@@ -35,14 +35,60 @@ namespace app { namespace skin {
 
 class ThemeFont {
 public:
-  ThemeFont() {}
-  ThemeFont(text::FontRef font, bool mnemonics) : m_font(font), m_mnemonics(mnemonics) {}
+  ThemeFont() : m_mnemonics(false) {}
+  ThemeFont(const text::FontRef& font, const bool mnemonics) : m_font(font), m_mnemonics(mnemonics)
+  {
+  }
   text::FontRef font() { return m_font; }
-  bool mnemonics() { return m_mnemonics; }
+  bool mnemonics() const { return m_mnemonics; }
 
 private:
   text::FontRef m_font;
   bool m_mnemonics;
+};
+
+struct SkinThemeData {
+  SkinThemeData() : sheet(nullptr), preferredScreenScaling(-1), preferredUIScaling(-1)
+  {
+    standardCursors.fill(nullptr);
+  }
+
+  ~SkinThemeData()
+  {
+    // Delete all cursors.
+    for (auto& [_, cursor] : cursors)
+      delete cursor; // Delete cursor
+
+    unscaledSheet.reset();
+    sheet.reset();
+    parts.clear();
+
+    // Delete all styles.
+    for (auto& [_, style] : styles)
+      delete style;
+
+    styles.clear();
+  }
+
+  std::string id;
+  std::string path;
+  os::SurfaceRef sheet;
+  os::SurfaceRef unscaledSheet;
+  std::map<std::string, SkinPartPtr> parts;
+  std::map<std::string, SkinPartPtr> unscaledParts;
+  std::map<std::string, gfx::Color> colors;
+  std::map<std::string, int> dimensions;
+  std::map<std::string, ui::Cursor*> cursors;
+  std::array<ui::Cursor*, ui::kCursorTypes> standardCursors;
+  std::map<std::string, ui::Style*> styles;
+  std::map<std::string, ThemeFont> themeFonts;
+  std::map<text::Font*, text::FontRef> unscaledFonts;
+  FontInfo defaultFontInfo;
+  FontInfo miniFontInfo;
+  text::FontRef defaultFont;
+  text::FontRef miniFont;
+  int preferredScreenScaling;
+  int preferredUIScaling;
 };
 
 // This is the GUI theme used by Aseprite (which use images from
@@ -56,24 +102,23 @@ public:
   static SkinTheme* get(const ui::Widget* widget);
 
   SkinTheme();
-  ~SkinTheme();
+  ~SkinTheme() override;
 
-  const std::string& path() { return m_path; }
-  int preferredScreenScaling() const { return m_preferredScreenScaling; }
-  int preferredUIScaling() const { return m_preferredUIScaling; }
+  const std::string& path() const { return m_currentSkinData->path; }
+  int preferredScreenScaling() const { return m_currentSkinData->preferredScreenScaling; }
+  int preferredUIScaling() const { return m_currentSkinData->preferredUIScaling; }
 
-  const FontInfo& getDefaultFontInfo() const { return m_defaultFontInfo; }
-  const FontInfo& getMiniFontInfo() const { return m_miniFontInfo; }
-  text::FontRef getDefaultFont() const override { return m_defaultFont; }
+  const FontInfo& getDefaultFontInfo() const { return m_currentSkinData->defaultFontInfo; }
+  const FontInfo& getMiniFontInfo() const { return m_currentSkinData->miniFontInfo; }
+  text::FontRef getDefaultFont() const override { return m_currentSkinData->defaultFont; }
   text::FontRef getWidgetFont(const ui::Widget* widget) const override;
-  text::FontRef getMiniFont() const { return m_miniFont; }
+  text::FontRef getMiniFont() const { return m_currentSkinData->miniFont; }
   text::FontRef getUnscaledFont(const text::FontRef& font) const
   {
-    auto it = m_unscaledFonts.find(font.get());
-    if (it != m_unscaledFonts.end())
+    const auto& it = m_currentSkinData->unscaledFonts.find(font.get());
+    if (it != m_currentSkinData->unscaledFonts.end())
       return it->second;
-    else
-      return font;
+    return font;
   }
 
   ui::Cursor* getStandardCursor(ui::CursorType type) override;
@@ -107,73 +152,22 @@ public:
                 os::Surface* s,
                 os::Surface* sw,
                 os::Surface* w);
-  void drawRect(ui::Graphics* g,
-                const gfx::Rect& rc,
-                SkinPart* skinPart,
-                const bool drawCenter = true);
+  void drawRect(ui::Graphics* g, const gfx::Rect& rc, SkinPart* skinPart, bool drawCenter = true);
   void drawRectUsingUnscaledSheet(ui::Graphics* g,
                                   const gfx::Rect& rc,
                                   SkinPart* skinPart,
-                                  const bool drawCenter = true);
+                                  bool drawCenter = true);
   void drawRect2(ui::Graphics* g, const gfx::Rect& rc, int x_mid, SkinPart* nw1, SkinPart* nw2);
   void drawHline(ui::Graphics* g, const gfx::Rect& rc, SkinPart* skinPart);
   void drawVline(ui::Graphics* g, const gfx::Rect& rc, SkinPart* skinPart);
   void paintProgressBar(ui::Graphics* g, const gfx::Rect& rc, double progress);
 
-  ui::Style* getStyleById(const std::string& id) const
-  {
-    auto it = m_styles.find(id);
-    if (it != m_styles.end())
-      return it->second;
-    else
-      return EmptyStyle();
-  }
-
-  SkinPartPtr getPartById(const std::string& id) const
-  {
-    auto it = m_parts_by_id.find(id);
-    if (it != m_parts_by_id.end())
-      return it->second;
-    else
-      return SkinPartPtr(nullptr);
-  }
-
-  SkinPartPtr getUnscaledPartById(const std::string& id) const
-  {
-    auto it = m_unscaledParts_by_id.find(id);
-    if (it != m_unscaledParts_by_id.end())
-      return it->second;
-    else
-      return SkinPartPtr(nullptr);
-  }
-
-  ui::Cursor* getCursorById(const std::string& id) const
-  {
-    auto it = m_cursors.find(id);
-    if (it != m_cursors.end())
-      return it->second;
-    else
-      return nullptr;
-  }
-
-  int getDimensionById(const std::string& id) const
-  {
-    auto it = m_dimensions_by_id.find(id);
-    if (it != m_dimensions_by_id.end())
-      return it->second * ui::guiscale();
-    else
-      return 0;
-  }
-
-  gfx::Color getColorById(const std::string& id) const
-  {
-    auto it = m_colors_by_id.find(id);
-    if (it != m_colors_by_id.end())
-      return it->second;
-    else
-      return gfx::ColorNone;
-  }
-
+  ui::Style* getStyleById(const std::string& id) const;
+  SkinPartPtr getPartById(const std::string& id) const;
+  SkinPartPtr getUnscaledPartById(const std::string& id) const;
+  ui::Cursor* getCursorById(const std::string& id) const;
+  int getDimensionById(const std::string& id) const;
+  gfx::Color getColorById(const std::string& id) const;
   void drawEntryCaret(ui::Graphics* g, ui::Entry* widget, int x, int y);
 
   std::pair<int, int> readPreferredScaling(const std::string& themeId);
@@ -182,50 +176,28 @@ protected:
   void onRegenerateTheme() override;
 
 private:
-  class BackwardCompatibility;
-
   void loadFontData();
-  void loadAll(const std::string& themeId, BackwardCompatibility* backward = nullptr);
-  void loadSheet();
-  void loadXml(BackwardCompatibility* backward);
+  void loadAll(const std::string& themeId, SkinThemeData* d);
+  void loadSheet(SkinThemeData* d);
+  void loadXml(SkinThemeData* d);
 
-  os::SurfaceRef sliceSheet(os::SurfaceRef sur, const gfx::Rect& bounds);
-  os::SurfaceRef sliceUnscaledSheet(os::SurfaceRef sur, const gfx::Rect& bounds);
   gfx::Color getWidgetBgColor(ui::Widget* widget);
   void drawText(ui::Graphics* g,
                 const char* t,
-                const gfx::Color fgColor,
-                const gfx::Color bgColor,
+                gfx::Color fgColor,
+                gfx::Color bgColor,
                 const ui::Widget* widget,
                 const gfx::Rect& rc,
-                const int textAlign,
-                const int mnemonic);
+                int textAlign,
+                int mnemonic);
   void drawEntryText(ui::Graphics* g, ui::Entry* widget);
 
   std::string findThemePath(const std::string& themeId) const;
 
   Fonts m_fonts;
-  std::string m_path;
-  os::SurfaceRef m_sheet;
-  // Contains the sheet surface as is, without any scale.
-  os::SurfaceRef m_unscaledSheet;
-  std::map<std::string, SkinPartPtr> m_parts_by_id;
-  // Stores the same SkinParts as m_parts_by_id but unscaled, using the same keys.
-  std::map<std::string, SkinPartPtr> m_unscaledParts_by_id;
-  std::map<std::string, gfx::Color> m_colors_by_id;
-  std::map<std::string, int> m_dimensions_by_id;
-  std::map<std::string, ui::Cursor*> m_cursors;
-  std::array<ui::Cursor*, ui::kCursorTypes> m_standardCursors;
-  std::map<std::string, ui::Style*> m_styles;
-  std::map<std::string, ThemeFont> m_themeFonts;
-  // Stores the unscaled font version of the Font pointer used as a key.
-  std::map<text::Font*, text::FontRef> m_unscaledFonts;
-  FontInfo m_defaultFontInfo;
-  FontInfo m_miniFontInfo;
-  text::FontRef m_defaultFont;
-  text::FontRef m_miniFont;
-  int m_preferredScreenScaling;
-  int m_preferredUIScaling;
+
+  SkinThemeData* m_defaultSkinData;
+  SkinThemeData* m_currentSkinData;
 };
 
 }} // namespace app::skin
