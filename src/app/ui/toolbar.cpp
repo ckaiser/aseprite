@@ -691,7 +691,7 @@ void ToolBar::drawToolIcon(Graphics* g, int group_index, SkinPartPtr skin, os::S
   Rect toolrc = getToolGroupBounds(group_index);
   toolrc.offset(-origin());
 
-  theme->drawRect(g, toolrc, skin.get());
+  theme->drawRect(g, toolrc, skin);
 
   if (icon) {
     g->drawRgbaSurface(icon,
@@ -822,7 +822,7 @@ void ToolBar::ToolStrip::onPaint(PaintEvent& ev)
 
     toolrc = getToolBounds(index++);
     toolrc.offset(-bounds().x, -bounds().y);
-    theme->drawRect(g, toolrc, nw.get());
+    theme->drawRect(g, toolrc, nw);
 
     // Draw the tool icon
     os::Surface* icon = theme->getToolIcon(tool->getId().c_str());

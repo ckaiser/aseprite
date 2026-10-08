@@ -437,7 +437,7 @@ public:
             m_indicators->addTextIndicator(std::string(text, i - 1).c_str());
           }
 
-          auto part = theme->getPartById("icon_" + std::string(i + 1, j));
+          SkinPartPtr part("icon_" + std::string(i + 1, j));
           if (part)
             add(part, true);
 

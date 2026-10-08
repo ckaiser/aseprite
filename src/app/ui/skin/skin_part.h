@@ -61,20 +61,25 @@ public:
 
   gfx::Size size() const;
 
-  // Temporary hack to mark SkinParts as belonging to the default theme, so that we can
-  // programatically check if they may be missing and/or modified/corrupted by the new theme's sheet
-  // TODO: Remove
-  void setDefault(const bool isDefault) { m_isDefault = isDefault; }
-  bool isDefault() const { return m_isDefault; }
-
 private:
   Bitmaps m_bitmaps;
   gfx::Rect m_spriteBounds;
   gfx::Rect m_slicesBounds;
-  bool m_isDefault;
 };
 
-typedef std::shared_ptr<SkinPart> SkinPartPtr;
+class SkinPartPtr {
+public:
+  explicit SkinPartPtr(const std::string& partId = std::string());
+
+  os::SurfaceRef sheet() const;
+  os::SurfaceRef unscaledSheet() const;
+  SkinPart* get() const;
+  SkinPart* operator->() const;
+  operator bool() const;
+
+private:
+  std::string m_partId;
+};
 
 }} // namespace app::skin
 

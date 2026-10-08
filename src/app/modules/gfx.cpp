@@ -187,7 +187,7 @@ void draw_color_button(ui::Graphics* g,
   if (hot) {
     theme->drawRect(g,
                     gfx::Rect(rc.x, rc.y, rc.w, rc.h - 1 - 1 * scale),
-                    theme->parts.colorbarSelection().get());
+                    theme->parts.colorbarSelection());
   }
 }
 
@@ -297,7 +297,7 @@ void draw_tile_button(ui::Graphics* g,
   if (hot) {
     theme->drawRect(g,
                     gfx::Rect(rc.x, rc.y, rc.w, rc.h - 1 - 1 * scale),
-                    theme->parts.colorbarSelection().get());
+                    theme->parts.colorbarSelection());
   }
 }
 

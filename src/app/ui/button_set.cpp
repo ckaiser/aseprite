@@ -45,7 +45,7 @@ WidgetType buttonset_item_type()
   return type;
 }
 
-ButtonSet::Item::Item() : Widget(buttonset_item_type()), m_icon(NULL)
+ButtonSet::Item::Item() : Widget(buttonset_item_type())
 {
   setup_mini_font(this);
   setAlign(CENTER | MIDDLE);
@@ -54,8 +54,30 @@ ButtonSet::Item::Item() : Widget(buttonset_item_type()), m_icon(NULL)
 
 void ButtonSet::Item::setIcon(const SkinPartPtr& icon)
 {
-  m_icon = icon;
+  m_partIcon = icon;
   invalidate();
+}
+
+void ButtonSet::Item::setIcon(const os::SurfaceRef& icon)
+{
+  m_surfaceIcon = icon;
+  invalidate();
+}
+
+os::Surface* ButtonSet::Item::iconSurface() const
+{
+  if (m_surfaceIcon)
+    return m_surfaceIcon.get();
+
+  if (m_partIcon)
+    return m_partIcon->bitmap(0);
+
+  return nullptr;
+}
+
+bool ButtonSet::Item::hasIcon() const
+{
+  return m_surfaceIcon || m_partIcon;
 }
 
 ButtonSet* ButtonSet::Item::buttonSet()
@@ -225,6 +247,17 @@ ButtonSet::Item* ButtonSet::addItem(const skin::SkinPartPtr& icon, ui::Style* st
   return addItem(icon, 1, 1, style);
 }
 
+ButtonSet::Item* ButtonSet::addItem(const os::SurfaceRef& icon,
+                                    int hspan,
+                                    int vspan,
+                                    ui::Style* style)
+{
+  Item* item = new Item();
+  item->setIcon(icon);
+  addItem(item, hspan, vspan, style);
+  return item;
+}
+
 ButtonSet::Item* ButtonSet::addItem(const skin::SkinPartPtr& icon,
                                     int hspan,
                                     int vspan,
@@ -242,15 +275,19 @@ ButtonSet::Item* ButtonSet::addItem(Item* item, ui::Style* style)
 
 ButtonSet::Item* ButtonSet::addItem(Item* item, int hspan, int vspan, ui::Style* style)
 {
-  item->InitTheme.connect([item, style] {
-    ui::Style* s = style;
-    if (!s) {
-      auto* theme = SkinTheme::get(item);
+  const std::string& styleId = style ? style->id() : std::string();
+  item->InitTheme.connect([item, styleId] {
+    auto* theme = SkinTheme::get(item);
+    ui::Style* s;
+    if (styleId.empty()) {
       s = theme->styles.buttonsetItemIcon();
       if (!item->text().empty()) {
-        s = (item->icon() ? theme->styles.buttonsetItemTextTopIconBottom() :
-                            theme->styles.buttonsetItemText());
+        s = (item->hasIcon() ? theme->styles.buttonsetItemTextTopIconBottom() :
+                               theme->styles.buttonsetItemText());
       }
+    }
+    else {
+      s = theme->getStyleById(styleId);
     }
     item->setStyle(s);
   });

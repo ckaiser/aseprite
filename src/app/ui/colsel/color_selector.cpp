@@ -311,9 +311,7 @@ void ColorSelector::onPaint(ui::PaintEvent& ev)
   ui::Graphics* g = ev.graphics();
   auto theme = SkinTheme::get(this);
 
-  theme->drawRect(g,
-                  clientBounds(),
-                  theme->parts.editorNormal().get(),
+  theme->drawRect(g, clientBounds(), theme->parts.editorNormal(),
                   false); // Do not fill the center
 
   gfx::Rect rc = clientChildrenBounds();

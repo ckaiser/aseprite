@@ -12,12 +12,11 @@
 #include "app/ui/skin/skin_part.h"
 
 #include "os/surface.h"
+#include "skin_theme.h"
 
 namespace app { namespace skin {
 
-SkinPart::SkinPart() : m_isDefault(true)
-{
-}
+SkinPart::SkinPart() = default;
 
 SkinPart::~SkinPart()
 {
@@ -53,6 +52,35 @@ gfx::Size SkinPart::size() const
     return gfx::Size(m_bitmaps[0]->width(), m_bitmaps[0]->height());
   else
     return gfx::Size(0, 0);
+}
+
+SkinPartPtr::SkinPartPtr(const std::string& partId) : m_partId(partId)
+{
+}
+
+os::SurfaceRef SkinPartPtr::sheet() const
+{
+  return SkinTheme::instance()->getPartSheetById(m_partId);
+}
+
+os::SurfaceRef SkinPartPtr::unscaledSheet() const
+{
+  return SkinTheme::instance()->getPartUnscaledSheetById(m_partId);
+}
+
+SkinPart* SkinPartPtr::get() const
+{
+  return SkinTheme::instance()->getPartById(m_partId);
+}
+
+SkinPart* SkinPartPtr::operator->() const
+{
+  return SkinTheme::instance()->getPartById(m_partId);
+}
+
+SkinPartPtr::operator bool() const
+{
+  return !m_partId.empty();
 }
 
 }} // namespace app::skin

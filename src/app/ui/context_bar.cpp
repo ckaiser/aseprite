@@ -255,10 +255,8 @@ public:
     , m_owner(owner)
     , m_brushes(App::instance()->brushes())
   {
-    SkinPartPtr part(new SkinPart);
-    part->setBitmap(0, BrushPopup::createSurfaceForBrush(BrushRef(nullptr)));
     auto* theme = SkinTheme::get(this);
-    addItem(part, theme->styles.brushType());
+    addItem(BrushPopup::createSurfaceForBrush(BrushRef(nullptr)), 1, 1, theme->styles.brushType());
 
     m_popupWindow.Open.connect([this] {
       gfx::Region rgn(m_popupWindow.boundsOnScreen());
@@ -272,11 +270,9 @@ public:
   void updateBrush(tools::Tool* tool = nullptr)
   {
     BrushRef brush = m_owner->activeBrush(tool);
-    SkinPartPtr part(new SkinPart);
-    part->setBitmap(0, BrushPopup::createSurfaceForBrush(brush));
 
     const bool mono = (brush->type() != kImageBrushType);
-    getItem(0)->setIcon(part);
+    getItem(0)->setIcon(BrushPopup::createSurfaceForBrush(brush));
     auto style = mono ? SkinTheme::instance()->styles.brushTypeMono() :
                         SkinTheme::instance()->styles.brushType();
     getItem(0)->setStyle(style);
@@ -2874,8 +2870,6 @@ const tools::DynamicsOptions& ContextBar::getDynamics() const
 
 void ContextBar::setupTooltips(TooltipManager* tooltipManager)
 {
-  tooltipManager->addTooltipFor(m_brushBack->at(0), Strings::context_bar_discard_brush(), BOTTOM);
-  tooltipManager->addTooltipFor(m_brushType->at(0), Strings::context_bar_brush_type(), BOTTOM);
   tooltipManager->addTooltipFor(m_brushSize, Strings::context_bar_brush_size(), BOTTOM);
   tooltipManager->addTooltipFor(m_brushAngle, Strings::context_bar_brush_angle(), BOTTOM);
   tooltipManager->addTooltipFor(m_inkType->at(0), Strings::context_bar_ink(), BOTTOM);

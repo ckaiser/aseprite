@@ -198,7 +198,7 @@ void gen_theme_class(XMLDocument* doc, const std::string& inputFn)
             << "      color = static_cast<T*>(this)->getColorById(id);\n"
             << "    }\n"
             << "    void byId(skin::SkinPartPtr& part, const std::string& id) {\n"
-            << "      part = static_cast<T*>(this)->getPartById(id);\n"
+            << "      part = skin::SkinPartPtr(id);\n" // TODO: Probably not neccessary anymore?
             << "    }\n"
             << "    void byId(ui::Cursor*& cursor, const std::string& id) {\n"
             << "      cursor = static_cast<T*>(this)->getCursorById(id);\n"

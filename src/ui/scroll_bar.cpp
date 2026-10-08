@@ -192,6 +192,7 @@ bool ScrollBar::onProcessMessage(Message* msg)
 
 void ScrollBar::onInitTheme(InitThemeEvent& ev)
 {
+  m_thumbStyle = nullptr; // TODO: Necessary?
   Widget::onInitTheme(ev);
   m_barWidth = theme()->getScrollbarSize();
 }

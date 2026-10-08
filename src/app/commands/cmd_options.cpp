@@ -1953,9 +1953,7 @@ private:
       Script
     };
 
-    explicit PermTreeNode(const Type type,
-                          const std::string& text,
-                          const SkinPartPtr& icon = nullptr)
+    explicit PermTreeNode(const Type type, const std::string& text, const SkinPartPtr& icon)
       : TreeNode(text, icon)
       , m_type(type)
       , m_allowed(false)

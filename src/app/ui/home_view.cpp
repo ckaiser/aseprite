@@ -94,10 +94,11 @@ HomeView::HomeView() : m_showNews(false), m_recents(new RecentGrid), m_news(null
   recentsSection()->InitTheme.connect([this] {
     const auto* theme = SkinTheme::get(this);
     const auto& pref = Preferences::instance();
-    // Attempt to preserve compatibility with themes that don't have the workspaceBorder part by
-    // styling it as a normal panel
-    if (pref.theme.selected.defaultValue() != pref.theme.selected() &&
-        theme->parts.workspaceBorder()->isDefault()) {
+
+    // Attempt to preserve compatibility with themes by styling it as a normal panel
+    // TODO: This could be a temporary thing or we can have a different way of checking if we have
+    // the right style
+    if (pref.theme.selected.defaultValue() != pref.theme.selected()) {
       recentsSection()->setStyle(theme->styles.workspaceView());
     }
     else {

@@ -20,7 +20,7 @@ using namespace skin;
 
 class TreeNode {
 public:
-  explicit TreeNode(const std::string& text, const SkinPartPtr& icon = nullptr);
+  explicit TreeNode(const std::string& text, const SkinPartPtr& icon = SkinPartPtr());
   virtual ~TreeNode();
 
   const std::string& text() const { return m_text; }

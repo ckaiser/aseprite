@@ -25,8 +25,11 @@ public:
   public:
     Item();
     void setIcon(const skin::SkinPartPtr& icon);
-    os::Surface* iconSurface() const override { return m_icon ? m_icon->bitmap(0) : nullptr; }
-    skin::SkinPartPtr icon() const { return m_icon; }
+    void setIcon(const os::SurfaceRef& icon);
+    os::Surface* iconSurface() const override;
+    os::SurfaceRef surfaceIcon() const { return m_surfaceIcon; }
+    skin::SkinPartPtr partIcon() const { return m_partIcon; }
+    bool hasIcon() const;
     ButtonSet* buttonSet();
 
   protected:
@@ -36,7 +39,8 @@ public:
     virtual void onRightClick();
 
   private:
-    skin::SkinPartPtr m_icon;
+    skin::SkinPartPtr m_partIcon;
+    os::SurfaceRef m_surfaceIcon;
   };
 
   enum class MultiMode {
@@ -51,6 +55,10 @@ public:
   Item* addItem(const std::string& text, int hspan = 1, int vspan = 1, ui::Style* style = nullptr);
   Item* addItem(const skin::SkinPartPtr& icon, ui::Style* style);
   Item* addItem(const skin::SkinPartPtr& icon,
+                int hspan = 1,
+                int vspan = 1,
+                ui::Style* style = nullptr);
+  Item* addItem(const os::SurfaceRef& icon,
                 int hspan = 1,
                 int vspan = 1,
                 ui::Style* style = nullptr);

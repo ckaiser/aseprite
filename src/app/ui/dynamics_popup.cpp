@@ -114,7 +114,7 @@ private:
     // Draw borders
     if (rc.h > 4 * guiscale()) {
       rc.shrink(gfx::Border(3, 0, 3, 1) * guiscale());
-      theme->drawRect(g, rc, nw.get());
+      theme->drawRect(g, rc, nw);
     }
 
     const int minX = this->minX();
@@ -123,14 +123,12 @@ private:
 
     // Draw background
     if (m_minThreshold > 0.0f) {
-      theme->drawRect(g,
-                      gfx::Rect(rc.x, rc.y, minX - rc.x, rc.h),
-                      theme->parts.miniSliderFull().get());
+      theme->drawRect(g, gfx::Rect(rc.x, rc.y, minX - rc.x, rc.h), theme->parts.miniSliderFull());
     }
     if (m_maxThreshold < 1.0f) {
       theme->drawRect(g,
                       gfx::Rect(maxX, rc.y, rc.x2() - maxX, rc.h),
-                      theme->parts.miniSliderFull().get());
+                      theme->parts.miniSliderFull());
     }
 
     const int sensorH = guiscaled_div(rc.h, 4);
@@ -390,13 +388,13 @@ tools::DynamicsOptions DynamicsPopup::getDynamics() const
 void DynamicsPopup::setCheck(int i, bool state)
 {
   auto theme = SkinTheme::get(this);
-  m_dynamics->values()->getItem(i)->setIcon(state ? theme->parts.dropPixelsOk() : nullptr);
+  m_dynamics->values()->getItem(i)->setIcon(state ? theme->parts.dropPixelsOk() : SkinPartPtr());
 }
 
 bool DynamicsPopup::isCheck(int i) const
 {
   auto theme = SkinTheme::get(this);
-  return (m_dynamics->values()->getItem(i)->icon() == theme->parts.dropPixelsOk());
+  return (m_dynamics->values()->getItem(i)->partIcon().get() == theme->parts.dropPixelsOk().get());
 }
 
 // Update Pressure/Velocity/Gradient popup's variables visibility
@@ -471,8 +469,8 @@ void DynamicsPopup::onValuesChange(ButtonSet::Item* item)
   const int i = (item ? m_dynamics->values()->getItemIndex(item) : -1);
 
   // Switch item off
-  if (item && item->icon().get() == ok.get()) {
-    item->setIcon(nullptr);
+  if (item && item->partIcon().get() == ok.get()) {
+    item->setIcon(SkinPartPtr());
   }
   else {
     switch (i) {

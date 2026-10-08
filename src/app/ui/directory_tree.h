@@ -15,7 +15,7 @@ class PathTreeNode : public TreeNode {
 public:
   explicit PathTreeNode(const std::string& text,
                         const std::string& path,
-                        const SkinPartPtr& icon = nullptr)
+                        const SkinPartPtr& icon = SkinPartPtr())
     : TreeNode(text, icon)
     , m_path(path) {};
   const std::string& path() const { return m_path; };

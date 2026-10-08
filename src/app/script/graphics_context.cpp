@@ -136,8 +136,8 @@ void GraphicsContext::drawImage(const doc::Image* img,
 void GraphicsContext::drawThemeImage(const std::string& partId, const gfx::Point& pt)
 {
   if (auto theme = skin::SkinTheme::instance()) {
-    skin::SkinPartPtr part = (m_uiscale > 1 ? theme->getUnscaledPartById(partId) :
-                                              theme->getPartById(partId));
+    skin::SkinPart* part = (m_uiscale > 1 ? theme->getUnscaledPartById(partId) :
+                                            theme->getPartById(partId));
     if (part && part->bitmap(0)) {
       auto bmp = part->bitmap(0);
       m_surface->drawRgbaSurface(bmp, pt.x, pt.y);
@@ -148,8 +148,8 @@ void GraphicsContext::drawThemeImage(const std::string& partId, const gfx::Point
 void GraphicsContext::drawThemeRect(const std::string& partId, const gfx::Rect& rc)
 {
   if (auto theme = skin::SkinTheme::instance()) {
-    skin::SkinPartPtr part = (m_uiscale > 1 ? theme->getUnscaledPartById(partId) :
-                                              theme->getPartById(partId));
+    skin::SkinPart* part = (m_uiscale > 1 ? theme->getUnscaledPartById(partId) :
+                                            theme->getPartById(partId));
     if (part && part->bitmap(0)) {
       ui::Graphics g(m_surface);
 
@@ -158,9 +158,9 @@ void GraphicsContext::drawThemeRect(const std::string& partId, const gfx::Rect& 
       // 9-slices
       if (!part->slicesBounds().isEmpty()) {
         if (m_uiscale > 1)
-          theme->drawRectUsingUnscaledSheet(&g, rc, part.get(), true);
+          theme->drawRectUsingUnscaledSheet(&g, rc, skin::SkinPartPtr(partId), true);
         else
-          theme->drawRect(&g, rc, part.get(), true);
+          theme->drawRect(&g, rc, skin::SkinPartPtr(partId), true);
       }
       else {
         ui::IntersectClip clip(&g, rc);

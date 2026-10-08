@@ -87,14 +87,9 @@ public:
   void onInitTheme(InitThemeEvent& ev) override
   {
     ButtonSet::Item::onInitTheme(ev);
-    if (m_brush.hasBrush()) {
-      SkinPartPtr icon(new SkinPart);
-      icon->setBitmap(
-        0,
-        BrushPopup::createSurfaceForBrush(m_brush.brush(),
-                                          m_brush.hasFlag(BrushSlot::Flags::ImageColor)));
-      setIcon(icon);
-    }
+    if (m_brush.hasBrush())
+      setIcon(BrushPopup::createSurfaceForBrush(m_brush.brush(),
+                                                m_brush.hasFlag(BrushSlot::Flags::ImageColor)));
   }
 
   const BrushSlot& brush() const { return m_brush; }

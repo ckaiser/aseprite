@@ -147,7 +147,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
 
     if (!widget) {
       if (icon_name) {
-        SkinPartPtr part = SkinTheme::instance()->getPartById(icon_name);
+        SkinPartPtr part(icon_name);
         if (!part)
           throw base::Exception("<button> element found with invalid 'icon' attribute '%s'",
                                 icon_name);
@@ -489,7 +489,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
       ButtonSet::Item* item = new ButtonSet::Item();
 
       if (icon) {
-        SkinPartPtr part = SkinTheme::instance()->getPartById(std::string(icon));
+        SkinPartPtr part(icon);
         if (part)
           item->setIcon(part);
       }
@@ -524,7 +524,7 @@ Widget* WidgetLoader::convertXmlElementToWidget(const XMLElement* elem,
         }
       }
       else if (icon) {
-        SkinPartPtr part = SkinTheme::instance()->getPartById(std::string(icon));
+        SkinPartPtr part(icon);
         if (part) {
           widget = new ImageView(part->bitmapRef(0), NOALIGN);
         }

@@ -24,12 +24,9 @@
 #include "app/ui/keyboard_shortcuts.h"
 #include "app/ui/skin/skin_property.h"
 #include "app/ui/skin/skin_slider_property.h"
-#include "app/util/render_text.h"
 #include "app/xml_document.h"
-#include "app/xml_exception.h"
 #include "base/fs.h"
 #include "base/log.h"
-#include "base/string.h"
 #include "base/utf8_decode.h"
 #include "fmt/format.h"
 #include "gfx/border.h"
@@ -43,14 +40,11 @@
 #include "text/font_metrics.h"
 #include "text/font_style_set.h"
 #include "text/text_blob.h"
-#include "ui/intern.h"
 #include "ui/ui.h"
 
 #include "tinyxml2.h"
 
 #include <algorithm>
-#include <cstdlib>
-#include <cstring>
 #include <memory>
 
 #define BGCOLOR (getWidgetBgColor(widget))
@@ -64,82 +58,6 @@ using namespace ui;
 // TODO For backward compatibility, in future versions we should remove this (extensions are
 // preferred)
 const char* SkinTheme::kThemesFolderName = "themes";
-
-// Offers backward compatibility with old themes, copying missing
-// styles (raw XML <style> elements) from the default theme to the
-// current theme. This must be done so all <style> elements in the new
-// theme use colors and parts from the new theme instead of the
-// default one (as when they were loaded).
-class app::skin::SkinTheme::BackwardCompatibility {
-  enum class State {
-    // When we are loading the default theme
-    LoadingStyles,
-    // When we are loading the selected theme (so we must copy missing
-    // styles from the previously loaded default theme)
-    CopyingStyles,
-  };
-
-  State m_state = State::LoadingStyles;
-
-  // Loaded XML <style> element from the original theme (cloned
-  // elements).  Must be in order to insert them in the same order in
-  // the selected theme.
-  XMLDocumentRef m_stylesDoc;
-  std::vector<XMLElement*> m_styles;
-
-public:
-  void copyingStyles() { m_state = State::CopyingStyles; }
-  bool isCopyingStyles() const { return m_state == State::CopyingStyles; }
-
-  // Called for each <style> element found in theme.xml.
-  void onStyle(XMLElement* xmlStyle)
-  {
-    // Loading <style> from the default theme
-    if (m_state == State::LoadingStyles) {
-      if (!m_stylesDoc)
-        m_stylesDoc = std::make_unique<XMLDocument>();
-      m_styles.emplace_back(xmlStyle->DeepClone(m_stylesDoc.get())->ToElement());
-    }
-  }
-
-  void removeExistentStyles(XMLElement* xmlStyle)
-  {
-    if (m_state != State::CopyingStyles)
-      return;
-
-    while (xmlStyle) {
-      const char* s = xmlStyle->Attribute("id");
-      if (!s)
-        break;
-      std::string styleId = s;
-
-      // Remove any existent style in the selected theme.
-      auto it = std::find_if(m_styles.begin(), m_styles.end(), [styleId](auto& style) {
-        return (style->Attribute("id") == styleId);
-      });
-      if (it != m_styles.end())
-        m_styles.erase(it);
-
-      xmlStyle = xmlStyle->NextSiblingElement();
-    }
-  }
-
-  // Copies all missing <style> elements to the new theme. xmlStyles
-  // is the <styles> element from the theme.xml of the selected theme
-  // (non the default one).
-  void copyMissingStyles(XMLNode* xmlStyles)
-  {
-    if (m_state != State::CopyingStyles)
-      return;
-
-    for (auto& style : m_styles) {
-      LOG(VERBOSE, "THEME: Copying <style id='%s'> from default theme\n", style->Attribute("id"));
-
-      xmlStyles->InsertEndChild(style->DeepClone(xmlStyles->GetDocument()));
-    }
-  }
-};
-
 static const char* g_cursor_names[kCursorTypes] = {
   "null",       // kNoCursor
   "normal",     // kArrowCursor
@@ -359,13 +277,23 @@ static FontData* load_font(const XMLElement* xmlFont, const std::string& xmlFile
   return result;
 }
 
+static os::SurfaceRef slice(const os::SurfaceRef& sheet, const gfx::Rect& bounds)
+{
+  if (bounds.isEmpty())
+    return nullptr;
+
+  os::SurfaceRef sur = os::System::instance()->makeSubsetSurface(sheet, bounds);
+  sur->setImmutable();
+  return sur;
+}
+
 // static
 SkinTheme* SkinTheme::instance()
 {
-  if (auto mgr = ui::Manager::getDefault())
+  if (const auto* mgr = ui::Manager::getDefault())
     return SkinTheme::get(mgr);
-  else
-    return nullptr;
+
+  return nullptr;
 }
 
 // static
@@ -377,51 +305,44 @@ SkinTheme* SkinTheme::get(const ui::Widget* widget)
   return static_cast<SkinTheme*>(widget->theme());
 }
 
-SkinTheme::SkinTheme()
-  : m_fonts(m_fontMgr)
-  , m_sheet(nullptr)
-  , m_preferredScreenScaling(-1)
-  , m_preferredUIScaling(-1)
+SkinTheme::SkinTheme() : m_fonts(m_fontMgr), m_defaultSkinData(nullptr), m_currentSkinData(nullptr)
 {
-  m_standardCursors.fill(nullptr);
 }
 
 SkinTheme::~SkinTheme()
 {
-  // Delete all cursors.
-  for (auto& it : m_cursors)
-    delete it.second; // Delete cursor
+  // Avoid double deletes
+  if (m_currentSkinData == m_defaultSkinData)
+    m_currentSkinData = nullptr;
 
-  m_unscaledSheet.reset();
-  m_sheet.reset();
-  m_parts_by_id.clear();
-
-  // Delete all styles.
-  for (auto style : m_styles)
-    delete style.second;
-  m_styles.clear();
+  delete m_defaultSkinData;
+  delete m_currentSkinData;
 }
 
 void SkinTheme::onRegenerateTheme()
 {
   Preferences& pref = Preferences::instance();
-  BackwardCompatibility backward;
 
-  // First we load the skin from default theme, which is more proper
-  // to have every single needed skin part/color/dimension.
-  loadAll(pref.theme.selected.defaultValue(), &backward);
+  if (!m_defaultSkinData) {
+    m_defaultSkinData = new SkinThemeData();
+    m_currentSkinData = m_defaultSkinData;
+    loadAll(pref.theme.selected.defaultValue(), m_defaultSkinData);
+  }
 
   // Then we load the selected theme to redefine default theme parts.
   if (pref.theme.selected.defaultValue() != pref.theme.selected()) {
     try {
-      backward.copyingStyles();
-      loadAll(pref.theme.selected(), &backward);
+      if (m_currentSkinData && m_currentSkinData != m_defaultSkinData) {
+        delete m_currentSkinData;
+      }
+
+      m_currentSkinData = new SkinThemeData();
+      loadAll(pref.theme.selected(), m_currentSkinData);
     }
     catch (const std::exception& e) {
       LOG("THEME: Error loading user-theme: %s\n", e.what());
 
-      // Load default theme again
-      loadAll(pref.theme.selected.defaultValue());
+      m_currentSkinData = m_defaultSkinData;
 
       if (ui::get_theme())
         Console::showException(e);
@@ -431,6 +352,11 @@ void SkinTheme::onRegenerateTheme()
       pref.theme.selected(pref.theme.selected.defaultValue());
     }
   }
+  else {
+    m_currentSkinData = m_defaultSkinData;
+  }
+
+  updateInternals();
 }
 
 void SkinTheme::loadFontData()
@@ -454,27 +380,29 @@ void SkinTheme::loadFontData()
   }
 }
 
-void SkinTheme::loadAll(const std::string& themeId, BackwardCompatibility* backward)
+void SkinTheme::loadAll(const std::string& themeId, SkinThemeData* d)
 {
   LOG("THEME: Loading theme %s\n", themeId.c_str());
+
+  d->id = themeId;
 
   if (Fonts::instance()->isEmpty())
     loadFontData();
 
-  m_path = findThemePath(themeId);
-  if (m_path.empty())
+  d->path = findThemePath(themeId);
+  if (d->path.empty())
     throw base::Exception("Theme %s not found", themeId.c_str());
 
-  loadSheet();
-  loadXml(backward);
+  loadSheet(d);
+  loadXml(d);
 }
 
-void SkinTheme::loadSheet()
+void SkinTheme::loadSheet(SkinThemeData* d)
 {
   os::SystemRef system = os::System::instance();
 
   // Load the skin sheet
-  std::string sheet_filename(base::join_path(m_path, "sheet.png"));
+  std::string sheet_filename(base::join_path(d->path, "sheet.png"));
   os::SurfaceRef newSheet;
   try {
     newSheet = os::System::instance()->loadRgbaSurface(sheet_filename.c_str());
@@ -487,14 +415,14 @@ void SkinTheme::loadSheet()
     throw base::Exception("Error loading %s file", sheet_filename.c_str());
 
   // Set the unscaled and scaled version of the sprite sheet.
-  m_unscaledSheet = newSheet;
-  m_unscaledSheet->setImmutable();
-  m_sheet = newSheet->applyScale(guiscale());
-  m_sheet->setImmutable();
+  d->unscaledSheet = newSheet;
+  d->unscaledSheet->setImmutable();
+  d->sheet = newSheet->applyScale(guiscale());
+  d->sheet->setImmutable();
 
   // Reset sprite sheet and font of all layer styles (to avoid
   // dangling pointers to os::Surface or text::Font).
-  for (auto& it : m_styles) {
+  for (auto& it : d->styles) {
     for (auto& layer : it.second->layers()) {
       layer.setIcon(nullptr);
       layer.setSpriteSheet(nullptr);
@@ -503,29 +431,42 @@ void SkinTheme::loadSheet()
   }
 }
 
-void SkinTheme::loadXml(BackwardCompatibility* backward)
+void SkinTheme::loadXml(SkinThemeData* d)
 {
   Fonts* fonts = Fonts::instance();
   const int scale = guiscale();
 
+  std::string extendsTheme;
+
   // Load the skin XML
-  std::string xml_filename(base::join_path(m_path, "theme.xml"));
+  std::string xml_filename(base::join_path(d->path, "theme.xml"));
 
   XMLDocumentRef doc = open_xml(xml_filename);
   XMLHandle handle(doc.get());
 
   // Load Preferred scaling
-  m_preferredScreenScaling = -1;
-  m_preferredUIScaling = -1;
+  d->preferredScreenScaling = -1;
+  d->preferredUIScaling = -1;
   {
     XMLElement* xmlTheme = handle.FirstChildElement("theme").ToElement();
     if (xmlTheme) {
+      const char* extends = xmlTheme->Attribute("extends");
+      if (extends && d != m_defaultSkinData) {
+        const auto& prevPath = d->path;
+        extendsTheme = extends;
+        d->path = findThemePath(extends);
+        if (d->path.empty())
+          throw base::Exception("Cannot extend from theme %s: not found", extends);
+        loadXml(d);
+        d->path = prevPath;
+      }
+
       const char* screenScaling = xmlTheme->Attribute("screenscaling");
       const char* uiScaling = xmlTheme->Attribute("uiscaling");
       if (screenScaling)
-        m_preferredScreenScaling = std::strtol(screenScaling, nullptr, 10);
+        d->preferredScreenScaling = std::strtol(screenScaling, nullptr, 10);
       if (uiScaling)
-        m_preferredUIScaling = std::strtol(uiScaling, nullptr, 10);
+        d->preferredUIScaling = std::strtol(uiScaling, nullptr, 10);
     }
   }
 
@@ -573,19 +514,19 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
           font = fontData->getFont(m_fontMgr, size * ui::guiscale());
         }
 
-        m_themeFonts[idStr] = ThemeFont(font, mnemonics);
+        d->themeFonts[idStr] = ThemeFont(font, mnemonics);
 
         // Store a unscaled version for using when ui scaling is not desired (i.e. in a Canvas
         // widget with autoScaling enabled).
-        m_unscaledFonts[font.get()] = fontData->getFont(m_fontMgr, size);
+        d->unscaledFonts[font.get()] = fontData->getFont(m_fontMgr, size);
 
         if (id == "default") {
-          m_defaultFont = font;
-          m_defaultFontInfo = FontInfo(fontData, size);
+          d->defaultFont = font;
+          d->defaultFontInfo = FontInfo(fontData, size);
         }
         else if (id == "mini") {
-          m_miniFont = font;
-          m_miniFontInfo = FontInfo(fontData, size);
+          d->miniFont = font;
+          d->miniFontInfo = FontInfo(fontData, size);
         }
       }
 
@@ -594,14 +535,18 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
   }
 
   // No available font to run the program
-  if (!m_defaultFont) {
-    throw base::Exception(
-      fmt::format("{}: No valid default font element found (<font id=\"default\" ... />)",
-                  xml_filename));
+  if (!d->defaultFont) {
+    if (d == m_defaultSkinData) {
+      throw base::Exception(
+        fmt::format("{}: No valid default font element found (<font id=\"default\" ... />)",
+                    xml_filename));
+    }
+
+    d->defaultFont = m_defaultSkinData->defaultFont;
   }
-  if (!m_miniFont) {
-    m_miniFont = m_defaultFont;
-    m_miniFontInfo = m_defaultFontInfo;
+  if (!d->miniFont) {
+    d->miniFont = d->defaultFont;
+    d->miniFontInfo = d->defaultFontInfo;
   }
 
   // Overwrite theme fonts by user defined fonts.
@@ -609,15 +554,15 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
   if (!pref.theme.font().empty()) {
     auto fi = base::convert_to<FontInfo>(pref.theme.font());
     if (auto f = fonts->fontFromInfo(fi)) {
-      m_defaultFont = f;
-      m_defaultFontInfo = fi;
+      d->defaultFont = f;
+      d->defaultFontInfo = fi;
     }
   }
   if (!pref.theme.miniFont().empty()) {
     auto fi = base::convert_to<FontInfo>(pref.theme.miniFont());
     if (auto f = fonts->fontFromInfo(fi)) {
-      m_miniFont = f;
-      m_miniFontInfo = fi;
+      d->miniFont = f;
+      d->miniFontInfo = fi;
     }
   }
 
@@ -633,7 +578,7 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
 
       LOG(VERBOSE, "THEME: Loading dimension %s\n", id.c_str());
 
-      m_dimensions_by_id[id] = value;
+      d->dimensions[id] = value;
       xmlDim = xmlDim->NextSiblingElement();
     }
   }
@@ -651,7 +596,7 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
 
       LOG(VERBOSE, "THEME: Loading color %s\n", id.c_str());
 
-      m_colors_by_id[id] = color;
+      d->colors[id] = color;
       xmlColor = xmlColor->NextSiblingElement();
     }
   }
@@ -672,25 +617,19 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
 
       LOG(VERBOSE, "THEME: Loading part %s\n", part_id);
 
-      SkinPartPtr part = m_parts_by_id[part_id];
+      SkinPart* part = d->parts[part_id];
       if (!part)
-        part = m_parts_by_id[part_id] = SkinPartPtr(new SkinPart);
-      else if (backward)
-        part->setDefault(!backward->isCopyingStyles());
+        part = d->parts[part_id] = new SkinPart;
 
-      SkinPartPtr unscaledPart = m_unscaledParts_by_id[part_id];
+      SkinPart* unscaledPart = d->unscaledParts[part_id];
       if (!unscaledPart)
-        unscaledPart = m_unscaledParts_by_id[part_id] = SkinPartPtr(new SkinPart);
-      else if (backward)
-        unscaledPart->setDefault(!backward->isCopyingStyles());
+        unscaledPart = d->unscaledParts[part_id] = new SkinPart;
 
       if (w > 0 && h > 0) {
         part->setSpriteBounds(gfx::Rect(x, y, w, h));
-        part->setBitmap(0, sliceSheet(part->bitmapRef(0), gfx::Rect(x, y, w, h)));
+        part->setBitmap(0, slice(d->sheet, gfx::Rect(x, y, w, h)));
         unscaledPart->setSpriteBounds(part->spriteBounds() / scale);
-        unscaledPart->setBitmap(
-          0,
-          sliceUnscaledSheet(unscaledPart->bitmapRef(0), unscaledPart->spriteBounds()));
+        unscaledPart->setBitmap(0, slice(d->unscaledSheet, unscaledPart->spriteBounds()));
       }
       else if (xmlPart->Attribute("w1")) { // 3x3-1 part (NW, N, NE, E, SE, S, SW, W)
         int w1 = scale * strtol(xmlPart->Attribute("w1"), nullptr, 10);
@@ -703,49 +642,34 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
         part->setSpriteBounds(gfx::Rect(x, y, w1 + w2 + w3, h1 + h2 + h3));
         part->setSlicesBounds(gfx::Rect(w1, h1, w2, h2));
 
-        part->setBitmap(0, sliceSheet(part->bitmapRef(0), gfx::Rect(x, y, w1, h1)));           // NW
-        part->setBitmap(1, sliceSheet(part->bitmapRef(1), gfx::Rect(x + w1, y, w2, h1)));      // N
-        part->setBitmap(2, sliceSheet(part->bitmapRef(2), gfx::Rect(x + w1 + w2, y, w3, h1))); // NE
-        part->setBitmap(
-          3,
-          sliceSheet(part->bitmapRef(3), gfx::Rect(x + w1 + w2, y + h1, w3, h2))); // E
-        part->setBitmap(
-          4,
-          sliceSheet(part->bitmapRef(4), gfx::Rect(x + w1 + w2, y + h1 + h2, w3, h3))); // SE
-        part->setBitmap(
-          5,
-          sliceSheet(part->bitmapRef(5), gfx::Rect(x + w1, y + h1 + h2, w2, h3)));             // S
-        part->setBitmap(6, sliceSheet(part->bitmapRef(6), gfx::Rect(x, y + h1 + h2, w1, h3))); // SW
-        part->setBitmap(7, sliceSheet(part->bitmapRef(7), gfx::Rect(x, y + h1, w1, h2)));      // W
+        part->setBitmap(0, slice(d->sheet, gfx::Rect(x, y, w1, h1)));                     // NW
+        part->setBitmap(1, slice(d->sheet, gfx::Rect(x + w1, y, w2, h1)));                // N
+        part->setBitmap(2, slice(d->sheet, gfx::Rect(x + w1 + w2, y, w3, h1)));           // N
+        part->setBitmap(3, slice(d->sheet, gfx::Rect(x + w1 + w2, y + h1, w3, h2)));      // E
+        part->setBitmap(4, slice(d->sheet, gfx::Rect(x + w1 + w2, y + h1 + h2, w3, h3))); // SE
+        part->setBitmap(5, slice(d->sheet, gfx::Rect(x + w1, y + h1 + h2, w2, h3)));      // S
+        part->setBitmap(6, slice(d->sheet, gfx::Rect(x, y + h1 + h2, w1, h3)));           // SW
+        part->setBitmap(7, slice(d->sheet, gfx::Rect(x, y + h1, w1, h2)));                // W
 
         unscaledPart->setSpriteBounds(part->spriteBounds() / scale);
         unscaledPart->setSlicesBounds(part->slicesBounds() / scale);
 
-        unscaledPart->setBitmap(
-          0,
-          sliceUnscaledSheet(unscaledPart->bitmapRef(0), gfx::Rect(x, y, w1, h1) / scale));
-        unscaledPart->setBitmap(
-          1,
-          sliceUnscaledSheet(unscaledPart->bitmapRef(1), gfx::Rect(x + w1, y, w2, h1) / scale));
+        unscaledPart->setBitmap(0, slice(d->unscaledSheet, gfx::Rect(x, y, w1, h1) / scale));
+        unscaledPart->setBitmap(1, slice(d->unscaledSheet, gfx::Rect(x + w1, y, w2, h1) / scale));
         unscaledPart->setBitmap(2,
-                                sliceUnscaledSheet(unscaledPart->bitmapRef(2),
-                                                   gfx::Rect(x + w1 + w2, y, w3, h1) / scale));
-        unscaledPart->setBitmap(3,
-                                sliceUnscaledSheet(unscaledPart->bitmapRef(3),
-                                                   gfx::Rect(x + w1 + w2, y + h1, w3, h2) / scale));
+                                slice(d->unscaledSheet, gfx::Rect(x + w1 + w2, y, w3, h1) / scale));
+        unscaledPart->setBitmap(
+          3,
+          slice(d->unscaledSheet, gfx::Rect(x + w1 + w2, y + h1, w3, h2) / scale));
         unscaledPart->setBitmap(
           4,
-          sliceUnscaledSheet(unscaledPart->bitmapRef(4),
-                             gfx::Rect(x + w1 + w2, y + h1 + h2, w3, h3) / scale));
-        unscaledPart->setBitmap(5,
-                                sliceUnscaledSheet(unscaledPart->bitmapRef(5),
-                                                   gfx::Rect(x + w1, y + h1 + h2, w2, h3) / scale));
-        unscaledPart->setBitmap(6,
-                                sliceUnscaledSheet(unscaledPart->bitmapRef(6),
-                                                   gfx::Rect(x, y + h1 + h2, w1, h3) / scale));
+          slice(d->unscaledSheet, gfx::Rect(x + w1 + w2, y + h1 + h2, w3, h3) / scale));
         unscaledPart->setBitmap(
-          7,
-          sliceUnscaledSheet(unscaledPart->bitmapRef(7), gfx::Rect(x, y + h1, w1, h2) / scale));
+          5,
+          slice(d->unscaledSheet, gfx::Rect(x + w1, y + h1 + h2, w2, h3) / scale));
+        unscaledPart->setBitmap(6,
+                                slice(d->unscaledSheet, gfx::Rect(x, y + h1 + h2, w1, h3) / scale));
+        unscaledPart->setBitmap(7, slice(d->unscaledSheet, gfx::Rect(x, y + h1, w1, h2) / scale));
       }
 
       // Is it a mouse cursor?
@@ -756,19 +680,19 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
 
         LOG(VERBOSE, "THEME: Loading cursor '%s'\n", cursorName.c_str());
 
-        auto it = m_cursors.find(cursorName);
-        if (it != m_cursors.end() && it->second != nullptr) {
+        auto it = d->cursors.find(cursorName);
+        if (it != d->cursors.end() && it->second != nullptr) {
           delete it->second;
           it->second = nullptr;
         }
 
-        os::SurfaceRef slice = sliceSheet(nullptr, gfx::Rect(x, y, w, h));
-        Cursor* cursor = new Cursor(slice, gfx::Point(focusx, focusy));
-        m_cursors[cursorName] = cursor;
+        os::SurfaceRef cursorSurface = slice(d->sheet, gfx::Rect(x, y, w, h));
+        Cursor* cursor = new Cursor(cursorSurface, gfx::Point(focusx, focusy));
+        d->cursors[cursorName] = cursor;
 
         for (int c = 0; c < kCursorTypes; ++c) {
           if (cursorName == g_cursor_names[c]) {
-            m_standardCursors[c] = cursor;
+            d->standardCursors[c] = cursor;
             break;
           }
         }
@@ -785,12 +709,29 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
                              .FirstChildElement("style")
                              .ToElement();
 
-    if (!xmlStyle) // Without styles?
-      throw base::Exception("There are no styles");
-
-    if (backward) {
-      backward->removeExistentStyles(xmlStyle);
-      backward->copyMissingStyles(xmlStyle->Parent());
+    // Ensures that when we don't have a style or we're extending a theme, we do a pass through
+    // all the styles so their colors and other properties that change in an inherited one are
+    //  set properly.
+    // Ideally we'd have a preset object map of this that's been pregenerated and we can just go
+    // through and pull all the relevant data.
+    XMLDocumentRef doc2;
+    if (!xmlStyle || !extendsTheme.empty()) {
+      if (extendsTheme.empty())
+        extendsTheme = Preferences::instance().theme.selected.defaultValue();
+      std::string defaultStyles(base::join_path(findThemePath(extendsTheme), "theme.xml"));
+      doc2 = open_xml(defaultStyles);
+      XMLHandle handle2 = XMLHandle(doc2.get());
+      XMLElement* xmlStyles = handle2.FirstChildElement("theme")
+                                .FirstChildElement("styles")
+                                .FirstChildElement("style")
+                                .ToElement();
+      if (!xmlStyle || xmlStyle->GetDocument() == nullptr) {
+        xmlStyle = xmlStyles;
+      }
+      else {
+        // IDK about this
+        xmlStyles->Parent()->DeepClone(xmlStyle->GetDocument());
+      }
     }
 
     while (xmlStyle) {
@@ -801,15 +742,17 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
 
       const char* extends_id = xmlStyle->Attribute("extends");
       const ui::Style* base = nullptr;
-      if (extends_id)
-        base = m_styles[extends_id];
+      if (extends_id) {
+        if (d->styles.find(extends_id) == d->styles.end())
+          base = m_defaultSkinData->styles[extends_id];
+        else
+          base = d->styles[extends_id];
+        ASSERT(base);
+      }
 
-      if (backward)
-        backward->onStyle(xmlStyle);
-
-      ui::Style* style = m_styles[style_id];
+      ui::Style* style = d->styles[style_id];
       if (!style) {
-        m_styles[style_id] = style = new ui::Style(base);
+        d->styles[style_id] = style = new ui::Style(base);
       }
       else {
         *style = ui::Style(base);
@@ -927,15 +870,15 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
           // Use m_defaultFont/m_miniFont just in case the user
           // customized these fonts.
           if (std::strcmp(fontId, "default") == 0) {
-            style->setFont(m_defaultFont);
+            style->setFont(d->defaultFont);
             style->setMnemonics(true);
           }
           else if (std::strcmp(fontId, "mini") == 0) {
-            style->setFont(m_miniFont);
+            style->setFont(d->miniFont);
             style->setMnemonics(false);
           }
           else {
-            auto themeFont = m_themeFonts[fontId];
+            auto themeFont = d->themeFonts[fontId];
             style->setFont(themeFont.font());
             style->setMnemonics(themeFont.mnemonics());
           }
@@ -1020,8 +963,8 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
         // Color
         const char* colorId = xmlLayer->Attribute("color");
         if (colorId) {
-          auto it = m_colors_by_id.find(colorId);
-          if (it != m_colors_by_id.end())
+          auto it = d->colors.find(colorId);
+          if (it != d->colors.end())
             layer.setColor(it->second);
           else if (std::strcmp(colorId, "none") == 0) {
             layer.setColor(gfx::ColorNone);
@@ -1049,17 +992,28 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
         // Sprite sheet
         const char* partId = xmlLayer->Attribute("part");
         if (partId) {
-          auto it = m_parts_by_id.find(partId);
-          if (it != m_parts_by_id.end()) {
-            SkinPartPtr part = it->second;
-            if (part) {
-              if (layer.type() == ui::Style::Layer::Type::kIcon)
-                layer.setIcon(AddRef(part->bitmap(0)));
-              else {
-                layer.setSpriteSheet(m_sheet);
-                layer.setSpriteBounds(part->spriteBounds());
-                layer.setSlicesBounds(part->slicesBounds());
-              }
+          SkinPart* part = nullptr;
+          os::SurfaceRef sheet = d->sheet;
+
+          const auto& it = d->parts.find(partId);
+          if (it != d->parts.end())
+            part = it->second;
+
+          if (!part && d != m_defaultSkinData) {
+            const auto& it2 = m_defaultSkinData->parts.find(partId);
+            if (it2 != m_defaultSkinData->parts.end()) {
+              part = it2->second;
+              sheet = m_defaultSkinData->sheet;
+            }
+          }
+
+          if (part) {
+            if (layer.type() == ui::Style::Layer::Type::kIcon)
+              layer.setIcon(AddRef(part->bitmap(0)));
+            else {
+              layer.setSpriteSheet(sheet);
+              layer.setSpriteBounds(part->spriteBounds());
+              layer.setSlicesBounds(part->slicesBounds());
             }
           }
           else if (std::strcmp(partId, "none") == 0) {
@@ -1085,50 +1039,13 @@ void SkinTheme::loadXml(BackwardCompatibility* backward)
       xmlStyle = xmlStyle->NextSiblingElement();
     }
   }
-
-  ThemeFile<SkinTheme>::updateInternals();
-}
-
-static os::SurfaceRef sliceSheet(os::SurfaceRef sheet, os::SurfaceRef sur, const gfx::Rect& bounds)
-{
-  if (sur && (sur->width() != bounds.w || sur->height() != bounds.h)) {
-    sur = nullptr;
-  }
-
-  if (!bounds.isEmpty()) {
-    if (!sur)
-      sur = os::System::instance()->makeRgbaSurface(bounds.w, bounds.h);
-
-    sheet->blitTo(sur.get(), bounds.x, bounds.y, 0, 0, bounds.w, bounds.h);
-
-    // The new surface is immutable because we're going to re-use the
-    // surface if we reload the theme.
-    //
-    // TODO Add sub-surfaces (SkBitmap::extractSubset())
-    sur->setImmutable();
-  }
-  else {
-    ASSERT(!sur);
-  }
-
-  return sur;
-}
-
-os::SurfaceRef SkinTheme::sliceSheet(os::SurfaceRef sur, const gfx::Rect& bounds)
-{
-  return app::skin::sliceSheet(m_sheet, sur, bounds);
-}
-
-os::SurfaceRef SkinTheme::sliceUnscaledSheet(os::SurfaceRef sur, const gfx::Rect& bounds)
-{
-  return app::skin::sliceSheet(m_unscaledSheet, sur, bounds);
 }
 
 text::FontRef SkinTheme::getWidgetFont(const Widget* widget) const
 {
-  auto skinPropery = std::static_pointer_cast<SkinProperty>(
+  auto skinProperty = std::static_pointer_cast<SkinProperty>(
     widget->getProperty(SkinProperty::Name));
-  if (skinPropery && skinPropery->hasMiniFont())
+  if (skinProperty && skinProperty->hasMiniFont())
     return getMiniFont();
   else
     return getDefaultFont();
@@ -1136,10 +1053,17 @@ text::FontRef SkinTheme::getWidgetFont(const Widget* widget) const
 
 Cursor* SkinTheme::getStandardCursor(CursorType type)
 {
-  if (type >= kFirstCursorType && type <= kLastCursorType)
-    return m_standardCursors[type];
-  else
+  if (!m_currentSkinData)
     return nullptr;
+
+  if (type >= kFirstCursorType && type <= kLastCursorType) {
+    Cursor* cursor = m_currentSkinData->standardCursors[type];
+    if (!cursor)
+      return m_defaultSkinData->standardCursors[type];
+    return cursor;
+  }
+
+  return nullptr;
 }
 
 void SkinTheme::initWidget(Widget* widget)
@@ -1385,9 +1309,8 @@ void SkinTheme::paintEntry(PaintEvent& ev)
 
   drawRect(g,
            bounds,
-           (widget->hasFocus() ?
-              (isMiniLook ? parts.sunkenMiniFocused().get() : parts.sunkenFocused().get()) :
-              (isMiniLook ? parts.sunkenMiniNormal().get() : parts.sunkenNormal().get())),
+           (widget->hasFocus() ? (isMiniLook ? parts.sunkenMiniFocused() : parts.sunkenFocused()) :
+                                 (isMiniLook ? parts.sunkenMiniNormal() : parts.sunkenNormal())),
            is_transparent(bg)); // Paint center if there is no special background color
 
   drawEntryText(g, widget);
@@ -1718,7 +1641,7 @@ void SkinTheme::paintSlider(PaintEvent& ev)
     // Draw borders
     if (rc.h > 4 * guiscale()) {
       rc.shrink(Border(3, 0, 3, 1) * guiscale());
-      drawRect(g, rc, nw.get());
+      drawRect(g, rc, nw);
     }
 
     // Draw background (using the customized ISliderBgPainter implementation)
@@ -1743,11 +1666,11 @@ void SkinTheme::paintSlider(PaintEvent& ev)
     }
 
     if (value == min)
-      drawRect(g, rc, empty_part.get());
+      drawRect(g, rc, empty_part);
     else if (value == max)
-      drawRect(g, rc, full_part.get());
+      drawRect(g, rc, full_part);
     else
-      drawRect2(g, rc, x, full_part.get(), empty_part.get());
+      drawRect2(g, rc, x, full_part, empty_part);
 
     // Draw text
     std::string old_text = widget->text();
@@ -1943,7 +1866,7 @@ std::pair<int, int> SkinTheme::readPreferredScaling(const std::string& themeId)
 
 SkinPartPtr SkinTheme::getToolPart(const char* toolId) const
 {
-  return getPartById(std::string("tool_") + toolId);
+  return SkinPartPtr(std::string("tool_") + toolId);
 }
 
 os::Surface* SkinTheme::getToolIcon(const char* toolId) const
@@ -2014,11 +1937,11 @@ void SkinTheme::drawRect(Graphics* g,
 
 void SkinTheme::drawRect(ui::Graphics* g,
                          const gfx::Rect& rc,
-                         SkinPart* skinPart,
+                         const SkinPartPtr& skinPart,
                          const bool drawCenter)
 {
   Theme::drawSlices(g,
-                    m_sheet.get(),
+                    skinPart.sheet().get(),
                     rc,
                     skinPart->spriteBounds(),
                     skinPart->slicesBounds(),
@@ -2028,11 +1951,11 @@ void SkinTheme::drawRect(ui::Graphics* g,
 
 void SkinTheme::drawRectUsingUnscaledSheet(ui::Graphics* g,
                                            const gfx::Rect& rc,
-                                           SkinPart* skinPart,
+                                           const SkinPartPtr& skinPart,
                                            const bool drawCenter)
 {
   Theme::drawSlices(g,
-                    m_unscaledSheet.get(),
+                    skinPart.unscaledSheet().get(),
                     rc,
                     skinPart->spriteBounds(),
                     skinPart->slicesBounds(),
@@ -2040,7 +1963,11 @@ void SkinTheme::drawRectUsingUnscaledSheet(ui::Graphics* g,
                     drawCenter);
 }
 
-void SkinTheme::drawRect2(Graphics* g, const Rect& rc, int x_mid, SkinPart* nw1, SkinPart* nw2)
+void SkinTheme::drawRect2(Graphics* g,
+                          const Rect& rc,
+                          int x_mid,
+                          const SkinPartPtr& nw1,
+                          const SkinPartPtr& nw2)
 {
   Rect rc2(rc.x, rc.y, x_mid - rc.x + 1, rc.h);
   {
@@ -2106,6 +2033,117 @@ void SkinTheme::paintProgressBar(ui::Graphics* g, const gfx::Rect& rc0, double p
 
   if (1 + u < rc.w)
     g->fillRect(colors.background(), gfx::Rect(rc.x + u, rc.y, rc.w - u, rc.h));
+}
+
+ui::Style* SkinTheme::getStyleById(const std::string& id) const
+{
+  if (const auto& it = m_currentSkinData->styles.find(id); it != m_currentSkinData->styles.end())
+    return it->second;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->styles.find(id);
+        it2 != m_defaultSkinData->styles.end())
+      return it2->second;
+  }
+
+  return EmptyStyle();
+}
+
+SkinPart* SkinTheme::getPartById(const std::string& id) const
+{
+  if (const auto& it = m_currentSkinData->parts.find(id); it != m_currentSkinData->parts.end())
+    return it->second;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->parts.find(id); it2 != m_defaultSkinData->parts.end())
+      return it2->second;
+  }
+
+  return nullptr;
+}
+
+SkinPart* SkinTheme::getUnscaledPartById(const std::string& id) const
+{
+  if (const auto& it = m_currentSkinData->unscaledParts.find(id);
+      it != m_currentSkinData->unscaledParts.end())
+    return it->second;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->unscaledParts.find(id);
+        it2 != m_defaultSkinData->unscaledParts.end())
+      return it2->second;
+  }
+
+  return nullptr;
+}
+
+os::SurfaceRef SkinTheme::getPartSheetById(const std::string& id) const
+{
+  // if (const auto& it = m_currentSkinData->parts.find(id); it != m_currentSkinData->parts.end())
+  return m_currentSkinData->sheet;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->parts.find(id); it2 != m_defaultSkinData->parts.end())
+      return m_defaultSkinData->sheet;
+  }
+
+  return nullptr;
+}
+
+os::SurfaceRef SkinTheme::getPartUnscaledSheetById(const std::string& id) const
+{
+  // if (const auto& it = m_currentSkinData->parts.find(id); it != m_currentSkinData->parts.end())
+  return m_currentSkinData->unscaledSheet;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->parts.find(id); it2 != m_defaultSkinData->parts.end())
+      return m_currentSkinData->unscaledSheet;
+  }
+
+  return nullptr;
+}
+
+ui::Cursor* SkinTheme::getCursorById(const std::string& id) const
+{
+  if (const auto& it = m_currentSkinData->cursors.find(id); it != m_currentSkinData->cursors.end())
+    return it->second;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->cursors.find(id);
+        it2 != m_defaultSkinData->cursors.end())
+      return it2->second;
+  }
+
+  return nullptr;
+}
+
+int SkinTheme::getDimensionById(const std::string& id) const
+{
+  if (const auto& it = m_currentSkinData->dimensions.find(id);
+      it != m_currentSkinData->dimensions.end())
+    return it->second * ui::guiscale();
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->dimensions.find(id);
+        it2 != m_defaultSkinData->dimensions.end())
+      return it2->second * ui::guiscale();
+  }
+
+  return 0;
+}
+
+gfx::Color SkinTheme::getColorById(const std::string& id) const
+{
+  if (const auto& it = m_currentSkinData->colors.find(id); it != m_currentSkinData->colors.end())
+    return it->second;
+
+  if (m_currentSkinData != m_defaultSkinData) {
+    if (const auto& it2 = m_defaultSkinData->colors.find(id);
+        it2 != m_defaultSkinData->colors.end())
+      return it2->second;
+  }
+
+  return gfx::ColorNone;
 }
 
 std::string SkinTheme::findThemePath(const std::string& themeId) const
