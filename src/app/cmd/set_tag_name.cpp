@@ -40,6 +40,9 @@ void SetTagName::onUndo()
 
 void SetTagName::onFireNotifications()
 {
+  if (m_oldName == m_newName)
+    return;
+
   Tag* tag = this->tag();
   Sprite* sprite = tag->owner()->sprite();
   Doc* doc = static_cast<Doc*>(sprite->document());

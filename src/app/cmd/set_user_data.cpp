@@ -42,6 +42,9 @@ void SetUserData::onUndo()
 
 void SetUserData::onFireNotifications()
 {
+  if (m_oldUserData == m_newUserData)
+    return;
+
   auto obj = doc::get<doc::WithUserData>(m_objId);
   app::Doc* doc = document();
   DocEvent ev(doc);

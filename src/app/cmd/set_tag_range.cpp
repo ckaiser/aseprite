@@ -42,6 +42,9 @@ void SetTagRange::onUndo()
 
 void SetTagRange::onFireNotifications()
 {
+  if (m_oldFrom == m_newFrom && m_oldTo == m_newTo)
+    return;
+
   Tag* tag = this->tag();
   Sprite* sprite = tag->owner()->sprite();
   Doc* doc = static_cast<Doc*>(sprite->document());

@@ -38,6 +38,9 @@ void SetFrameDuration::onUndo()
 
 void SetFrameDuration::onFireNotifications()
 {
+  if (m_oldDuration == m_newDuration)
+    return;
+
   Sprite* sprite = this->sprite();
   Doc* doc = static_cast<Doc*>(sprite->document());
   DocEvent ev(doc);

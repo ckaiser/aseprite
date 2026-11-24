@@ -25,8 +25,10 @@
 #include "app/ui/main_window.h"
 #include "doc/document.h"
 #include "doc/sprite.h"
+#include "doc/tag.h"
 #include "ui/app_state.h"
 #include "ui/resize_event.h"
+#include "ui/system.h"
 
 #include <any>
 #include <cstring>
@@ -366,6 +368,11 @@ public:
   enum : EventType {
     Unknown = -1,
     Change,
+    SizeChange,
+    UserDataChange,
+    FrameDurationChange,
+    TagChange,
+    TagRename,
     BeforeSave,
     AfterSave,
     FilenameChange,
@@ -400,6 +407,16 @@ public:
   {
     if (std::strcmp(eventName, "change") == 0)
       return Change;
+    else if (std::strcmp(eventName, "sizechange") == 0)
+      return SizeChange;
+    else if (std::strcmp(eventName, "userdatachange") == 0)
+      return UserDataChange;
+    else if (std::strcmp(eventName, "framedurationchange") == 0)
+      return FrameDurationChange;
+    else if (std::strcmp(eventName, "tagchange") == 0)
+      return TagChange;
+    else if (std::strcmp(eventName, "tagrename") == 0)
+      return TagRename;
     else if (std::strcmp(eventName, "beforesave") == 0)
       return BeforeSave;
     else if (std::strcmp(eventName, "save") == 0)
@@ -433,6 +450,38 @@ public:
       // As this is an unique_ptr, here we are calling ~SpriteEvents()
       g_spriteEvents.erase(it);
     }
+  }
+
+  void onSpriteSizeChanged(DocEvent& ev) override
+  {
+    // Comes from a job so it needs to be queued for Lua/UI work
+    ui::execute_from_ui_thread([this] { call(SizeChange); });
+  };
+
+  void onUserDataChange(DocEvent& ev) override { call(UserDataChange); }
+
+  void onFrameDurationChanged(DocEvent& ev) override
+  {
+    call(FrameDurationChange,
+         {
+           { "frame", ev.frame() }
+    });
+  }
+
+  void onTagChange(DocEvent& ev) override
+  {
+    call(TagChange,
+         {
+           { "tag", ev.tag() }
+    });
+  };
+
+  void onTagRename(DocEvent& ev) override
+  {
+    call(TagRename,
+         {
+           { "tag", ev.tag() }
+    });
   }
 
   void onBeforeSave(DocEvent& ev) override { call(BeforeSave); }

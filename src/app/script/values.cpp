@@ -15,10 +15,10 @@
 #include "app/script/values.h"
 #include "app/site.h"
 #include "app/tools/dynamics.h"
-#include "doc/frame.h"
 #include "doc/layer.h"
 #include "doc/remap.h"
 #include "doc/sprite.h"
+#include "doc/tag.h"
 
 #include <any>
 #include <cstddef>
@@ -224,6 +224,8 @@ void push_value_to_lua(lua_State* L, const std::any& value)
   else if (auto v = std::any_cast<doc::Sprite*>(&value))
     push_docobj(L, *v);
   else if (auto v = std::any_cast<doc::Layer*>(&value))
+    push_docobj(L, *v);
+  else if (auto v = std::any_cast<doc::Tag*>(&value))
     push_docobj(L, *v);
   else if (auto v = std::any_cast<const Params>(&value)) {
     push_value_to_lua(L, *v);

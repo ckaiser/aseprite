@@ -43,6 +43,9 @@ void SetSpriteSize::onUndo()
 
 void SetSpriteSize::onFireNotifications()
 {
+  if (m_oldHeight == m_newHeight && m_oldWidth == m_newWidth)
+    return;
+
   Sprite* sprite = this->sprite();
   Doc* doc = static_cast<Doc*>(sprite->document());
   DocEvent ev(doc);
