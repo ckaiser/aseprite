@@ -312,7 +312,7 @@ Engine::Engine(const std::string& extensionName)
   , m_returnCode(0)
   , m_objectTracker(0)
 {
-  L = lua_newstate(tracking_allocator, &m_tracker);
+  L = lua_newstate(tracking_allocator, &m_tracker, luaL_makeseed(nullptr));
 
 #if _DEBUG
   const int top = lua_gettop(L);
